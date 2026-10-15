@@ -175,23 +175,23 @@ During `decision`, `PublicGameSnapshot` omits all option counts. During `reveal`
 **Interfaces:**
 - Produces: a go/no-go record before dependencies or application code are created
 
-- [ ] **Step 1: Verify the current official platform limits without authenticating**
+- [x] **Step 1: Verify the current official platform limits without authenticating**
 
 Record links, retrieval date, and exact current values from official Cloudflare documentation. As of planning on 2026-10-15, the free plan supports SQLite-backed Durable Objects, 100,000 Durable Object requests/day, 13,000 GB-s/day, 5 GB account storage, hibernating WebSockets, and 100 Durable Object classes. Also record the current Worker free CPU limit and the separate Durable Object per-invocation CPU limit; do not assume they are the same.
 
-- [ ] **Step 2: Validate the architecture against those limits**
+- [x] **Step 2: Validate the architecture against those limits**
 
 Document that password derivation executes inside the Durable Object invocation rather than the 10 ms free Worker entry request; the entry Worker only parses, bounds, and forwards the request. Estimate a 15-minute eight-player game at under 2,000 WebSocket/HTTP/alarm operations, so at least 50 such worst-case sessions fit below the published 100,000-request daily allowance before other traffic.
 
-- [ ] **Step 3: Benchmark password derivation locally before freezing it**
+- [x] **Step 3: Benchmark password derivation locally before freezing it**
 
 Run a Node Web Crypto benchmark for PBKDF2-SHA-256 at 100,000 iterations across 20 samples. Record median and p95. The gate passes when p95 is below 250 ms; otherwise reduce to 60,000 iterations and repeat, while retaining the five-attempt/60-second rate limiter. Task 3 must use the recorded iteration count verbatim.
 
-- [ ] **Step 4: Decide go/no-go**
+- [x] **Step 4: Decide go/no-go**
 
 Proceed only if current official docs still show Durable Objects on the free plan and the benchmark passes. If either fails, stop planning execution and revise the backend target with the user; do not silently add a paid service.
 
-- [ ] **Step 5: Commit the preflight record**
+- [x] **Step 5: Commit the preflight record**
 
 ```bash
 git init
@@ -337,7 +337,7 @@ git commit -m "chore: scaffold full-stack game runtime"
 - Produces: `applyOutcome(state, outcome, random): PrivateRoomState`
 - Produces: `advancePhase(state, now, random): PrivateRoomState`
 
-- [ ] **Step 1: Write protocol tests that protect validation and vote privacy**
+- [x] **Step 1: Write protocol tests that protect validation and vote privacy**
 
 Test these exact cases:
 
@@ -356,7 +356,7 @@ Run: `npm run test -- tests/shared/protocol.test.ts`
 
 Expected: FAIL because schemas are absent.
 
-- [ ] **Step 2: Define strict domain types and Zod schemas**
+- [x] **Step 2: Define strict domain types and Zod schemas**
 
 Define `Player`, `CharacterDefinition`, `CharacterState`, `Resources`, `DecisionCard`, `DecisionOption`, `Outcome`, `PrivateRoomState`, `PublicGameSnapshot`, `ClientCommand`, `ServerEvent`, and the four shared HTTP contracts shown above. Keep `player.displayName` separate from `character.displayName` and represent a lobby claim with `player.characterId`. Every object schema uses `.strict()`. IDs are bounded printable strings; timestamps are non-negative integers; resource values are integers `0..100`; arrays have explicit maximum lengths.
 
@@ -364,7 +364,7 @@ Define `Player`, `CharacterDefinition`, `CharacterState`, `Resources`, `Decision
 
 Define eight logical test characters with stable IDs, neutral temporary names, and distinct UI tint accents. They may all reference the same optimized Daniel GLB during development, but their claims and game states remain independent. Replace names/models through the character manifest later without changing player or protocol IDs.
 
-- [ ] **Step 3: Write deterministic rules tests**
+- [x] **Step 3: Write deterministic rules tests**
 
 Cover these boundaries with a sequence-based fake random source:
 
@@ -383,7 +383,7 @@ Run: `npm run test -- tests/shared/rules.test.ts`
 
 Expected: FAIL because the rules functions are absent.
 
-- [ ] **Step 4: Implement the random boundary and pure transition functions**
+- [x] **Step 4: Implement the random boundary and pure transition functions**
 
 Use this interface everywhere randomness is needed:
 
@@ -399,7 +399,7 @@ export const cryptoRandom: RandomSource = {
 
 Reject an empty option/outcome list. Weighted selection treats weights as positive integers and uses cumulative half-open ranges. State transitions are pure: clone changed records, increment `revision` once per accepted transition, and never read wall-clock time internally; pass `now` as an argument.
 
-- [ ] **Step 5: Add the exact ten-card initial content deck**
+- [x] **Step 5: Add the exact ten-card initial content deck**
 
 Create cards with stable IDs and three options each:
 
@@ -418,7 +418,7 @@ Each option has two or three outcomes whose integer weights sum to 100. Every ca
 
 Store interface labels and authored English text in `src/shared/content/strings.en.ts` rather than scattering literals through components. Keep the ten generic workplace-survival cards deployable; approved private jokes can replace individual strings later without changing IDs or rule data.
 
-- [ ] **Step 6: Pass shared tests and commit the contracts**
+- [x] **Step 6: Pass shared tests and commit the contracts**
 
 Run: `npm run test -- tests/shared`
 
