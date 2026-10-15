@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+dist/
+.cloudflare/
+coverage/
+playwright-report/
+test-results/
+*.local
+
