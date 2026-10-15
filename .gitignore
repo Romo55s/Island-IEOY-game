@@ -6,4 +6,6 @@ coverage/
 playwright-report/
 test-results/
 *.local
+.env*
+.dev.vars*
 

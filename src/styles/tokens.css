@@ -1,0 +1,13 @@
+:root {
+  --color-ink: #101915;
+  --color-forest: #1d3329;
+  --color-paper: #d8cfad;
+  --color-warning: #f2a93b;
+  --color-signal: #db4f3d;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --border-hard: 2px solid var(--color-ink);
+  --shadow-hard: 6px 6px 0 rgb(0 0 0 / 45%);
+}

@@ -216,7 +216,7 @@ git commit -m "docs: verify cloudflare free-tier feasibility"
 - Produces: `npm run dev:lan` for trusted same-Wi-Fi testing against the developer laptop
 - Produces: a Worker environment type containing `GAME_ROOM: DurableObjectNamespace<GameRoom>`
 
-- [ ] **Step 1: Initialize npm and install the locked runtime dependencies**
+- [x] **Step 1: Initialize npm and install the locked runtime dependencies**
 
 Run:
 
@@ -229,7 +229,7 @@ npx playwright install chromium
 
 Expected: `package-lock.json` exists and every dependency is recorded with a concrete resolved version.
 
-- [ ] **Step 2: Add scripts and strict TypeScript/Vite/Worker configuration**
+- [x] **Step 2: Add scripts and strict TypeScript/Vite/Worker configuration**
 
 Set the scripts to:
 
@@ -243,7 +243,7 @@ Set the scripts to:
   "test": "vitest run --config vitest.config.ts",
   "test:worker": "vitest run --config vitest.worker.config.ts --max-workers=1 --no-isolate",
   "test:e2e": "playwright test",
-  "check:bundle": "node scripts/check-deploy-bundle.mjs dist",
+  "check:bundle": "node scripts/check-deploy-bundle.mjs .cloudflare/output/v0",
   "check": "npm run typecheck && npm run test && npm run test:worker && npm run build && npm run check:bundle"
 }
 ```
@@ -252,7 +252,7 @@ Set `"type": "module"` and require Node.js `>=22.18` in `package.json`. Configur
 
 In `vite.config.ts`, keep `server.host` on `127.0.0.1` by default. Use strict port `5174` because port `5173` is already occupied by the user's separate long-running Vite project and must not be disturbed. When `IEOY_LAN_DEV=1`, bind to `0.0.0.0` on the same port and print both the loopback and LAN URLs. Derive API, WebSocket, and invitation origins from `window.location.origin`; never hardcode `localhost`. LAN mode is opt-in because it exposes the local game to the trusted network, and README instructions must mention the operating-system firewall prompt and that it is not intended for public Wi-Fi or internet exposure.
 
-- [ ] **Step 3: Write failing smoke tests for the browser and Worker**
+- [x] **Step 3: Write failing smoke tests for the browser and Worker**
 
 ```ts
 // tests/shared/smoke.test.ts
@@ -291,11 +291,11 @@ Run: `npm run test && npm run test:worker`
 
 Expected: FAIL because the source constants, Worker route, and test configurations do not exist.
 
-- [ ] **Step 4: Add the minimal React shell and Worker health route**
+- [x] **Step 4: Add the minimal React shell and Worker health route**
 
 Create `APP_NAME`, render it in `App`, and return JSON `{ ok: true }` only for `GET /api/health`. All other API requests return a JSON 404; PartyServer routing will be added in Task 3. Add the first bundle-check implementation: it requires the supplied build directory to exist and rejects `.env`, `.dev.vars`, `asset-intake`, `.fbx`, `.blend`, `.psd`, `.tif`, and `.heic` paths. Task 11 expands the same file with content scanning.
 
-- [ ] **Step 5: Generate Worker types and pass the foundation checks**
+- [x] **Step 5: Generate Worker types and pass the foundation checks**
 
 Run:
 
@@ -309,7 +309,7 @@ npm run build
 
 Expected: all commands exit 0; the build emits SPA assets and Worker output.
 
-- [ ] **Step 6: Commit the foundation**
+- [x] **Step 6: Commit the foundation**
 
 ```bash
 git add package.json package-lock.json index.html src worker tests scripts/check-deploy-bundle.mjs vite.config.ts vitest.config.ts vitest.worker.config.ts tsconfig.json tsconfig.app.json tsconfig.worker.json cloudflare.config.ts .gitignore

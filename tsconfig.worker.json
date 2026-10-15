@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"],
+    "skipLibCheck": true
+  },
+  "include": ["worker", "src/shared", "tests/worker", ".cloudflare/types", "cloudflare.config.ts", "vitest.worker.config.ts"]
+}

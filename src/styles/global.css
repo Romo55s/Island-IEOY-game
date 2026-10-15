@@ -1,0 +1,51 @@
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--color-ink);
+  background:
+    linear-gradient(rgb(11 19 16 / 42%), rgb(11 19 16 / 78%)),
+    repeating-linear-gradient(0deg, #2c4a37 0 3px, #294231 3px 6px);
+}
+
+.app-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: var(--space-6);
+}
+
+.title-card {
+  width: min(680px, 100%);
+  padding: clamp(24px, 6vw, 56px);
+  background: var(--color-paper);
+  border: var(--border-hard);
+  box-shadow: var(--shadow-hard);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+}
+
+.eyebrow {
+  margin-bottom: var(--space-4);
+  color: #8f2e28;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 14ch;
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-size: clamp(2.6rem, 9vw, 6.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.status-copy {
+  max-width: 52ch;
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: var(--border-hard);
+  line-height: 1.5;
+}
