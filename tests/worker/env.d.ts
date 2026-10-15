@@ -1,3 +1,2 @@
-declare module "cloudflare:workers" {
-  interface ProvidedEnv extends Env {}
-}
+/// <reference types="@cloudflare/vitest-plugin/types" />
+/// <reference path="../../.cloudflare/types/index.d.ts" />

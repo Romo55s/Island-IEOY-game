@@ -8,6 +8,7 @@ export default defineConfig({
       miniflare: {
         durableObjects: { GAME_ROOM: "GameRoom" },
       },
+      remoteBindings: false,
     }),
   ],
   test: {

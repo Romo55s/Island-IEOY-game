@@ -8,7 +8,7 @@ export default defineConfig({
     entrypoint,
     assets: {
       notFoundHandling: "single-page-application",
-      runWorkerFirst: ["/api/*", "/party/*"],
+      runWorkerFirst: ["/api/*", "/parties/*"],
     },
     exports: {
       GameRoom: exports.durableObject({ storage: "sqlite" }),

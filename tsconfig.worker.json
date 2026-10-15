@@ -12,7 +12,7 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types"],
+    "types": ["@cloudflare/vitest-plugin/types"],
     "skipLibCheck": true
   },
   "include": ["worker", "src/shared", "tests/worker", ".cloudflare/types", "cloudflare.config.ts", "vitest.worker.config.ts"]
