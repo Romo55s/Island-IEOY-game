@@ -2,6 +2,7 @@ export const APP_NAME = "Island of Extremely Questionable Judgment";
 export const PROTOCOL_VERSION = 1 as const;
 
 export type GamePhase = "lobby" | "intro" | "decision" | "reveal" | "ending" | "expired";
+export type EndingId = "rescued-inexplicably" | "alive-technically" | "ghost-committee" | "island-management";
 export type PlayerStatus = "alive" | "ghost";
 export type ResourceKey = "food" | "health" | "morale" | "shelter";
 
@@ -67,6 +68,11 @@ export interface PrivateRoomState {
   createdAt: number;
   lastActivityAt: number;
   hostPlayerId: string;
+  phaseStartedAt: number | null;
+  phaseDeadlineAt: number | null;
+  votingOpensAt: number | null;
+  earliestResolveAt: number | null;
+  /** @deprecated Use phaseDeadlineAt. Retained while the first client is migrated. */
   phaseEndsAt: number | null;
   players: Record<string, Player>;
   characters: Record<string, CharacterState>;
@@ -79,6 +85,7 @@ export interface PrivateRoomState {
   eventHistory: EventEntry[];
   resolvedOptionCounts?: Record<string, number>;
   winningOptionId?: string;
+  endingId?: EndingId;
 }
 
 export interface PublicDecision {
@@ -92,6 +99,11 @@ export interface PublicGameSnapshot {
   revision: number;
   phase: GamePhase;
   hostPlayerId: string;
+  phaseStartedAt: number | null;
+  phaseDeadlineAt: number | null;
+  votingOpensAt: number | null;
+  earliestResolveAt: number | null;
+  /** @deprecated Use phaseDeadlineAt. Retained while the first client is migrated. */
   phaseEndsAt: number | null;
   players: Player[];
   characters: CharacterState[];
@@ -105,6 +117,7 @@ export interface PublicGameSnapshot {
   viewer: { playerId: string; hasVoted: boolean };
   resolvedOptionCounts?: Record<string, number>;
   winningOptionId?: string;
+  endingId?: EndingId;
 }
 
 const sharedModelUrl = "/models/characters/daniel.glb";

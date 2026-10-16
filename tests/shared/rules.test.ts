@@ -20,7 +20,8 @@ describe("deterministic rules", () => {
   });
   it("turns an eliminated character into a voting ghost", () => {
     const state: PrivateRoomState = {
-      code: "ABC234", revision: 4, phase: "reveal", createdAt: 0, lastActivityAt: 0, hostPlayerId: "p_one", phaseEndsAt: 20_000,
+      code: "ABC234", revision: 4, phase: "reveal", createdAt: 0, lastActivityAt: 0, hostPlayerId: "p_one", phaseStartedAt: 0,
+      phaseDeadlineAt: 20_000, votingOpensAt: null, earliestResolveAt: null, phaseEndsAt: 20_000,
       players: { p_one: { id: "p_one", displayName: "One", status: "alive", characterId: "cast-ember", ready: true, connected: true, joinedAt: 0 } },
       characters: { "cast-ember": { characterId: "cast-ember", status: "alive" } }, resources: { food: 50, health: 50, morale: 50, shelter: 50 },
       deck: [], decisionIndex: 0, currentDecisionId: null, votesByPlayer: {}, eligibleVoterIds: ["p_one"], eventHistory: [],
