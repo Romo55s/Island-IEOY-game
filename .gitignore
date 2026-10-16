@@ -9,3 +9,6 @@ test-results/
 .env*
 .dev.vars*
 
+# Unapproved character sources belong here until intake is complete.
+asset-intake/characters/
+

@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "textureBudget": {
+    "minDimensionPx": 64,
+    "maxDimensionPx": 256,
+    "maxModelBytes": 2097152
+  },
+  "characters": [
+    {
+      "id": "daniel",
+      "displayName": "Daniel",
+      "url": "/models/characters/daniel.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_02",
+        "Panic": "afraid",
+        "Hurt": "hit_to_stomach",
+        "Death": "fall",
+        "OnFire": "fire",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "idle",
+        "agree",
+        "cheer",
+        "laugh_02",
+        "afraid",
+        "hit_to_stomach",
+        "fall",
+        "fire"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "tintable": true,
+        "textureMaxPx": 256
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false
+    }
+  ]
+}

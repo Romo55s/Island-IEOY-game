@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "fallback": "silent",
+  "cues": [
+    {
+      "id": "ambient-island",
+      "url": "/audio/cues/ambient-island.ogg",
+      "category": "music",
+      "license": {
+        "id": "LicenseRef-UndistributedPlaceholder",
+        "author": "Not yet supplied",
+        "sourceUrl": null,
+        "attribution": "No media file is distributed for this disabled cue."
+      },
+      "loop": true,
+      "defaultGain": 0.18,
+      "maxFileBytes": 2097152,
+      "available": false
+    },
+    {
+      "id": "crash-impact",
+      "url": "/audio/cues/crash-impact.ogg",
+      "category": "effects",
+      "license": {
+        "id": "LicenseRef-UndistributedPlaceholder",
+        "author": "Not yet supplied",
+        "sourceUrl": null,
+        "attribution": "No media file is distributed for this disabled cue."
+      },
+      "loop": false,
+      "defaultGain": 0.7,
+      "maxFileBytes": 524288,
+      "available": false
+    },
+    {
+      "id": "vote-submit",
+      "url": "/audio/cues/vote-submit.ogg",
+      "category": "effects",
+      "license": {
+        "id": "LicenseRef-UndistributedPlaceholder",
+        "author": "Not yet supplied",
+        "sourceUrl": null,
+        "attribution": "No media file is distributed for this disabled cue."
+      },
+      "loop": false,
+      "defaultGain": 0.45,
+      "maxFileBytes": 262144,
+      "available": false
+    },
+    {
+      "id": "consequence-reveal",
+      "url": "/audio/cues/consequence-reveal.ogg",
+      "category": "effects",
+      "license": {
+        "id": "LicenseRef-UndistributedPlaceholder",
+        "author": "Not yet supplied",
+        "sourceUrl": null,
+        "attribution": "No media file is distributed for this disabled cue."
+      },
+      "loop": false,
+      "defaultGain": 0.55,
+      "maxFileBytes": 262144,
+      "available": false
+    },
+    {
+      "id": "character-fire",
+      "url": "/audio/cues/character-fire.ogg",
+      "category": "effects",
+      "license": {
+        "id": "LicenseRef-UndistributedPlaceholder",
+        "author": "Not yet supplied",
+        "sourceUrl": null,
+        "attribution": "No media file is distributed for this disabled cue."
+      },
+      "loop": false,
+      "defaultGain": 0.55,
+      "maxFileBytes": 524288,
+      "available": false
+    },
+    {
+      "id": "ghost-arrival",
+      "url": "/audio/cues/ghost-arrival.ogg",
+      "category": "effects",
+      "license": {
+        "id": "LicenseRef-UndistributedPlaceholder",
+        "author": "Not yet supplied",
+        "sourceUrl": null,
+        "attribution": "No media file is distributed for this disabled cue."
+      },
+      "loop": false,
+      "defaultGain": 0.5,
+      "maxFileBytes": 262144,
+      "available": false
+    }
+  ]
+}
