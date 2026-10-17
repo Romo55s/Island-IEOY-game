@@ -62,7 +62,11 @@ function MovingCrewMember({ member, index, offset, nameTagOffset, zoneId, tint, 
   };
   useEffect(() => {
     if (lastZone.current === zoneId) return;
-    const route = findIslandRoute(lastZone.current, zoneId).slice(1);
+    const wasInTransit = routePoints.current.length >= 2;
+    const completeRoute = findIslandRoute(lastZone.current, zoneId);
+    // Mid-walk retargeting must still pass through the previous destination
+    // before taking its next authored trail; otherwise the crew cuts the corner.
+    const route = wasInTransit ? completeRoute : completeRoute.slice(1);
     const object = group.current;
     if (!object || route.length === 0) {
       routePoints.current = [];
