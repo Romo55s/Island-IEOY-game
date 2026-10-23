@@ -41,7 +41,7 @@ function waitForEvent(socket: WebSocket, predicate: (event: ServerEvent) => bool
 }
 
 function command(socket: WebSocket, commandId: string, type: string, payload: unknown): void {
-  socket.send(JSON.stringify({ protocolVersion: 1, commandId, type, payload }));
+  socket.send(JSON.stringify({ protocolVersion: 4, commandId, type, payload }));
 }
 
 afterEach(() => {
@@ -63,10 +63,10 @@ describe("multiplayer lobby", () => {
     const boSocket = await connect(bo);
     await waitForEvent(boSocket, (event) => event.type === "session.welcome");
 
-    command(anaSocket, "ana-character", "character.select", { characterId: "cast-ember" });
-    await waitForEvent(anaSocket, (event) => event.type === "state.snapshot" && event.payload.players.some((player) => player.id === ana.playerId && player.characterId === "cast-ember"));
-    command(boSocket, "bo-character", "character.select", { characterId: "cast-moss" });
-    await waitForEvent(boSocket, (event) => event.type === "state.snapshot" && event.payload.players.some((player) => player.id === bo.playerId && player.characterId === "cast-moss"));
+    command(anaSocket, "ana-character", "character.select", { characterId: "cast-daniel" });
+    await waitForEvent(anaSocket, (event) => event.type === "state.snapshot" && event.payload.players.some((player) => player.id === ana.playerId && player.characterId === "cast-daniel"));
+    command(boSocket, "bo-character", "character.select", { characterId: "cast-samantha" });
+    await waitForEvent(boSocket, (event) => event.type === "state.snapshot" && event.payload.players.some((player) => player.id === bo.playerId && player.characterId === "cast-samantha"));
 
     command(anaSocket, "ana-ready", "room.set-ready", { ready: true });
     await waitForEvent(anaSocket, (event) => event.type === "state.snapshot" && event.payload.players.find((player) => player.id === ana.playerId)?.ready === true);
@@ -87,14 +87,14 @@ describe("multiplayer lobby", () => {
     const ana = await createdResponse.json<AdmissionResponse>();
     const anaSocket = await connect(ana);
     await waitForEvent(anaSocket, (event) => event.type === "session.welcome");
-    command(anaSocket, "ana-character", "character.select", { characterId: "cast-ember" });
-    await waitForEvent(anaSocket, (event) => event.type === "state.snapshot" && event.payload.players.some((player) => player.characterId === "cast-ember"));
+    command(anaSocket, "ana-character", "character.select", { characterId: "cast-daniel" });
+    await waitForEvent(anaSocket, (event) => event.type === "state.snapshot" && event.payload.players.some((player) => player.characterId === "cast-daniel"));
 
     const joinedResponse = await api(`/api/sessions/${ana.code}/tickets`, { mode: "join", displayName: "Bo", password: "isla" });
     const bo = await joinedResponse.json<AdmissionResponse>();
     const boSocket = await connect(bo);
     await waitForEvent(boSocket, (event) => event.type === "session.welcome");
-    command(boSocket, "duplicate", "character.select", { characterId: "cast-ember" });
+    command(boSocket, "duplicate", "character.select", { characterId: "cast-daniel" });
     const rejected = await waitForEvent(boSocket, (event) => event.type === "command.rejected");
     expect(rejected).toMatchObject({ type: "command.rejected", payload: { commandId: "duplicate", code: "CHARACTER_TAKEN" } });
   });

@@ -8,6 +8,31 @@ function card(id: keyof typeof decisionCopy, groups: [Draft[], Draft[], Draft[]]
   return { id, prompt: copy.prompt, options: copy.options.map((label, index) => { const optionId = `${id}-option-${index + 1}`; return { id: optionId, label, outcomes: makeOutcomes(optionId, groups[index]!) }; }) };
 }
 
+function caveAssignmentCard(): DecisionCard {
+  const result = card("cave-of-bad-ideas", [
+    [[70, "The cave contains dry firewood and excellent echoes.", { shelter: 8, morale: 5 }], [30, "The echoes turn out to be bats with opinions.", { health: -7 }]],
+    [[60, "The volunteer returns with canned peaches.", { food: 12 }], [30, "The volunteer returns with a deeply unhelpful map.", { morale: -6 }], [10, "Only the volunteer's meeting notes return.", { morale: -10 }, true]],
+    [[80, "The agenda is so dense that even danger stays outside.", { shelter: 7 }], [20, "Rain dissolves the agenda and several illusions.", { shelter: -6 }]],
+  ]);
+  const assigned = result.options[1]!;
+  assigned.outcomes = assigned.outcomes.map((outcome) => ({ ...outcome, effectTarget: "assigned-actor" }));
+  assigned.assignment = {
+    roleLabel: "enter the humming cave",
+    actorSelection: "group-nominated-living",
+    refusal: {
+      successChanceBps: 3_500,
+      qualitativeRisk: "risky",
+      successOutcomes: [{
+        id: "cave-of-bad-ideas-option-2-refusal-success",
+        weight: 1,
+        text: "The volunteer refuses, so the crew seals the humming entrance with shelter panels and wounded pride.",
+        resourceDeltas: { shelter: -8, morale: -5 },
+      }],
+    },
+  };
+  return result;
+}
+
 export const DECISION_CARDS: DecisionCard[] = [
   card("wreckage-lighter", [
     [[55, "The lighter works. Campfire morale briefly becomes unbearable.", { morale: 10, shelter: 4 }], [35, "It is damp but salvageable.", { morale: -4 }], [10, "A sleeve catches fire; one survivor joins the smoky ghost department.", { health: -12 }, true]],
@@ -30,8 +55,8 @@ export const DECISION_CARDS: DecisionCard[] = [
     [[85, "Restraint preserves everyone's organs.", { health: 5 }], [15, "Hunger files a formal complaint.", { food: -6, morale: -3 }]],
   ]),
   card("shelter-politics", [
-    [[70, "Ocean views dramatically improve morale.", { morale: 8, shelter: 5 }], [30, "The tide attends without an invitation.", { shelter: -12 }]],
-    [[70, "The cliffs block the wind beautifully.", { shelter: 12 }], [30, "Falling pebbles begin their own stand-up set.", { health: -6 }]],
+    [[70, "The beach shelter goes up with an ocean view; morale rises.", { morale: 8, shelter: 5 }], [30, "The tide reaches the unfinished beach shelter and tears away its supports.", { shelter: -12 }]],
+    [[70, "The cliffside shelter blocks the wind beautifully.", { shelter: 12 }], [30, "Falling pebbles batter the unfinished cliffside shelter.", { health: -6 }]],
     [[75, "The fuselage is ugly, dry, and magnificent.", { shelter: 14 }], [25, "Every loose panel squeaks all night.", { morale: -7 }]],
   ]),
   card("boar-diplomacy", [
@@ -49,11 +74,7 @@ export const DECISION_CARDS: DecisionCard[] = [
     [[75, "Night makes the signal impossible to miss.", { morale: 14 }], [25, "Rain makes the flare impossible to light.", { morale: -10 }]],
     [[55, "Against precedent, the launch is perfect.", { morale: 16 }], [35, "The flare draws a fiery question mark.", { shelter: -9 }], [10, "The safety briefing gains a ghost co-presenter.", { health: -10 }, true]],
   ]),
-  card("cave-of-bad-ideas", [
-    [[70, "The cave contains dry firewood and excellent echoes.", { shelter: 8, morale: 5 }], [30, "The echoes turn out to be bats with opinions.", { health: -7 }]],
-    [[60, "The volunteer returns with canned peaches.", { food: 12 }], [30, "The volunteer returns with a deeply unhelpful map.", { morale: -6 }], [10, "Only the volunteer's meeting notes return.", { morale: -10 }, true]],
-    [[80, "The agenda is so dense that even danger stays outside.", { shelter: 7 }], [20, "Rain dissolves the agenda and several illusions.", { shelter: -6 }]],
-  ]),
+  caveAssignmentCard(),
   card("raft-committee", [
     [[55, "The raft floats for an inspiring seven minutes.", { morale: 10 }], [45, "The raft achieves immediate submarine status.", { food: -7, morale: -8 }]],
     [[85, "Reinforcements create a sturdy escape platform.", { shelter: 8, morale: 8 }], [15, "The extra rope ties the raft to a tree.", { morale: -4 }]],

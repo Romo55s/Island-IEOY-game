@@ -1,5 +1,6 @@
 import type { ApiErrorCode } from "../../src/shared/protocol";
 import type { PrivateRoomState } from "../../src/shared/domain";
+import { initialMotorboatRoute } from "../../src/shared/rules/motorboat";
 
 export const ROOM_STORAGE_KEY = "room:v1";
 export const SESSION_TTL_MS = 7_200_000;
@@ -38,7 +39,49 @@ export type RoomResult<T> = { ok: true; value: T } | RoomErrorResult;
 type StorageReaderWriter = Pick<DurableObjectStorage, "get" | "put">;
 
 export async function loadRoom(storage: StorageReaderWriter): Promise<PersistedRoomState | null> {
-  return (await storage.get<PersistedRoomState>(ROOM_STORAGE_KEY)) ?? null;
+  const room = (await storage.get<PersistedRoomState>(ROOM_STORAGE_KEY)) ?? null;
+  return room ? normalizeLoadedRoom(room) : null;
+}
+
+export function normalizeLoadedRoom(room: PersistedRoomState): PersistedRoomState {
+  const legacyEnding = room.endingId && !["group-escape", "solo-escape", "no-survivors"].includes(room.endingId as string);
+  const livingCharacterIds = Object.values(room.characters).filter(({ status }) => status === "alive").map(({ characterId }) => characterId).sort();
+  const deadCharacterIds = Object.values(room.characters).filter(({ status }) => status === "ghost").map(({ characterId }) => characterId).sort();
+  // Old builds did not store enough ending detail to reconstruct the original
+  // epilogue. Preserve a coherent terminal state instead of falsely declaring
+  // living players dead when that archived session is opened on protocol v4.
+  const legacyEscapeResult = livingCharacterIds.length > 0
+    ? {
+      type: "group-escape" as const,
+      escapedCharacterIds: livingCharacterIds,
+      strandedCharacterIds: [],
+      deadCharacterIds,
+      cause: "group-launch" as const,
+      epilogueId: "motorboat-group-aftermath-v1" as const,
+    }
+    : {
+      type: "no-survivors" as const,
+      escapedCharacterIds: [],
+      strandedCharacterIds: [],
+      deadCharacterIds,
+      cause: "all-dead" as const,
+      epilogueId: "motorboat-all-dead-aftermath-v1" as const,
+    };
+  return {
+    ...room,
+    assignmentNominationsByPlayer: room.assignmentNominationsByPlayer ?? {},
+    resolutionSequence: room.resolutionSequence ?? 0,
+    ...(room.phase !== "lobby" ? { motorboat: room.motorboat ?? initialMotorboatRoute() } : {}),
+    ...(legacyEnding ? {
+      endingId: legacyEscapeResult.type,
+      escapeResult: legacyEscapeResult,
+      motorboat: {
+        ...(room.motorboat ?? initialMotorboatRoute()),
+        node: "complete",
+        completion: legacyEscapeResult.type,
+      },
+    } : {}),
+  };
 }
 
 export async function saveRoom(storage: StorageReaderWriter, room: PersistedRoomState): Promise<void> {
@@ -73,13 +116,15 @@ export function newPrivateRoom(input: {
     phaseEndsAt: null,
     players: {},
     characters: {},
-    resources: { food: 50, health: 50, morale: 50, shelter: 50 },
+    resources: { shelter: 50 },
     deck: [],
     decisionIndex: 0,
     currentDecisionId: null,
     votesByPlayer: {},
     eligibleVoterIds: [],
     eventHistory: [],
+    assignmentNominationsByPlayer: {},
+    resolutionSequence: 0,
     passwordSalt: input.passwordSalt,
     passwordDigest: input.passwordDigest,
     tickets: {},

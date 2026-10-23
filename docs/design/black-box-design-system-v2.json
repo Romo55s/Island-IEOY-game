@@ -1,0 +1,136 @@
+{
+  "name": "Black-Box Design System",
+  "version": "2.0.0",
+  "source": {
+    "status": "project copy reconstructed from the approved contract supplied in the project brief",
+    "replaceWithAttachedOriginalWhenAvailable": true
+  },
+  "artDirection": "Late-1990s PlayStation survival-horror. Recovered flight-safety hardware and black-box instrumentation frame the island, rather than a modern web dashboard.",
+  "tokens": {
+    "color": {
+      "metalOuter": "#393731",
+      "metalInner": "#111317",
+      "edgeLight": "#746B5D",
+      "text": "#E8E0C9",
+      "textSubdued": "#B6AC9A",
+      "amber": "#D6AD32",
+      "amberBright": "#E9C64D",
+      "red": "#B4312C"
+    },
+    "typography": {
+      "display": "Silkscreen for short labels and headings only",
+      "body": "IBM Plex Mono for readable body copy, values, forms, and timers",
+      "avoid": "Pixel fonts for long body copy"
+    },
+    "borders": "Square, thin metallic borders with hard shadows and worn-metal texture; no rounded SaaS surfaces.",
+    "motion": {
+      "durationMs": [80, 160],
+      "easing": ["steps(2,end)", "short linear"],
+      "avoid": ["spring", "smooth floating easing", "excessive flashing"]
+    }
+  },
+  "layout": {
+    "gameplay": {
+      "columns": "left roster 32%, central gameplay 47%, right utilities 21% (adapt to content and min widths)",
+      "left": ["manifest", "survivor claims"],
+      "center": ["resource strip", "connection warning", "vote panel", "paper report"],
+      "right": ["settings", "token guide DEV-ONLY (remove from production)", "aftermath when active"],
+      "rules": [
+        "Show incident report when result phase is active, not necessarily simultaneously with voting.",
+        "Aftermath is an end-state; do not permanently reserve layout for it during normal play.",
+        "Visual reference depicts multiple states together for demonstration; runtime UI follows game phase.",
+        "The UI ELEMENTS / TOKENS panel is design-documentation only, not a player-facing feature."
+      ]
+    },
+    "responsive": {
+      "wide": "desktop 3-zone gameplay; lobby 2-zone",
+      "medium": "gameplay 2-zone with utilities moved below; lobby survivor grid adapts",
+      "small": "single-column reading order; panels stack; survivor cards 1 or 2 columns by available width; decision choices stack when needed",
+      "overflow": "avoid clipping long names, settings, modal/timer and critical actions",
+      "minTouchTargetPx": 44
+    }
+  },
+  "interactions": {
+    "inputs": ["mouse", "keyboard"],
+    "keyboard": {
+      "tab": "cycle interactive controls",
+      "enterSpace": "activate focused controls",
+      "escape": "back/close if existing functionality provides it",
+      "arrowKeys": "optional roving navigation for survivor grid; do not override form fields"
+    },
+    "accessibility": [
+      "Focus visible on all actionable controls",
+      "Maintain contrast and readable body text",
+      "Provide semantic button/slider labels",
+      "Render timers and status changes with appropriate accessible updates",
+      "Respect prefers-reduced-motion"
+    ]
+  },
+  "assetPolicy": {
+    "backgrounds": {
+      "sharedEnvironment": "Same crash site and color grade as original lobby",
+      "format": "webp/png with suitable compressed fallback",
+      "layering": ["scene image", "subtle dark overlay beneath panels", "game UI", "optional global CRT overlay with pointer-events none"],
+      "noTextOrUIInSourceBackground": true
+    },
+    "portraits": {
+      "preferred": "Existing approved low-poly character models or renders",
+      "consistentFraming": "Same camera angle and crop across roster/selection",
+      "noInventedCharacterIdentities": true
+    },
+    "textures": {
+      "preferred": "Small tileable scratched-metal/noise maps or CSS layered gradients",
+      "avoid": "Heavy full-resolution unique images for every panel"
+    }
+  },
+  "sharedComponents": [
+    "GamePageShell",
+    "GameBackground",
+    "MetalPanel",
+    "PixelHeading",
+    "RetroButton",
+    "RetroInput",
+    "StatusBadge",
+    "SurvivorCard",
+    "ManifestList",
+    "ResourceMeter",
+    "AlertBanner",
+    "IncidentReport",
+    "GameMenu"
+  ],
+  "nonnegotiables": [
+    "One shared PanelFrame, SurvivorCard, CharacterPortrait, StatusBadge and ActionButton library across lobby and game.",
+    "Never revert gameplay settings to a purple solid rectangle.",
+    "Never revert incident reports to flat salmon/pink dashboard cards.",
+    "Never use bright beige as default for manifest, survivor cards, resources or choices. Beige is reserved for aged incident paper.",
+    "Keep same flight identity, boarding code, and story-specific language.",
+    "Do not alter networking, game mechanics, resource math, timers, host permissions, or persistence.",
+    "No hardcoded demo player names, status values, vote totals, resource values, or session codes.",
+    "Use game phase to control which components appear; composite mockups are not a single required runtime layout."
+  ],
+  "doNotUse": [
+    "glassmorphism",
+    "rounded SaaS cards",
+    "modern soft shadows",
+    "neon cyberpunk gradients",
+    "generic glossy UI",
+    "large cream surfaces on normal panels",
+    "emoji iconography",
+    "modern pill badges",
+    "body text with aggressive CRT distortion",
+    "unrelated AI portraits"
+  ],
+  "acceptanceChecklist": [
+    "Lobby and gameplay visually look like the same game.",
+    "Every gameplay panel except paper report uses dark worn metal plus nearly-black inset.",
+    "Paper report has aged parchment interior in metal framing.",
+    "Settings has dark metal backing, never a purple rectangle.",
+    "Character selection looks identical across screens and uses actual game art.",
+    "Amber selected/focused states are consistent.",
+    "Network warnings and status badges use shared design tokens.",
+    "Voting is legible at 1080p and preserves live state/timing.",
+    "Background art never contains baked-in UI.",
+    "No gameplay metrics or demo states are hardcoded.",
+    "All controls usable with keyboard and readable with reduced effects."
+  ]
+}

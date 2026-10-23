@@ -1,0 +1,25 @@
+.screen { min-height: 100svh; background: #141a1d; color: var(--paper-bone); }
+.world { position: relative; min-height: 100svh; height: 100svh; overflow: hidden; background: #164a75; }
+.world :global(canvas) { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.topHud { position: absolute; z-index: 2; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: clamp(16px, 3vw, 36px); pointer-events: none; background: transparent; }
+.heading { max-width: 460px; }
+.flight { margin-bottom: 8px; color: var(--vest-yellow); font-size: 11px; letter-spacing: .12em; }
+.heading h1 { font: clamp(18px, 2.5vw, 28px)/1.12 var(--font-display); text-transform: uppercase; text-shadow: 2px 2px #141a1d; }
+.status { display: flex; align-items: center; gap: 12px; font-size: 12px; white-space: nowrap; }
+.bottomHud { position: absolute; z-index: 2; left: clamp(16px, 3vw, 36px); right: clamp(16px, 3vw, 36px); bottom: clamp(22px, 4vh, 42px); display: flex; align-items: flex-end; justify-content: space-between; pointer-events: none; }
+.castNote { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--paper-bone); background: #141a1de8; border-left: 3px solid var(--flare-orange); }
+.castNote strong, .castNote span { display: block; }
+.castNote strong { font-size: 13px; }
+.castNote div span { margin-top: 4px; color: #b6b2a4; font-size: 11px; }
+.signal { width: 9px; height: 9px; background: var(--sea-glass); box-shadow: 0 0 0 3px #68a89a33; }
+.retry { padding: 10px 14px; pointer-events: auto; color: var(--night-canopy); background: var(--vest-yellow); border: 2px solid var(--night-canopy); box-shadow: 3px 3px 0 #141a1d; font-size: 12px; cursor: pointer; }
+.retry:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #141a1d; }
+.edgeMark { position: absolute; right: 14px; bottom: 6px; color: #d9d2bb88; font-size: 8px; letter-spacing: .12em; }
+.loading { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 10px 14px; color: var(--paper-bone); background: #141a1ddf; font-size: 12px; }
+@media (max-width: 650px) {
+  .world { min-height: 100svh; height: 100svh; }
+  .topHud { align-items: flex-start; }
+  .status { flex-direction: column; align-items: flex-end; gap: 6px; }
+  .castNote { padding: 9px 11px; }
+  .edgeMark { display: none; }
+}

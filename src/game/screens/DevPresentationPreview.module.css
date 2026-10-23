@@ -1,0 +1,158 @@
+.preview {
+  min-height: 100vh;
+  padding: clamp(16px, 3vw, 42px);
+  color: var(--paper-bone);
+  background:
+    linear-gradient(90deg, rgb(232 197 71 / 8%) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(rgb(232 197 71 / 5%) 1px, transparent 1px) 0 0 / 28px 28px,
+    radial-gradient(ellipse at 82% 0%, rgb(104 168 154 / 18%), transparent 38%),
+    linear-gradient(145deg, #30293a, var(--night-canopy) 62%);
+}
+
+.masthead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-6);
+  align-items: end;
+  width: min(1280px, 100%);
+  margin: 0 auto clamp(18px, 3vw, 32px);
+  padding-bottom: var(--space-5);
+  border-bottom: 2px solid rgb(217 210 187 / 36%);
+}
+
+.kicker,
+.deckLabel,
+.frameLabel {
+  margin: 0;
+  color: var(--sea-glass);
+  font: 0.62rem var(--font-display);
+  letter-spacing: 0.08em;
+}
+
+.title {
+  max-width: 18ch;
+  margin: 7px 0 0;
+  color: var(--paper-bone);
+  font: clamp(1.65rem, 4vw, 3.25rem) / 1 var(--font-display);
+}
+
+.intro {
+  max-width: 62ch;
+  margin: 12px 0 0;
+  color: rgb(217 210 187 / 82%);
+  line-height: 1.5;
+}
+
+.frame {
+  display: grid;
+  gap: 5px;
+  min-width: 146px;
+  padding: 11px 13px;
+  color: var(--night-canopy);
+  background: var(--vest-yellow);
+  border: 2px solid var(--night-canopy);
+  box-shadow: 4px 4px 0 #080b0c;
+}
+
+.frameLabel { color: #614f1a; }
+.frame strong { font: 0.82rem var(--font-display); }
+
+.routeGrid,
+.previewGrid {
+  display: grid;
+  grid-template-columns: minmax(210px, 250px) minmax(0, 1fr);
+  gap: clamp(16px, 2.4vw, 30px);
+  align-items: start;
+  width: min(1280px, 100%);
+  margin: 0 auto;
+}
+
+.controlDeck {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+  color: var(--paper-bone);
+  background: rgb(20 26 29 / 86%);
+  border: 2px solid rgb(217 210 187 / 72%);
+  box-shadow: 5px 5px 0 #080b0c;
+}
+
+.routeGrid > .controlDeck { position: sticky; top: 16px; }
+
+.deckLabel {
+  color: var(--vest-yellow);
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgb(217 210 187 / 22%);
+}
+
+.field { display: grid; gap: 7px; font-size: 0.82rem; }
+.field > span { color: rgb(217 210 187 / 74%); }
+.field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  color: var(--night-canopy);
+  background: var(--paper-bone);
+  border: 2px solid var(--night-canopy);
+  font: 0.78rem var(--font-body);
+}
+
+.stepper { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.stepper button,
+.actions button {
+  min-height: 42px;
+  padding: 8px 10px;
+  color: var(--night-canopy);
+  background: var(--sea-glass);
+  border: 2px solid var(--night-canopy);
+  box-shadow: 3px 3px 0 #080b0c;
+  font: 0.66rem / 1.2 var(--font-display);
+  cursor: pointer;
+}
+
+.stepper button:last-child,
+.actions button[data-tone="danger"] { background: var(--flare-orange); }
+.actions button[data-tone="reset"] { background: var(--vest-yellow); }
+.stepper button:hover:not(:disabled),
+.actions button:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #080b0c; }
+.stepper button:disabled { cursor: not-allowed; opacity: 0.42; }
+
+.scenarioCopy {
+  margin: 0;
+  padding-top: 12px;
+  color: rgb(217 210 187 / 78%);
+  border-top: 2px solid rgb(217 210 187 / 22%);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.stage { display: grid; gap: 12px; min-width: 0; }
+.stageHeader { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.stageHeader h2 { margin: 0; font: 0.85rem var(--font-display); }
+.stageHeader p { margin: 0; color: rgb(217 210 187 / 70%); font-size: 0.76rem; }
+.sceneFrame { padding: 8px; background: #080b0c; border-left: 4px solid var(--vest-yellow); }
+.sceneFrame :global(section[aria-label="Live island and crew"]) { margin-bottom: 0; }
+
+.eventRail { grid-column: 2; display: grid; gap: 18px; min-width: 0; }
+.eventRail > * { width: min(900px, 100%); }
+
+.actions { display: grid; gap: 8px; }
+.actions button { width: 100%; text-align: left; }
+.encounterStage { grid-column: 2; min-width: 0; }
+
+@media (max-width: 760px) {
+  .masthead,
+  .routeGrid,
+  .previewGrid { grid-template-columns: 1fr; }
+  .masthead { align-items: start; }
+  .frame { width: fit-content; }
+  .routeGrid > .controlDeck { position: static; }
+  .eventRail,
+  .encounterStage { grid-column: 1; }
+  .controlDeck { box-shadow: 3px 3px 0 #080b0c; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepper button,
+  .actions button { transition: none; }
+}

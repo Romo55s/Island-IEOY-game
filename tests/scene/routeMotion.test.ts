@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { advanceRouteMotion, createRouteMotionState, getRouteLength, roundRouteCorners, sampleRoute, type RouteMotionState, type RoutePoint } from "../../src/scene/routeMotion";
+import { advanceRouteMotion, createRouteMotionState, CREW_WALK_SPEED, getRouteLength, roundRouteCorners, sampleRoute, type RouteMotionState, type RoutePoint } from "../../src/scene/routeMotion";
 
 describe("island route motion", () => {
   it("rounds an authored corner while preserving route endpoints", () => {
@@ -31,11 +31,18 @@ describe("island route motion", () => {
       expect(next.distance).toBeGreaterThanOrEqual(state.distance);
       expect(next.distance).toBeLessThanOrEqual(length);
       expect(Number.isFinite(next.speed)).toBe(true);
+      expect(next.speed).toBeLessThanOrEqual(CREW_WALK_SPEED);
       state = next;
     }
     expect(firstStep).toBeGreaterThan(0);
     expect(firstStep).toBeLessThan(0.01);
     expect(state).toEqual({ distance: length, speed: 0 });
+  });
+
+  it("keeps the travel pace within the character walk-cycle range", () => {
+    let state = createRouteMotionState();
+    for (let frame = 0; frame < 180; frame += 1) state = advanceRouteMotion(state, 100, 1 / 60);
+    expect(state.speed).toBeCloseTo(CREW_WALK_SPEED, 1);
   });
 
   it("resets progress and velocity when a destination changes mid-route", () => {

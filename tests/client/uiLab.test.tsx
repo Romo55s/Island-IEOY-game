@@ -34,6 +34,12 @@ describe("UI Lab", () => {
     expect(choices.every((choice) => choice.getAttribute("aria-pressed") === "false")).toBe(true);
   });
 
+  it("shows the confirmed vote state when the synchronized viewer state says the vote was received", () => {
+    render(<DecisionConsole decision={{ id: "d", prompt: "Choose", options: [{ id: "a", label: "A" }, { id: "b", label: "B" }] }} deadline={Date.now() + 20_000} selectedId="a" submitted />);
+    expect(screen.getByRole("button", { name: /A/i })).toHaveAttribute("data-submitted", "true");
+    expect(screen.getByRole("button", { name: /B/i })).toHaveAttribute("data-submitted", "false");
+  });
+
   it("supports number-key voting only for present options", () => {
     const onVote = vi.fn();
     render(<DecisionConsole decision={{ id: "d", prompt: "Choose", options: [{ id: "a", label: "A" }, { id: "b", label: "B" }] }} deadline={Date.now() + 20_000} onVote={onVote} />);

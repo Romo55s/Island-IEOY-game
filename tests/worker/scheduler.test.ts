@@ -42,4 +42,33 @@ describe("room scheduler", () => {
     expect(next.votingOpensAt).toBeNull();
     expect(next.earliestResolveAt).toBeNull();
   });
+
+  it("resolves an assignment response immediately and timeout acceptance at the exact deadline", () => {
+    const makeAssignment = () => {
+      const state = room();
+      state.phase = "assignmentResponse";
+      state.phaseStartedAt = 1_000;
+      state.phaseDeadlineAt = 16_000;
+      state.phaseEndsAt = 16_000;
+      state.currentDecisionId = "cave";
+      state.players = { p_host: { id: "p_host", displayName: "Host", status: "alive", characterId: "cast-daniel", ready: true, connected: true, joinedAt: 0 } };
+      state.characters = { "cast-daniel": { characterId: "cast-daniel", status: "alive", resources: { food: 50, health: 100, morale: 50, water: 50 } } };
+      state.deck = [{ id: "cave", prompt: "Who enters?", options: [{ id: "send", label: "Send", outcomes: [{ id: "entered", text: "Entered.", weight: 1, effectTarget: "assigned-actor", resourceDeltas: { health: -10 } }], assignment: { roleLabel: "enter", actorSelection: "group-nominated-living", refusal: { successChanceBps: 3_500, qualitativeRisk: "risky", successOutcomes: [{ id: "sealed", text: "Sealed.", weight: 1 }] } } }] }];
+      state.resolvedOptionCounts = { send: 1 };
+      state.winningOptionId = "send";
+      state.resolutionSequence = 1;
+      state.pendingAssignment = { id: "assignment-ABC234-1", decisionId: "cave", optionId: "send", actorCharacterId: "cast-daniel", actorPlayerId: "p_host", roleLabel: "enter", selectionMethod: "group-nomination", createdAt: 1_000, deadlineAt: 16_000, response: null };
+      return state;
+    };
+    const accepted = makeAssignment();
+    accepted.pendingAssignment!.response = "accept";
+    const immediate = processDueEvents(accepted, 2_000, sequenceRandom([0]));
+    expect(immediate.phase).toBe("reveal");
+    expect(immediate.eventHistory).toHaveLength(1);
+
+    const timedOut = processDueEvents(makeAssignment(), 16_000, sequenceRandom([0]));
+    expect(timedOut.phase).toBe("reveal");
+    expect(timedOut.eventHistory.at(-1)?.resolution?.assignment?.result).toBe("timeout-accepted");
+    expect(processDueEvents(timedOut, 16_000, sequenceRandom([]))).toEqual(timedOut);
+  });
 });

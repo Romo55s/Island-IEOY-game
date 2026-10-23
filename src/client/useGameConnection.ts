@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef } from "react";
 import PartySocket, { type PartySocketOptions } from "partysocket";
 
-import { PROTOCOL_VERSION, type PublicGameSnapshot } from "../shared/domain";
+import { PROTOCOL_VERSION, type PrivateChoiceOptionId, type PublicGameSnapshot } from "../shared/domain";
 import { ClientCommandSchema, ServerEventSchema, type AdmissionResponse, type ClientCommand } from "../shared/protocol";
 import { resumeSession, SessionApiError, type SessionApiOptions } from "./sessionApi";
-import { clearSessionCredentials, saveSessionCredentials, type SessionCredentials } from "./sessionStorage";
+import { clearPendingAdmission, clearSessionCredentials, saveSessionCredentials, type SessionCredentials } from "./sessionStorage";
 import { useGameStore } from "./useGameStore";
 
 const EXPIRED_CLOSE_CODE = 4001;
@@ -16,7 +16,11 @@ export type CommandInput =
   | { type: "room.remove-player"; payload: { playerId: string } }
   | { type: "room.set-ready"; payload: { ready: boolean } }
   | { type: "room.start"; payload: Record<string, never> }
-  | { type: "vote.submit"; payload: { optionId: string } };
+  | { type: "vote.submit"; payload: { optionId: string; assignedCharacterId?: string } }
+  | { type: "assignment.respond"; payload: { assignmentId: string; response: "accept" | "try-refuse" } }
+  | { type: "private-choice.respond"; payload: { choiceId: string; optionId: PrivateChoiceOptionId; targetCharacterId?: string } }
+  | { type: "crash.item.submit"; payload: { itemId: string } }
+  | { type: "crash.rescue.submit"; payload: { targetCharacterId: string } };
 
 export type ConnectionCredentials = SessionCredentials & Partial<Pick<AdmissionResponse, "ticket" | "ticketExpiresAt">>;
 
@@ -191,6 +195,7 @@ export function connectToSession(initialCredentials: ConnectionCredentials, opti
           resumeToken: serverEvent.payload.resumeToken ?? credentials.resumeToken,
         };
         saveSessionCredentials({ code: credentials.code, playerId: credentials.playerId, resumeToken: credentials.resumeToken });
+        clearPendingAdmission(credentials.code);
         useGameStore.getState().addClockSample(serverEvent.payload.serverNow, connectionAttemptStartedAt, receivedAt);
         break;
       case "state.snapshot":

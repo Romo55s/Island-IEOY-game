@@ -1,15 +1,21 @@
 import { APP_NAME } from "../shared/domain";
+import { UiLabScreen } from "../game/screens/UiLabScreen";
+import { IslandSandboxScreen } from "../game/screens/IslandSandboxScreen";
+import { CrashChoicePreview } from "../ui/organisms/CrashChoicePanel";
+import { GameSessionScreen } from "../game/screens/GameSessionScreen";
+import { CrewAdmissionScreen } from "../game/screens/CrewAdmissionScreen";
+import { lazy, Suspense } from "react";
+
+const EncounterPreviewScreen = import.meta.env.DEV ? lazy(() => import("../game/screens/EncounterPreviewScreen")) : null;
+const MotorboatRoutePreviewScreen = import.meta.env.DEV ? lazy(() => import("../game/screens/MotorboatRoutePreviewScreen")) : null;
 
 export function App() {
-  return (
-    <main className="app-shell">
-      <section className="title-card" aria-labelledby="game-title">
-        <p className="eyebrow">Flight 404 // local prototype</p>
-        <h1 id="game-title">{APP_NAME}</h1>
-        <p className="status-copy">
-          The black box is online. Multiplayer systems are being assembled.
-        </p>
-      </section>
-    </main>
-  );
+  if (EncounterPreviewScreen && window.location.pathname === "/encounter-preview") return <Suspense fallback={<p>Loading presentation preview…</p>}><EncounterPreviewScreen /></Suspense>;
+  if (MotorboatRoutePreviewScreen && window.location.pathname === "/motorboat-route-preview") return <Suspense fallback={<p>Loading motorboat route preview…</p>}><MotorboatRoutePreviewScreen /></Suspense>;
+  if (window.location.pathname === "/ui-lab") return <UiLabScreen />;
+  if (window.location.pathname === "/crash-choice-preview") return <CrashChoicePreview />;
+  if (window.location.pathname === "/sandbox") return <IslandSandboxScreen title={APP_NAME} />;
+  if (window.location.pathname === "/start-crew") return <CrewAdmissionScreen mode="create" />;
+  if (window.location.pathname === "/join-crew") return <CrewAdmissionScreen mode="join" />;
+  return <GameSessionScreen />;
 }

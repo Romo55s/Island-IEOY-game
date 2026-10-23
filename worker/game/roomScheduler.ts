@@ -1,4 +1,4 @@
-import { advancePhase, resolveCurrentDecision } from "../../src/shared/rules/stateMachine";
+import { advancePhase, beginCrashRescueChoice, resolveCrashChoices, resolveCurrentDecision, resolvePendingAssignment, resolvePendingPrivateChoice } from "../../src/shared/rules/stateMachine";
 import type { RandomSource } from "../../src/shared/rules/random";
 import type { PersistedRoomState } from "./roomStorage";
 
@@ -12,6 +12,17 @@ export function nextAlarmAt(state: PersistedRoomState): number | null {
 export function allConnectedPlayersVoted(state: PersistedRoomState): boolean {
   const connected = Object.values(state.players).filter(({ connected }) => connected);
   return connected.length > 0 && connected.every(({ id }) => id in state.votesByPlayer);
+}
+
+export function allConnectedPlayersSelectedCrashItem(state: PersistedRoomState): boolean {
+  const connected = Object.values(state.players).filter(({ connected }) => connected);
+  return connected.length > 0 && connected.every(({ id }) => id in (state.crashItemsByPlayer ?? {}));
+}
+
+export function allConnectedLivingPlayersSelectedRescueTarget(state: PersistedRoomState): boolean {
+  const connectedLiving = Object.values(state.players)
+    .filter(({ connected, status, characterId }) => connected && status === "alive" && characterId !== null);
+  return connectedLiving.length > 0 && connectedLiving.every(({ id }) => id in (state.rescueTargetsByPlayer ?? {}));
 }
 
 export function processDueEvents(state: PersistedRoomState, now: number, random: RandomSource): PersistedRoomState {
@@ -46,6 +57,22 @@ export function processDueEvents(state: PersistedRoomState, now: number, random:
       && allConnectedPlayersVoted(next);
     if (canResolveEarly) {
       next = resolveCurrentDecision(next, now, random) as PersistedRoomState;
+      continue;
+    }
+    if (next.phase === "assignmentResponse" && next.pendingAssignment && next.pendingAssignment.response !== null) {
+      next = resolvePendingAssignment(next, now, random) as PersistedRoomState;
+      continue;
+    }
+    if (next.phase === "privateChoice" && next.pendingPrivateChoice?.response !== null) {
+      next = resolvePendingPrivateChoice(next, now, random) as PersistedRoomState;
+      continue;
+    }
+    if (next.phase === "crashItemChoice" && allConnectedPlayersSelectedCrashItem(next)) {
+      next = beginCrashRescueChoice(next, now) as PersistedRoomState;
+      continue;
+    }
+    if (next.phase === "crashRescueChoice" && allConnectedLivingPlayersSelectedRescueTarget(next)) {
+      next = resolveCrashChoices(next, now, random) as PersistedRoomState;
       continue;
     }
     if (next.phaseDeadlineAt !== null && now >= next.phaseDeadlineAt) {

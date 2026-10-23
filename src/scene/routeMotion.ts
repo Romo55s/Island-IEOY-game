@@ -9,6 +9,9 @@ export interface RouteMotionState {
   speed: number;
 }
 
+/** Nominal walk-cycle speed in world meters per second. */
+export const CREW_WALK_SPEED = 2.6;
+
 /** Fresh progress for a newly assigned route; never carries velocity over. */
 export function createRouteMotionState(): RouteMotionState {
   return { distance: 0, speed: 0 };
@@ -77,8 +80,8 @@ export function advanceRouteMotion(
   state: RouteMotionState,
   routeLength: number,
   deltaSeconds: number,
-  maxSpeed = 6,
-  acceleration = 3.5,
+  maxSpeed = CREW_WALK_SPEED,
+  acceleration = 5,
 ): RouteMotionState {
   const length = Math.max(0, Number.isFinite(routeLength) ? routeLength : 0);
   const dt = Math.max(0, Math.min(0.05, Number.isFinite(deltaSeconds) ? deltaSeconds : 0));

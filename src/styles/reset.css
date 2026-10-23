@@ -6,7 +6,7 @@
 
 html {
   color-scheme: dark;
-  font-family: ui-monospace, "IBM Plex Mono", monospace;
+  font-family: var(--font-body);
 }
 
 body,
@@ -16,6 +16,16 @@ p {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--vest-yellow);
+  outline-offset: 3px;
 }

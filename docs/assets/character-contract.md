@@ -1,5 +1,7 @@
 # Character Asset Intake Contract
 
+> Implementation caveat, 2026-10-18: the current loader fetches both `daniel.glb` (eight clips) and `daniel-animation-library.glb` (33 clips, 8,032,452 bytes), and selects literal clip names instead of the semantic manifest below. This document describes the target intake contract. The runtime/library mismatch and validation work are tracked in [audit A10](../audits/2026-10-18-game-audit.md#a10--medium-asset-and-test-contracts-cover-an-older-runtime). Existing approval and licensing requirements still apply.
+
 This contract separates editable or unapproved source files from the GLB files that the browser may load. The runtime contract is GLB 2.0; FBX, Blender files, photographs, and other source formats are never runtime dependencies.
 
 ## Coordinate and scale contract
@@ -23,7 +25,7 @@ Approval is split deliberately:
 
 Repository approval never implies deployment approval. Deployment approval must be changed only when the project owner explicitly approves a release.
 
-The current Daniel source is documented in [daniel-model-inspection.md](./daniel-model-inspection.md). The source file is preserved byte-for-byte; the browser receives only `public/models/characters/daniel.glb`.
+The original Daniel source inspection is documented in [daniel-model-inspection.md](./daniel-model-inspection.md). Preserve that source unchanged. The browser currently loads both character files identified in the implementation caveat above; additional asset payloads need their own inventory and validation.
 
 ## Accepted inputs
 

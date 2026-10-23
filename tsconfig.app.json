@@ -17,5 +17,5 @@
     "types": ["vite/client", "node", "vitest/globals"],
     "skipLibCheck": true
   },
-  "include": ["src", "tests/shared", "tests/client", "tests/scene", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
+  "include": ["src", "tests/setup.ts", "tests/shared", "tests/client", "tests/scene", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
 }

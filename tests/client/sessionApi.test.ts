@@ -3,7 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createSession, joinSession, SessionApiError } from "../../src/client/sessionApi";
 import {
   clearSessionCredentials,
+  clearPendingAdmission,
+  loadPendingAdmission,
+  PENDING_ADMISSION_STORAGE_KEY,
   loadSessionCredentials,
+  savePendingAdmission,
   saveSessionCredentials,
   SESSION_STORAGE_KEY,
 } from "../../src/client/sessionStorage";
@@ -71,6 +75,15 @@ describe("session credential storage", () => {
     window.sessionStorage.setItem(SESSION_STORAGE_KEY, "not json");
     expect(loadSessionCredentials()).toBeNull();
     expect(window.sessionStorage.getItem(SESSION_STORAGE_KEY)).toBeNull();
+  });
+
+  it("keeps a fresh one-time admission only until the game socket accepts it", () => {
+    const pending = { ...admission, ticketExpiresAt: Date.now() + 60_000 };
+    savePendingAdmission(pending);
+
+    expect(loadPendingAdmission()).toEqual(pending);
+    clearPendingAdmission(pending.code);
+    expect(window.sessionStorage.getItem(PENDING_ADMISSION_STORAGE_KEY)).toBeNull();
   });
 });
 

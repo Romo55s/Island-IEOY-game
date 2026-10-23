@@ -1,27 +1,77 @@
-.page { min-height: 100vh; padding: clamp(16px, 4vw, 48px); color: var(--paper-bone); background: radial-gradient(ellipse at 78% 5%, rgb(104 168 154 / 24%), transparent 32%), linear-gradient(145deg, #42364d 0%, #141a1d 62%); }
-.admission { width: min(980px, 100%); margin: clamp(16px, 8vh, 90px) auto; padding: clamp(20px, 5vw, 52px); color: var(--night-canopy); background: var(--paper-bone); border: 2px solid var(--night-canopy); box-shadow: 6px 6px 0 #080b0c; clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
-.admission h1 { max-width: 18ch; margin: 0; font: clamp(1.7rem, 5vw, 3.4rem)/1.14 var(--font-display); }
-.eyebrow { margin: 0 0 12px; color: #8f2e28; font: 0.72rem var(--font-display); letter-spacing: .09em; }
-.intro { max-width: 58ch; margin: 18px 0 28px; line-height: 1.6; }
-.forms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-.forms form { display: grid; align-content: start; gap: 12px; padding: 18px; background: #c7c0aa; border: 2px solid var(--night-canopy); }
-.forms h2 { margin: 0 0 4px; font: 1rem var(--font-display); }
-.forms label { display: grid; gap: 5px; font-size: .78rem; font-weight: 700; }
-.forms input { min-width: 0; min-height: 42px; padding: 8px 10px; color: var(--night-canopy); background: #f0ead5; border: 2px solid var(--night-canopy); font: 16px var(--font-body); }
-.forms button, .lobbyActions button, .footer button { min-height: 44px; padding: 9px 14px; color: var(--night-canopy); background: var(--vest-yellow); border: 2px solid var(--night-canopy); box-shadow: 3px 3px 0 var(--night-canopy); font: .74rem var(--font-display); cursor: pointer; }
-.forms button:hover, .lobbyActions button:hover, .footer button:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--night-canopy); }
-.forms button:disabled, .lobbyActions button:disabled { opacity: .5; cursor: not-allowed; }
-.admission > a { display: inline-block; margin-top: 20px; color: #345b3c; }
-.error, .notice { padding: 12px 14px; color: #ffe8dc; background: #8f2e28; border: 2px solid var(--night-canopy); }
-.topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; width: min(1400px, 100%); margin: 0 auto 18px; }
-.topbar h1 { max-width: 18ch; margin: 0; font: clamp(1rem, 2.5vw, 1.6rem)/1.35 var(--font-display); }
+.page { min-height: 100vh; padding: clamp(14px, 2.8vw, 42px); color: var(--paper-bone); background: linear-gradient(90deg, rgb(4 6 8 / 72%), rgb(4 6 8 / 26%) 64%, rgb(4 6 8 / 68%)), url("/images/crash-shore.png") center / cover fixed, #080b0c; }
+.page::before { position: fixed; z-index: 0; inset: 0; pointer-events: none; content: ""; opacity: .34; background: repeating-linear-gradient(0deg, transparent 0 3px, rgb(0 0 0 / 35%) 3px 4px); }
+.page > * { position: relative; z-index: 1; }
+.gameplayPage { height: 100dvh; min-height: 0; padding: 0; overflow: hidden; background: #080b0c; }
+.gameplayPage::before { z-index: 3; opacity: .2; }
+.sessionViewport { position: relative; isolation: isolate; width: 100%; height: 100%; overflow: hidden; background: #080b0c; }
+.gameplayHud { position: absolute; z-index: var(--layer-hud); top: 12px; right: 12px; left: 12px; display: grid; grid-template-columns: minmax(250px, .82fr) minmax(360px, 1.5fr) minmax(170px, .72fr); gap: 12px; align-items: start; pointer-events: none; }
+.gameplayHud > * { pointer-events: auto; }
+.gameIdentity { align-self: center; margin: 0; color: var(--paper-bone); font: clamp(.58rem, 1.1vw, .78rem) var(--font-display); letter-spacing: .08em; text-shadow: 2px 2px 0 #080b0c; }
+.gameplayHud .resourceStrip { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; padding: 4px; background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 3px 3px 0 var(--metal-shadow); }
+.gameplayHud .resourceStrip span { min-width: 0; padding: 6px 8px; background: var(--metal-inset); border: 1px solid rgb(232 224 201 / 18%); }
+.gameplayHud .resourceStrip b { color: var(--subdued-text); font-size: .5rem; }
+.gameplayHud .resourceStrip strong { color: var(--bright-amber); font-size: .76rem; }
+.sessionControls { display: grid; justify-items: end; gap: 5px; }
+.compactCode { width: max-content; min-width: 126px; padding: 6px 8px; color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border-color: var(--metal-edge); box-shadow: 2px 2px 0 var(--metal-shadow); }
+.compactCode :global(strong) { color: var(--bright-amber); font-size: 1rem; }
+.compactConnection { min-height: 0; max-width: 190px; padding: 4px 6px; border-width: 1px; box-shadow: none; font-size: .56rem; }
+.pauseButton, .overlayButton { min-height: 36px; padding: 7px 10px; color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 2px 2px 0 var(--metal-shadow); font: .58rem var(--font-display); cursor: pointer; }
+.pauseButton:hover, .overlayButton:hover, .pauseButton:focus-visible, .overlayButton:focus-visible { color: var(--bright-amber); border-color: var(--vest-yellow); outline: 2px solid var(--vest-yellow); outline-offset: 2px; }
+.worldControls { position: absolute; z-index: var(--layer-hud); top: 54px; left: 12px; display: grid; gap: 7px; pointer-events: none; }
+.worldControls > * { pointer-events: auto; }
+.manifestOverlay, .routeOverlay { position: absolute; z-index: var(--layer-drawer); top: 108px; left: 12px; width: min(330px, calc(100% - 24px)); max-height: min(66dvh, 610px); overflow: auto; pointer-events: auto; }
+.routeOverlay { top: 151px; }
+.phaseOverlay { position: absolute; z-index: var(--layer-hud); right: 50%; bottom: 18px; width: min(760px, calc(100% - 32px)); max-height: min(48dvh, 460px); overflow: auto; transform: translateX(50%); pointer-events: auto; }
+.phaseOverlay[data-phase="decision"] { width: min(920px, calc(100% - 32px)); max-height: min(43dvh, 400px); }
+.phaseOverlay[data-phase="crashItemChoice"], .phaseOverlay[data-phase="crashRescueChoice"], .phaseOverlay[data-phase="crashResolution"] { width: min(860px, calc(100% - 32px)); max-height: min(58dvh, 560px); }
+.phaseOverlay[data-phase="reveal"] { max-height: min(70dvh, 680px); }
+.phaseOverlay .phaseCard { padding: clamp(16px, 2vw, 24px); }
+.phaseOverlay .reveal { padding-top: 0; }
+.connectionOverlay { position: absolute; z-index: var(--layer-drawer); top: 108px; right: 12px; max-width: min(310px, calc(100% - 24px)); }
+.pauseOverlay { position: absolute; z-index: var(--layer-modal); inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(3 5 6 / 72%); }
+.pausePanel { display: grid; gap: 12px; width: min(390px, 100%); outline: none; }
+.pausePanel:focus { outline: 3px solid var(--vest-yellow); outline-offset: 5px; }
+.pauseActions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gameplayPage .notice { position: absolute; z-index: var(--layer-modal); right: 12px; bottom: 12px; max-width: min(420px, calc(100% - 24px)); margin: 0; }
+.connectionScreen { display: grid; gap: 16px; width: min(480px, 100%); margin: clamp(16px, 8vh, 90px) clamp(14px, 10vw, 150px); color: var(--paper-bone); }
+.connectionScreen h1 { max-width: 18ch; margin: 0; font: clamp(1.7rem, 5vw, 3rem)/1.14 var(--font-display); }
+.eyebrow { margin: 0 0 12px; color: #dd5547; font: .72rem var(--font-display); letter-spacing: .09em; }
+.lobbyActions button, .footer button { min-height: 44px; padding: 9px 14px; color: var(--night-canopy); background: var(--vest-yellow); border: 2px solid #17130b; box-shadow: 3px 3px 0 #030506; font: .74rem var(--font-display); cursor: pointer; }
+.lobbyActions button:hover, .footer button:hover { translate: -1px -1px; box-shadow: 4px 4px 0 #030506; }
+.lobbyActions button:focus-visible, .footer button:focus-visible { outline: 3px solid var(--paper-bone); outline-offset: 3px; }
+.lobbyActions button:disabled { opacity: .45; cursor: not-allowed; }
+.titleScreen { display: grid; min-height: 100vh; align-items: center; padding-inline: clamp(24px, 5vw, 76px); }
+.titleContent { display: grid; align-content: center; gap: 18px; width: min(530px, 100%); min-height: 82vh; padding-block: 48px; }
+.titleContent h1 { max-width: 13ch; margin: 0; color: #eee2c4; font-size: clamp(2rem, 5vw, 4.5rem); line-height: .92; text-shadow: 3px 3px 0 rgb(0 0 0 / 72%); }
+.titleBlurb { max-width: 33ch; margin: 3px 0 0; color: #eee2c4; line-height: 1.55; text-shadow: 1px 1px 0 #080b0c; }
+.devLink { color: #9bdfd3; font-size: .76rem; }
+.devLink span { padding: 1px 4px; color: var(--night-canopy); background: var(--vest-yellow); font: .58rem var(--font-display); }
+.menuPanel { display: grid; gap: 18px; width: min(420px, 100%); padding: 12px; background: rgb(13 16 16 / 86%); border: 2px solid var(--metal-edge); box-shadow: 6px 6px 0 #030506; }
+.menuPanel > h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.6rem); }
+.menuPanel > p { margin: 0; line-height: 1.55; }
+.error, .notice { padding: 12px 14px; color: #ffe8dc; background: #7f211d; border: 2px solid #d95c4f; }
+.topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; width: min(1500px, 100%); margin: 0 auto 18px; }
+.topbar h1 { max-width: 24ch; margin: 0; font: clamp(1rem, 2.5vw, 1.6rem)/1.35 var(--font-display); }
 .roomInfo { display: grid; justify-items: end; gap: 8px; }
-.lobby { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 20px; width: min(1100px, 100%); margin: 0 auto; align-items: start; }
-.card { min-width: 0; padding: 18px; color: var(--night-canopy); background: rgb(217 210 187 / 96%); border: 2px solid var(--night-canopy); box-shadow: 4px 4px 0 #080b0c; }
+.lobby { display: grid; grid-template-columns: minmax(270px, .62fr) minmax(0, 1.38fr); gap: 20px; width: min(1280px, 100%); margin: clamp(5vh, 8vw, 80px) auto 0; align-items: start; }
+.manifestPanel, .claimsPanel { align-self: start; }
 .lobbyActions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
-.phaseCard { width: min(860px, 100%); margin: 8vh auto; padding: clamp(22px, 5vw, 48px); color: var(--night-canopy); background: var(--paper-bone); border: 2px solid var(--night-canopy); box-shadow: 5px 5px 0 #080b0c; }
+.sessionGrid { display: grid; grid-template-columns: minmax(220px, 32fr) minmax(440px, 47fr) minmax(190px, 21fr); gap: 16px; width: min(1500px, 100%); margin: 0 auto; align-items: start; }
+.leftRail, .rightRail, .gameCore { min-width: 0; }
+.gameCore { display: grid; gap: 12px; }
+.resourceStrip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; padding: 5px; color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 3px 3px 0 rgb(0 0 0 / 58%); }
+.resourceStrip span { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px; align-items: baseline; padding: 8px; background: #101515; border: 1px solid rgb(217 210 187 / 25%); }
+.resourceStrip b { overflow: hidden; color: rgb(217 210 187 / 65%); font: .52rem var(--font-display); text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.resourceStrip strong { color: var(--vest-yellow); font: .85rem var(--font-display); }
+.phaseCard { width: 100%; margin: 0; padding: clamp(22px, 5vw, 48px); color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 5px 5px 0 #080b0c; }
 .phaseCard h2 { margin: 0 0 14px; font: clamp(1.1rem, 3vw, 2rem)/1.4 var(--font-display); }
 .phaseCard p:last-child { line-height: 1.7; }
-.footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: min(1100px, 100%); margin: 28px auto 0; color: rgb(217 210 187 / 72%); font-size: .7rem; }
+.reveal { display: grid; gap: 12px; width: 100%; margin: 0; }
+.reveal > .eyebrow { margin: 0; color: var(--vest-yellow); }
+.revealNote { margin: 0; color: rgb(217 210 187 / 78%); font-size: .78rem; }
+.footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: min(1500px, 100%); margin: 28px auto 0; color: rgb(217 210 187 / 72%); font-size: .7rem; }
 .footer button { min-height: 36px; padding: 6px 10px; font-size: .6rem; }
-@media (max-width: 700px) { .forms, .lobby { grid-template-columns: 1fr; } .topbar { align-items: flex-start; flex-direction: column; } .roomInfo { justify-items: start; } .footer { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 1100px) { .sessionGrid { grid-template-columns: minmax(210px, .68fr) minmax(0, 1.32fr); } .rightRail { grid-column: 1 / -1; } .rightRail > * { width: min(360px, 100%); } }
+@media (max-width: 900px) { .gameplayHud { grid-template-columns: auto minmax(0, 1fr) auto; gap: 7px; } .gameIdentity { max-width: 13ch; } .compactConnection { display: none; } .gameplayHud .resourceStrip span { padding: 5px 6px; } }
+@media (max-width: 760px) { .lobby, .sessionGrid { grid-template-columns: 1fr; } .topbar { flex-direction: column; } .roomInfo { justify-items: start; } .rightRail { grid-column: auto; } .resourceStrip { grid-template-columns: repeat(3, minmax(0, 1fr)); } .footer { align-items: flex-start; flex-direction: column; } .gameplayHud { top: 8px; right: 8px; left: 8px; grid-template-columns: 1fr auto; } .gameIdentity { display: none; } .gameplayHud .resourceStrip { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(5, minmax(0, 1fr)); } .gameplayHud .resourceStrip span { padding: 4px; } .gameplayHud .resourceStrip b { font-size: .42rem; } .gameplayHud .resourceStrip strong { font-size: .66rem; } .compactCode { min-width: 100px; padding: 4px 6px; } .compactCode :global(strong) { font-size: .78rem; } .pauseButton { min-height: 32px; font-size: .52rem; } .worldControls { top: 89px; left: 8px; grid-auto-flow: column; } .overlayButton { min-height: 32px; padding: 6px 8px; font-size: .52rem; } .manifestOverlay, .routeOverlay { top: 129px; left: 8px; width: min(310px, calc(100% - 16px)); max-height: min(56dvh, 480px); } .routeOverlay { top: 169px; } .phaseOverlay { right: 8px; bottom: 8px; left: 8px; width: auto; max-height: min(48dvh, 420px); transform: none; } .phaseOverlay[data-phase="decision"] { width: auto; max-height: min(50dvh, 440px); } .connectionOverlay { top: 129px; right: 8px; } .pauseOverlay { padding: 14px; } }
+@media (prefers-reduced-motion: reduce) { .lobbyActions button, .footer button { transition: none; } }

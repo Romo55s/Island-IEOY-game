@@ -12,11 +12,14 @@ import { getCrashReactionClip } from "./crashReactions";
 import { findIslandRoute, ISLAND_ZONES_BY_ID, PLAYER_SLOT_OFFSETS, sampleIslandSurfaceY } from "../world/islandLevel";
 import type { EncounterZoneId } from "../world/islandLevel";
 import type { SessionSceneMember } from "../sessionPresentation";
-import { advanceRouteMotion, createRouteMotionState, getRouteLength, roundRouteCorners, sampleRoute } from "../routeMotion";
+import type { MotorboatScenePresentation } from "../motorboatPresentation";
+import { advanceRouteMotion, createRouteMotionState, CREW_WALK_SPEED, getRouteLength, roundRouteCorners, sampleRoute } from "../routeMotion";
 import type { RouteMotionState, RoutePoint } from "../routeMotion";
+import { getEncounterCameraTarget, getEncounterMark } from "../encounterStaging";
+import { MotorboatRouteProp } from "../props/MotorboatRouteProp";
 const accents = ["#e05a47", "#6f9f62", "#e7b84d", "#4d93b6", "#93659f", "#b77b52", "#66b8a0", "#7d8584"];
 
-export function IslandScene({ crew = [], crewMembers, animationTest = false, crashResolution, showCrashReactions = false, startingItemsByCharacter = {}, zoneId = "crash_beach", interactionPairCharacterIds = null }: { crew?: string[]; crewMembers?: SessionSceneMember[]; animationTest?: boolean; crashResolution?: CrashResolution; showCrashReactions?: boolean; startingItemsByCharacter?: Record<string, string>; zoneId?: EncounterZoneId; interactionPairCharacterIds?: [string, string] | null }) {
+export function IslandScene({ crew = [], crewMembers, animationTest = false, crashResolution, showCrashReactions = false, startingItemsByCharacter = {}, zoneId = "crash_beach", interactionPairCharacterIds = null, motorboatPresentation = null, staging = "travel", serverClockOffsetMs = 0 }: { crew?: string[]; crewMembers?: SessionSceneMember[]; animationTest?: boolean; crashResolution?: CrashResolution; showCrashReactions?: boolean; startingItemsByCharacter?: Record<string, string>; zoneId?: EncounterZoneId; interactionPairCharacterIds?: [string, string] | null; motorboatPresentation?: MotorboatScenePresentation | null; staging?: "travel" | "encounter"; serverClockOffsetMs?: number }) {
   const roster = useMemo(() => crewMembers?.slice(0, 8) ?? crew.slice(0, 8).map((name, index) => ({
     playerId: `sandbox-${index}`, playerName: name, characterId: CHARACTER_CATALOG[index]?.id ?? `sandbox-${index}`, name, reactionLine: "",
     tint: accents[index] ?? "#e05a47", status: "alive" as const,
@@ -34,25 +37,27 @@ export function IslandScene({ crew = [], crewMembers, animationTest = false, cra
       <CharacterErrorBoundary fallback={null}>
         <Suspense fallback={null}><RoamingBear /></Suspense>
       </CharacterErrorBoundary>
+      {motorboatPresentation && <MotorboatAnchor presentation={motorboatPresentation} />}
       {roster.map((member, index) => {
         const offset = PLAYER_SLOT_OFFSETS[index];
         if (!offset) return null;
-        const tint = member.status === "ghost" ? "#76c9d0" : member.tint;
+        const tint = member.status === "ghost" ? "#777c77" : member.tint;
         const crashReaction = showCrashReactions && crashResolution ? getCrashReactionClip(member.characterId, crashResolution) : undefined;
         const pairIndex = interactionPairCharacterIds?.indexOf(member.characterId) ?? -1;
         const formationOffset: readonly [number, number] = pairIndex >= 0 ? [pairIndex === 0 ? -0.65 : 0.65, 0] : offset;
-        return <MovingCrewMember key={member.playerId} member={member} index={index} offset={formationOffset} nameTagOffset={pairIndex >= 0 ? pairIndex === 0 ? -0.48 : 0.48 : 0} zoneId={zoneId} tint={tint} animationTest={animationTest} crashReaction={crashReaction} startingItemId={member.startingItemId ?? startingItemsByCharacter[member.characterId]} />;
+        return <MovingCrewMember key={member.playerId} member={member} index={index} offset={formationOffset} pairIndex={pairIndex} staging={staging} serverClockOffsetMs={serverClockOffsetMs} nameTagOffset={pairIndex >= 0 ? pairIndex === 0 ? -0.48 : 0.48 : 0} zoneId={zoneId} tint={tint} animationTest={animationTest} crashReaction={crashReaction} startingItemId={member.startingItemId ?? startingItemsByCharacter[member.characterId]} />;
       })}
     </>
   );
 }
 
-function MovingCrewMember({ member, index, offset, nameTagOffset, zoneId, tint, animationTest, crashReaction, startingItemId }: { member: SessionSceneMember; index: number; offset: readonly [number, number]; nameTagOffset: number; zoneId: EncounterZoneId; tint: string; animationTest: boolean; crashReaction?: string; startingItemId?: string }) {
+function MovingCrewMember({ member, index, offset, pairIndex, staging, serverClockOffsetMs, nameTagOffset, zoneId, tint, animationTest, crashReaction, startingItemId }: { member: SessionSceneMember; index: number; offset: readonly [number, number]; pairIndex: number; staging: "travel" | "encounter"; serverClockOffsetMs: number; nameTagOffset: number; zoneId: EncounterZoneId; tint: string; animationTest: boolean; crashReaction?: string; startingItemId?: string }) {
   const group = useRef<Group>(null);
   const lastZone = useRef<EncounterZoneId>(zoneId);
   const routePoints = useRef<RoutePoint[]>([]);
   const routeLength = useRef(0);
   const motion = useRef<RouteMotionState>(createRouteMotionState());
+  const walkSpeed = useRef(0);
   const [walking, setWalking] = useState(false);
   const targetPosition = (id: EncounterZoneId) => {
     const center = ISLAND_ZONES_BY_ID[id].position;
@@ -61,6 +66,14 @@ function MovingCrewMember({ member, index, offset, nameTagOffset, zoneId, tint, 
     return [x, sampleIslandSurfaceY(x, z) + 0.08, z] as const;
   };
   useEffect(() => {
+    if (staging === "encounter") {
+      lastZone.current = zoneId;
+      routePoints.current = [];
+      routeLength.current = 0;
+      walkSpeed.current = 0;
+      setWalking(false);
+      return;
+    }
     if (lastZone.current === zoneId) return;
     const wasInTransit = routePoints.current.length >= 2;
     const completeRoute = findIslandRoute(lastZone.current, zoneId);
@@ -85,13 +98,16 @@ function MovingCrewMember({ member, index, offset, nameTagOffset, zoneId, tint, 
     ]);
     routeLength.current = getRouteLength(routePoints.current);
     motion.current = createRouteMotionState();
+    walkSpeed.current = 0;
     lastZone.current = zoneId;
     setWalking(routeLength.current > 0.001);
-  }, [zoneId]);
+  }, [zoneId, staging]);
   useFrame((_state, delta) => {
+    if (staging === "encounter") return;
     const object = group.current;
     if (!object || routePoints.current.length < 2) return;
     motion.current = advanceRouteMotion(motion.current, routeLength.current, delta);
+    walkSpeed.current = motion.current.speed;
     const position = sampleRoute(routePoints.current, motion.current.distance);
     object.position.set(position.x, position.y, position.z);
     const ahead = sampleRoute(routePoints.current, Math.min(routeLength.current, motion.current.distance + 0.45));
@@ -108,27 +124,42 @@ function MovingCrewMember({ member, index, offset, nameTagOffset, zoneId, tint, 
       routePoints.current = [];
       routeLength.current = 0;
       motion.current = createRouteMotionState();
+      walkSpeed.current = 0;
       setWalking(false);
     }
   });
   const [x, y, z] = targetPosition(zoneId);
   const startsAtCurrentZone = lastZone.current === zoneId && routePoints.current.length === 0;
-  return <group ref={group} position={startsAtCurrentZone ? [x, y, z] : undefined}>
+  const mark = staging === "encounter" ? getEncounterMark(zoneId, index, pairIndex, member.stageRole) : undefined;
+  const locomoting = staging === "travel" && walking;
+  return <group ref={group} position={mark?.position ?? (startsAtCurrentZone ? [x, y, z] : undefined)} rotation={mark ? [0, mark.rotationY, 0] : undefined}>
           <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <circleGeometry args={[0.38, 9]} /><meshBasicMaterial color={member.status === "ghost" ? "#63d2da" : "#141a1d"} transparent opacity={member.status === "ghost" ? 0.75 : 0.48} />
           </mesh>
-          {member.status === "ghost" && <mesh position={[0, 0.93, 0]} scale={[0.36, 0.82, 0.32]}>
-            <sphereGeometry args={[1, 7, 5]} /><meshBasicMaterial color="#63d2da" transparent opacity={0.18} wireframe depthWrite={false} />
-          </mesh>}
           <CharacterSlot
             tint={tint}
             modelUrl={animationTest && index === 0 ? "/models/characters/courtney-download-test.glb" : undefined}
-            animationName={walking && !(member.animationOnce && member.animationName === "fall") ? "walk" : animationTest && index === 0 ? "cheer" : crashReaction ?? member.animationName}
-            animationOnce={!walking && !animationTest && (Boolean(crashReaction) || member.animationOnce) || walking && member.animationOnce && member.animationName === "fall"}
+            animationName={locomoting && !(member.animationOnce && member.animationName === "fall") ? "walk" : animationTest && index === 0 ? "cheer" : crashReaction ?? member.animationName}
+            animationOnce={!locomoting && !animationTest && (Boolean(crashReaction) || member.animationOnce) || locomoting && member.animationOnce && member.animationName === "fall"}
+            animationHoldAtEnd={member.animationHoldAtEnd}
+            animationEventId={member.animationEventId}
+            animationStartedAt={staging === "encounter" ? member.animationStartedAt : undefined}
+            serverClockOffsetMs={serverClockOffsetMs}
             animationMode={animationTest && index === 0 ? new URLSearchParams(window.location.search).get("mode") === "direct" ? "direct" : "retarget" : undefined}
             startingItemId={startingItemId}
+            walkSpeed={walkSpeed}
           />
           <CrewNameTag name={animationTest && index === 0 ? "Courtney · cheer test" : member.name} offsetX={nameTagOffset} />
+  </group>;
+}
+
+function MotorboatAnchor({ presentation }: { presentation: MotorboatScenePresentation }) {
+  const [x, y, z] = getEncounterCameraTarget(presentation.zoneId);
+  // The directed camera approaches from negative X/Z. Keeping the boat just
+  // beyond the cast on that axis makes its silhouette readable instead of
+  // leaving it stranded at the edge of the encounter frame.
+  return <group position={[x - 4.2, y - 1, z + 1.6]}>
+    <MotorboatRouteProp presentation={presentation} />
   </group>;
 }
 
@@ -159,10 +190,10 @@ function CrewNameTag({ name, offsetX = 0 }: { name: string; offsetX?: number }) 
   </sprite>;
 }
 
-function CharacterSlot({ tint, modelUrl, animationName, animationOnce = false, startingItemId, animationMode }: { tint: string; modelUrl?: string; animationName?: string; animationOnce?: boolean; startingItemId?: string; animationMode?: "direct" | "retarget" }) {
+function CharacterSlot({ tint, modelUrl, animationName, animationOnce = false, animationHoldAtEnd = false, animationEventId, animationStartedAt, serverClockOffsetMs, startingItemId, animationMode, walkSpeed }: { tint: string; modelUrl?: string; animationName?: string; animationOnce?: boolean; animationHoldAtEnd?: boolean; animationEventId?: string; animationStartedAt?: number; serverClockOffsetMs?: number; startingItemId?: string; animationMode?: "direct" | "retarget"; walkSpeed: React.RefObject<number> }) {
   return <CharacterErrorBoundary fallback={<PlaceholderCharacter tint={tint} />}>
     <Suspense fallback={<PlaceholderCharacter tint={tint} />}>
-      <CharacterModel tint={tint} modelUrl={modelUrl} animationName={animationName} animationOnce={animationOnce} startingItemId={startingItemId} animationMode={animationMode} />
+      <CharacterModel tint={tint} modelUrl={modelUrl} animationName={animationName} animationOnce={animationOnce} animationHoldAtEnd={animationHoldAtEnd} animationEventId={animationEventId} animationStartedAt={animationStartedAt} serverClockOffsetMs={serverClockOffsetMs} startingItemId={startingItemId} animationMode={animationMode} walkSpeed={walkSpeed} />
     </Suspense>
   </CharacterErrorBoundary>;
 }

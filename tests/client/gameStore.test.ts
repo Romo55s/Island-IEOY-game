@@ -21,7 +21,7 @@ function snapshotAtRevision(revision: number, phaseEndsAt: number | null = null)
     players: [],
     characters: [],
     characterCatalog: [],
-    resources: { food: 50, health: 50, morale: 50, shelter: 50 },
+    resources: { shelter: 50 },
     currentDecision: null,
     decisionNumber: 0,
     totalDecisions: 10,

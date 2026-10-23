@@ -1,7 +1,8 @@
 import { Server, type Connection, type ConnectionContext, type WSMessage } from "partyserver";
 
-import { CHARACTER_CATALOG, PROTOCOL_VERSION, type PrivateRoomState } from "../../src/shared/domain";
+import { CHARACTER_CATALOG, INITIAL_CHARACTER_RESOURCES, PROTOCOL_VERSION, type PrivateRoomState } from "../../src/shared/domain";
 import { DECISION_CARDS } from "../../src/shared/content/decisionCards";
+import { SURVIVAL_ITEMS } from "../../src/shared/content/items";
 import {
   ClientCommandSchema,
   toPublicSnapshot,
@@ -11,7 +12,7 @@ import {
   type ServerEvent,
 } from "../../src/shared/protocol";
 import { cryptoRandom } from "../../src/shared/rules/random";
-import { resolveCurrentDecision, startGame } from "../../src/shared/rules/stateMachine";
+import { resolvePendingPrivateChoice, startGame } from "../../src/shared/rules/stateMachine";
 import { derivePasswordDigest, verifyPassword } from "../auth/passwords";
 import { isRateLimited, recordFailure } from "../auth/rateLimit";
 import { deriveResumeToken, randomPlayerId, randomToken, TICKET_TTL_MS, tokenDigest } from "../auth/tickets";
@@ -284,10 +285,7 @@ export class GameRoom extends Server<Env> {
       { ...room, revision: room.revision === revisionBeforeCommand ? revisionBeforeCommand + 1 : room.revision },
       now,
     );
-    const withPresence = this.withPresence(room);
-    if (withPresence.phase === "decision" && withPresence.earliestResolveAt !== null && now >= withPresence.earliestResolveAt && allConnectedPlayersVoted(withPresence)) {
-      room = this.withoutPresence(resolveCurrentDecision(withPresence, now, cryptoRandom) as PersistedRoomState);
-    }
+    room = this.withoutPresence(processDueEvents(this.withPresence(room), now, cryptoRandom));
     await saveRoom(this.ctx.storage, room);
     await this.sendViewerSnapshots(room);
     await this.schedule(this.withPresence(room));
@@ -308,7 +306,7 @@ export class GameRoom extends Server<Env> {
       if (player.characterId) delete room.characters[player.characterId];
       player.characterId = command.payload.characterId;
       player.ready = false;
-      room.characters[command.payload.characterId] = { characterId: command.payload.characterId, status: player.status };
+      room.characters[command.payload.characterId] = { characterId: command.payload.characterId, status: player.status, resources: { ...INITIAL_CHARACTER_RESOURCES } };
       return null;
     }
     if (command.type === "room.set-ready") {
@@ -349,8 +347,61 @@ export class GameRoom extends Server<Env> {
         return { code: "WRONG_PHASE", message: "The voting window is closed." };
       }
       const card = room.deck.find(({ id }) => id === room.currentDecisionId);
-      if (!card?.options.some(({ id }) => id === command.payload.optionId)) return { code: "INVALID_OPTION", message: "That option is not available." };
+      const option = card?.options.find(({ id }) => id === command.payload.optionId);
+      if (!option) return { code: "INVALID_OPTION", message: "That option is not available." };
+      if (option.assignment) {
+        const nominated = command.payload.assignedCharacterId;
+        const assignedPlayer = nominated
+          ? Object.values(room.players).find(({ characterId }) => characterId === nominated)
+          : undefined;
+        if (!nominated || assignedPlayer?.status !== "alive" || room.characters[nominated]?.status !== "alive") {
+          return { code: "INVALID_ASSIGNMENT", message: "Choose a living character for this task." };
+        }
+        room.assignmentNominationsByPlayer = { ...(room.assignmentNominationsByPlayer ?? {}), [playerId]: nominated };
+      } else {
+        if (command.payload.assignedCharacterId) return { code: "INVALID_ASSIGNMENT", message: "That option does not assign a character." };
+        if (room.assignmentNominationsByPlayer) delete room.assignmentNominationsByPlayer[playerId];
+      }
       room.votesByPlayer[playerId] = command.payload.optionId;
+      return null;
+    }
+    if (command.type === "assignment.respond") {
+      const pending = room.pendingAssignment;
+      if (room.phase !== "assignmentResponse" || !pending || pending.id !== command.payload.assignmentId || pending.actorPlayerId !== playerId || pending.response !== null || now >= pending.deadlineAt || player.status !== "alive" || !player.characterId || player.characterId !== pending.actorCharacterId || room.characters[pending.actorCharacterId]?.status !== "alive") {
+        return { code: "INVALID_ASSIGNMENT", message: "That assignment response is not available." };
+      }
+      pending.response = command.payload.response;
+      return null;
+    }
+    if (command.type === "private-choice.respond") {
+      const choice=room.pendingPrivateChoice;
+      if (room.phase!=="privateChoice" || !choice || choice.id!==command.payload.choiceId || choice.actorPlayerId!==playerId || choice.response!==null || now>=choice.deadlineAt || player.status!=="alive" || player.characterId!==choice.actorCharacterId || room.characters[choice.actorCharacterId]?.status!=="alive" || !choice.allowedOptionIds.includes(command.payload.optionId)) return {code:"INVALID_PRIVATE_CHOICE",message:"That private choice is not available."};
+      if (command.payload.optionId==="transfer") {
+        const target=command.payload.targetCharacterId;
+        if (!target || target===choice.actorCharacterId || room.characters[target]?.status!=="alive" || !Object.values(room.players).some(({characterId,status})=>characterId===target&&status==="alive")) return {code:"INVALID_PRIVATE_CHOICE",message:"Choose another living character to receive the fuel."};
+      } else if (command.payload.targetCharacterId) return {code:"INVALID_PRIVATE_CHOICE",message:"That choice does not accept a target."};
+      choice.response={optionId:command.payload.optionId,...(command.payload.targetCharacterId?{targetCharacterId:command.payload.targetCharacterId}:{})};
+      const resolved=resolvePendingPrivateChoice(room,now,cryptoRandom) as PersistedRoomState;
+      Object.assign(room,resolved);
+      return null;
+    }
+    if (command.type === "crash.item.submit") {
+      if (room.phase !== "crashItemChoice" || room.phaseDeadlineAt === null || now >= room.phaseDeadlineAt) return { code: "WRONG_PHASE", message: "Item choice is not active." };
+      const offer = room.crashItemOffersByPlayer?.[playerId];
+      if (!offer?.includes(command.payload.itemId) || !SURVIVAL_ITEMS.some(({ id }) => id === command.payload.itemId)) {
+        return { code: "INVALID_ITEM", message: "Choose one of the three items offered to you." };
+      }
+      room.crashItemsByPlayer = { ...(room.crashItemsByPlayer ?? {}), [playerId]: command.payload.itemId };
+      return null;
+    }
+    if (command.type === "crash.rescue.submit") {
+      if (room.phase !== "crashRescueChoice" || room.phaseDeadlineAt === null || now >= room.phaseDeadlineAt) return { code: "WRONG_PHASE", message: "Rescue choice is not active." };
+      if (player.status !== "alive" || !player.characterId) return { code: "INVALID_RESCUE_TARGET", message: "Ghosts cannot make physical rescue attempts." };
+      const target = Object.values(room.players).find(({ characterId }) => characterId === command.payload.targetCharacterId);
+      if (!target || target.status !== "alive" || !room.characters[command.payload.targetCharacterId]) {
+        return { code: "INVALID_RESCUE_TARGET", message: "Choose a character who is still alive." };
+      }
+      room.rescueTargetsByPlayer = { ...(room.rescueTargetsByPlayer ?? {}), [playerId]: command.payload.targetCharacterId };
       return null;
     }
     return { code: "INVALID_MESSAGE", message: "Unsupported command." };
