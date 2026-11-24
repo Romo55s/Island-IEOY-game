@@ -12,15 +12,20 @@
 .candidate { position: relative; display: grid; grid-template-rows: minmax(116px, 1fr) auto; min-width: 0; min-height: 176px; overflow: hidden; padding: 0; color: var(--paper-bone); text-align: left; background: rgb(17 19 23 / 46%); border: 2px solid var(--metal-edge); box-shadow: inset 0 0 0 1px var(--metal-black); cursor: pointer; animation: roster-entry 220ms steps(3, end) both; animation-delay: calc(var(--candidate-order, 0) * 24ms); transition: border-color 100ms steps(2, end), background-color 100ms steps(2, end), box-shadow 100ms steps(2, end); }
 .candidate:hover:not(:disabled), .candidate:focus-visible { border-color: var(--vest-yellow); outline: 2px solid var(--vest-yellow); outline-offset: 1px; }
 .candidate[data-selected="true"] { border-color: var(--vest-yellow); background: rgb(40 34 18 / 62%); box-shadow: inset 0 0 0 2px var(--vest-yellow), 0 0 0 2px var(--amber-veil); }
-.candidate:disabled { cursor: not-allowed; filter: saturate(.45); }
-.candidate[data-eligible="false"] .modelWindow::after { position: absolute; inset: 0; content: ""; background: linear-gradient(180deg, rgb(5 7 8 / 4%), rgb(5 7 8 / 42%)); pointer-events: none; }
+.candidate:disabled { cursor: not-allowed; }
+.candidate:disabled[data-status="ghost"] { filter: saturate(.25) brightness(.68); }
+.candidate[data-status="ghost"] .modelWindow::after { position: absolute; inset: 0; content: ""; background: linear-gradient(180deg, rgb(5 7 8 / 12%), rgb(5 7 8 / 48%)); pointer-events: none; }
 .modelWindow { position: relative; display: block; min-height: 116px; overflow: hidden; background: linear-gradient(180deg, rgb(40 44 44 / 28%), rgb(9 12 15 / 16%)); border-bottom: 1px solid rgb(116 107 93 / 55%); }
 .modelView { position: absolute !important; z-index: 0; inset: 0; display: block; overflow: hidden; pointer-events: none !important; }
 .noRender { display: grid; height: 100%; place-items: center; color: var(--subdued-text); font: 1.2rem var(--font-display); }
 .identity { position: relative; z-index: 2; display: grid; gap: 3px; min-width: 0; padding: 7px 8px; background: rgb(8 11 12 / 91%); }
 .identity strong { overflow: hidden; color: var(--paper-bone); font: .49rem/1.4 var(--font-display); text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
 .identity small { overflow: hidden; color: var(--subdued-text); font: .61rem/1.35 var(--font-body); text-overflow: ellipsis; white-space: nowrap; }
+.identity .candidateStatus { color: #e3bc4d; font: .37rem var(--font-display); letter-spacing: .04em; }
+.identity .candidateStatus[data-status="ghost"] { color: #e35e52; }
+.identity .candidateStatus[data-eligible="false"][data-status="alive"] { color: #d6ad72; }
 .eligibilityMark { position: absolute; z-index: 3; top: 6px; right: 6px; padding: 3px 5px; color: var(--night-canopy); background: var(--vest-yellow); border: 1px solid #080b0c; font: .35rem var(--font-display); }
+.eligibilityMark[data-state="restricted"] { color: #1b1710; background: #d2a46a; }
 .ghostMark { position: absolute; z-index: 3; top: 5px; left: 5px; display: grid; width: 22px; height: 22px; place-items: center; color: #db5148; background: #241817; border: 1px solid #87322d; }
 .ghostMark svg { width: 15px; height: 15px; }
 .empty { grid-column: 1 / -1; align-self: center; margin: 0; padding: 20px; color: var(--subdued-text); text-align: center; font: .7rem var(--font-body); }

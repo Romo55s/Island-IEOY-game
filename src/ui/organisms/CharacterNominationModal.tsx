@@ -149,7 +149,9 @@ export function CharacterNominationModal({ selectionKind = "assignment", descrip
         <div><p>{selectionKind === "target" ? "CHOOSE TARGET" : "CREW ASSIGNMENT"}</p><h2 id={titleId}>{selectionKind === "target" ? roleLabel : `Nominate for ${roleLabel}`}</h2></div>
         <span className={styles.headerSignal} aria-hidden="true">LIVE CREW</span>
       </header>
-      <p className={styles.instructions}>{description ?? (selectionKind === "target" ? "Choose a living target. Confirming casts your group vote for this character." : "Choose a living character for this task. Confirming casts your vote with this nominee.")}</p>
+      <p className={styles.instructions}>{description ?? (selectionKind === "target"
+        ? "Choose a living target. Confirming casts your group vote for this character. A skull marks someone who has died."
+        : "Choose an eligible living character. Living crew without the required item stay visible as unavailable; a skull marks someone who has died.")}</p>
       <div className={styles.rosterStage} ref={stageRef}>
         <Canvas className={styles.modelCanvas} dpr={1} gl={{ alpha: true, antialias: false, powerPreference: "low-power" }} orthographic camera={{ position: [0, 0, 20], zoom: 1 }}>
           <ClearModalCanvas />
@@ -162,18 +164,19 @@ export function CharacterNominationModal({ selectionKind = "assignment", descrip
             className={styles.candidate}
             data-selected={selectedCharacterId === characterId}
             data-eligible={canBeNominated}
+            data-status={player.status}
             disabled={!canBeNominated}
             aria-pressed={selectedCharacterId === characterId}
-            aria-label={`${characterName}, played by ${player.displayName}, ${canBeNominated ? "living and eligible" : player.status === "ghost" ? "dead" : "not eligible"}`}
+            aria-label={`${characterName}, played by ${player.displayName}, ${player.status === "ghost" ? "dead" : canBeNominated ? "living and eligible" : "living, not eligible for this task"}`}
             style={{ "--candidate-order": index } as CSSProperties}
             onClick={() => canBeNominated && onSelect(characterId)}
           >
             <span className={styles.modelWindow} ref={(element) => { if (element) modelWindowRefs.current.set(characterId, element); else modelWindowRefs.current.delete(characterId); }}>
               {!modelUrl && <span className={styles.noRender}>{characterName.slice(0, 2).toUpperCase()}</span>}
               {player.status === "ghost" && <span className={styles.ghostMark} aria-hidden="true"><Skull /></span>}
-              {canBeNominated && <span className={styles.eligibilityMark}>LIVING</span>}
+              {player.status === "alive" && <span className={styles.eligibilityMark} data-state={canBeNominated ? "eligible" : "restricted"}>{canBeNominated ? "ELIGIBLE" : "ITEM NEEDED"}</span>}
             </span>
-            <span className={styles.identity}><strong>{characterName}</strong><small>{player.displayName}{!player.connected ? " · OFFLINE" : ""}</small></span>
+            <span className={styles.identity}><strong>{characterName}</strong><small>{player.displayName}{!player.connected ? " · OFFLINE" : ""}</small><small className={styles.candidateStatus} data-status={player.status} data-eligible={canBeNominated}>{player.status === "ghost" ? "DEAD" : canBeNominated ? "LIVING · ELIGIBLE" : "LIVING · NOT ELIGIBLE"}</small></span>
           </button>)}
           {candidates.length === 0 && <p className={styles.empty}>No characters have joined the session yet.</p>}
         </div>
