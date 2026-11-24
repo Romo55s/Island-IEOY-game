@@ -50,5 +50,5 @@ test("a newly created crew carries its initial ticket into the lobby", async ({ 
   await page.getByRole("button", { name: "Create private session" }).click();
 
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { name: /Passenger manifest · 1\/8 connected/i })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: /Passenger manifest · 1\/15 connected/i })).toBeVisible({ timeout: 15_000 });
 });

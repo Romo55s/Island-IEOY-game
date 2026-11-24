@@ -6,7 +6,7 @@ import { ConsequencePanel } from "../../src/ui/organisms/ConsequencePanel";
 afterEach(cleanup);
 
 describe("decision consequence report", () => {
-  it("renders the selected action, anonymous totals, exact deltas, and named status changes from one event", () => {
+  it("renders the selected action, vote results, exact deltas, and named status changes from one event", () => {
     const event: EventEntry = {
       id: "storm-1", createdAt: 1, text: "Compact log.", decisionId: "storm", winningOptionId: "patch", outcomeId: "roof-holds", socialCue: "danger",
       resolution: {
@@ -24,7 +24,7 @@ describe("decision consequence report", () => {
     render(<ConsequencePanel event={event} characterNames={{ "cast-daniel": "Daniel" }} />);
     expect(screen.getByRole("heading", { name: "The crew chose “Patch it with luggage.”" })).toBeInTheDocument();
     expect(screen.getByText("The roof holds. Daniel does not.")).toBeInTheDocument();
-    const voteList = screen.getByRole("heading", { name: "Anonymous vote" }).parentElement!;
+    const voteList = screen.getByRole("heading", { name: "Vote results" }).parentElement!;
     expect(within(voteList).getByText("3")).toBeInTheDocument();
     expect(screen.getByText("Crew · Shelter 95 → 100 (+5, consequence)")).toBeInTheDocument();
     expect(screen.getByText("Daniel · Health 5 → 0 (-5, starvation)")).toBeInTheDocument();
@@ -141,6 +141,6 @@ describe("decision consequence report", () => {
     }} />);
     expect(screen.getByRole("heading", { name: "The island responded." })).toBeVisible();
     expect(screen.getByText("The fuel was shared with camp.")).toBeVisible();
-    expect(screen.queryByRole("heading", { name: "Anonymous vote" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Vote results" })).not.toBeInTheDocument();
   });
 });

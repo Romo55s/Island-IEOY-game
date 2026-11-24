@@ -1,3 +1,4 @@
+import { initialDesperationState } from "../../src/shared/desperation/opportunities";
 import type { ApiErrorCode } from "../../src/shared/protocol";
 import type { PrivateRoomState } from "../../src/shared/domain";
 import { initialMotorboatRoute } from "../../src/shared/rules/motorboat";
@@ -43,8 +44,15 @@ export async function loadRoom(storage: StorageReaderWriter): Promise<PersistedR
   return room ? normalizeLoadedRoom(room) : null;
 }
 
+function inferLegacySignalPosition(events: PrivateRoomState["eventHistory"]): "unselected" | "low" | "ridge" {
+  const approach = [...events].reverse().find((event) => event.decisionId === "campaign-signal-approach");
+  if (approach?.outcomeId === "ridge-position" || approach?.outcomeId === "rope-ridge-position" || approach?.outcomeId === "surveyed-horizon") return "ridge";
+  if (approach?.outcomeId === "low-path-position") return "low";
+  return "unselected";
+}
+
 export function normalizeLoadedRoom(room: PersistedRoomState): PersistedRoomState {
-  const legacyEnding = room.endingId && !["group-escape", "solo-escape", "no-survivors"].includes(room.endingId as string);
+  const legacyEnding = room.endingId && !["group-escape", "solo-escape", "signal-rescue", "no-survivors"].includes(room.endingId as string);
   const livingCharacterIds = Object.values(room.characters).filter(({ status }) => status === "alive").map(({ characterId }) => characterId).sort();
   const deadCharacterIds = Object.values(room.characters).filter(({ status }) => status === "ghost").map(({ characterId }) => characterId).sort();
   // Old builds did not store enough ending detail to reconstruct the original
@@ -69,6 +77,15 @@ export function normalizeLoadedRoom(room: PersistedRoomState): PersistedRoomStat
     };
   return {
     ...room,
+    ...(room.campaign ? { campaign: {
+      ...room.campaign,
+      signalPosition: room.campaign.signalPosition ?? inferLegacySignalPosition(room.eventHistory),
+      coveReached: room.campaign.coveReached ?? (Boolean(room.motorboat?.discovered) || room.eventHistory.some((event) => event.decisionId === "campaign-coastal-hazard")),
+      storyFlags: room.campaign.storyFlags ?? [],
+      decisionsSinceFoodTick: room.campaign.decisionsSinceFoodTick ?? 0,
+    } } : {}),
+    desperation: room.desperation ?? initialDesperationState(),
+    targetNominationsByPlayer: room.targetNominationsByPlayer ?? {},
     assignmentNominationsByPlayer: room.assignmentNominationsByPlayer ?? {},
     resolutionSequence: room.resolutionSequence ?? 0,
     ...(room.phase !== "lobby" ? { motorboat: room.motorboat ?? initialMotorboatRoute() } : {}),

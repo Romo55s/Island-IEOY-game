@@ -3,6 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AssignmentResponsePanel } from "../../src/ui/organisms/AssignmentResponsePanel";
 import { DecisionConsole } from "../../src/ui/organisms/DecisionConsole";
 
+
+vi.mock("../../src/ui/organisms/CharacterNominationModal", () => ({
+  CharacterNominationModal: ({ eligibleCharacterIds, onSelect, onConfirm }: { eligibleCharacterIds: string[]; onSelect(id: string): void; onConfirm(): void }) => <div role="dialog">{eligibleCharacterIds.map(id => <button key={id} onClick={() => onSelect(id)}>{id}</button>)}<button onClick={onConfirm}>Confirm nominee</button></div>,
+}));
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
@@ -78,9 +82,11 @@ describe("assignment nomination", () => {
       onVote={onVote}
     />);
 
-    const assignedOption = screen.getByRole("button", { name: /Send one volunteer/i });
+    const assignedOption = screen.getByRole("button", { name: "Send one volunteer" });
     expect(assignedOption).toBeDisabled();
-    fireEvent.change(screen.getByRole("combobox", { name: "Nominate survivor for Send one volunteer" }), { target: { value: "cast-samantha" } });
+    fireEvent.click(screen.getByRole("button", { name: "Nominate survivor for Send one volunteer" }));
+    fireEvent.click(screen.getByRole("button", { name: "cast-samantha" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm nominee" }));
     expect(assignedOption).toBeEnabled();
     fireEvent.click(assignedOption);
     expect(onVote).toHaveBeenCalledWith("send", "cast-samantha");

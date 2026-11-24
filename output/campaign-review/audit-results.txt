@@ -1,0 +1,63 @@
+
+ RUN  v4.1.12 /Users/tonyromo55/Documents/IEOY-game
+
+stdout | output/campaign-review/audit.test.ts > walks deterministic full paths and validates public snapshots
+{"route":"signal","decisions":15,"deadlineSeconds":602,"ending":"signal-rescue","historyEntries":15,"path":["campaign-shoreline-priority","campaign-first-night","campaign-daybreak-survey","campaign-freshwater-run","campaign-wildlife-encounter","campaign-medical-triage","campaign-cave-expedition","campaign-shelter-reinforcement","campaign-crew-council","campaign-storm-warning","campaign-escape-project","campaign-signal-preparation","campaign-signal-approach","campaign-signal-window","campaign-signal-attempt"]}
+{"route":"boat","decisions":16,"deadlineSeconds":682,"ending":"group-escape","historyEntries":18,"path":["campaign-shoreline-priority","campaign-first-night","campaign-daybreak-survey","campaign-freshwater-run","campaign-wildlife-encounter","campaign-medical-triage","campaign-cave-expedition","campaign-shelter-reinforcement","campaign-crew-council","campaign-storm-warning","campaign-escape-project","campaign-coastal-expedition","campaign-coastal-hazard","motorboat-discovery","motorboat-repair","motorboat-group-launch"]}
+{"route":"failed-signal","decisions":20,"deadlineSeconds":822,"ending":"group-escape","historyEntries":20,"path":["campaign-shoreline-priority","campaign-first-night","campaign-daybreak-survey","campaign-freshwater-run","campaign-wildlife-encounter","campaign-medical-triage","campaign-cave-expedition","campaign-shelter-reinforcement","campaign-crew-council","campaign-storm-warning","campaign-escape-project","campaign-signal-preparation","campaign-signal-approach","campaign-signal-window","campaign-signal-attempt","campaign-coastal-expedition","campaign-coastal-hazard","motorboat-discovery","motorboat-repair","motorboat-group-launch"]}
+
+ ✓ output/campaign-review/audit.test.ts > reproduces coastal knowledge incorrectly surviving a low-path signal approach 1ms
+ ✓ output/campaign-review/audit.test.ts > reproduces an invented braced roof and spring trail after rain collection 0ms
+ ✓ output/campaign-review/audit.test.ts > reproduces single-person boar narration damaging both survivors 1ms
+ ✓ output/campaign-review/audit.test.ts > reproduces success overwritten by same-resolution starvation 0ms
+ ✓ output/campaign-review/audit.test.ts > reproduces cove arrival without recording cove discovery 0ms
+ ✓ output/campaign-review/audit.test.ts > walks deterministic full paths and validates public snapshots 31ms
+ × output/campaign-review/audit.test.ts > checks all visual graph edges have endpoints 3ms
+   → expected [ { …(4) }, { …(4) }, { …(4) } ] to deeply equal []
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  output/campaign-review/audit.test.ts > checks all visual graph edges have endpoints
+AssertionError: expected [ { …(4) }, { …(4) }, { …(4) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "id": "edge:outcome:storm-warning:storm-shelter:decision:escape-project",
++     "label": "Next story decision",
++     "source": "outcome:storm-warning:storm-shelter",
++     "target": "decision:escape-project",
++   },
++   {
++     "id": "edge:outcome:storm-warning:signal-staged:decision:escape-project",
++     "label": "Next story decision",
++     "source": "outcome:storm-warning:signal-staged",
++     "target": "decision:escape-project",
++   },
++   {
++     "id": "edge:outcome:storm-warning:coast-path-marked:decision:escape-project",
++     "label": "Next story decision",
++     "source": "outcome:storm-warning:coast-path-marked",
++     "target": "decision:escape-project",
++   },
++ ]
+
+ ❯ output/campaign-review/audit.test.ts:79:75
+     77|   for(const mode of ['route','encounters','mechanics'] as const) {
+     78|     const graph=getStoryMapGraph(mode); const ids=new Set(graph.nodes.…
+     79|     expect(graph.edges.filter(e=>!ids.has(e.source)||!ids.has(e.target…
+       |                                                                           ^
+     80|   }
+     81| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  23:35:52
+   Duration  196ms (transform 58ms, setup 0ms, import 103ms, tests 37ms, environment 0ms)
+

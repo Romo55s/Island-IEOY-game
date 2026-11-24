@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { isAudioUnlocked, scheduleCountdownAudio, subscribeAudioUnlocked } from "../../audio/audioSystem";
+import { useAudioSettings } from "../../audio/audioSettings";
 import { PixelLabel } from "../atoms/PixelLabel";
 import styles from "./molecules.module.css";
 
@@ -8,7 +10,49 @@ const localNow = () => Date.now();
 export function Countdown({ deadline, now = localNow, mode = "vote" }: { deadline: number; now?: () => number; mode?: CountdownMode }) {
   const getSeconds = () => Math.max(0, Math.ceil((deadline - now()) / 1000));
   const [seconds, setSeconds] = useState(getSeconds);
-  useEffect(() => { setSeconds(getSeconds()); const timer = window.setInterval(() => setSeconds(getSeconds()), 250); return () => window.clearInterval(timer); }, [deadline, now]);
+  const nowRef = useRef(now);
+  nowRef.current = now;
+  const audioUnlocked = useSyncExternalStore(subscribeAudioUnlocked, isAudioUnlocked, () => false);
+  const audioSettings = useAudioSettings();
+  useEffect(() => {
+    let timeout = 0;
+    const getCurrentSeconds = () => Math.max(0, Math.ceil((deadline - nowRef.current()) / 1000));
+    const initial = getCurrentSeconds();
+    setSeconds(initial);
+
+    const updateAtSecondBoundary = () => {
+      const next = getCurrentSeconds();
+      setSeconds(next);
+
+      if (next > 0) {
+        const remainingMs = deadline - nowRef.current();
+        const untilNextSecond = remainingMs - (next - 1) * 1000;
+        timeout = window.setTimeout(updateAtSecondBoundary, Math.max(1, untilNextSecond));
+      }
+    };
+
+    updateAtSecondBoundary();
+    return () => window.clearTimeout(timeout);
+  }, [deadline, mode, now]);
+  useEffect(() => {
+    if (mode === "reading" || !audioUnlocked) return;
+    let active = true;
+    let cancel: (() => void) | undefined;
+    const effectGain = (audioSettings.master / 100) * (audioSettings.effects / 100);
+    void scheduleCountdownAudio(
+      deadline,
+      () => nowRef.current(),
+      effectGain * 0.12,
+      effectGain * 0.42,
+    ).then((stop) => {
+      if (!active) stop();
+      else cancel = stop;
+    }).catch(() => undefined);
+    return () => {
+      active = false;
+      cancel?.();
+    };
+  }, [audioSettings.effects, audioSettings.master, audioUnlocked, deadline, mode, now]);
   const announcement = useMemo(() => thresholdMessage(seconds, mode), [mode, seconds]);
   const minutes = Math.floor(seconds / 60);
   const remainder = seconds % 60;

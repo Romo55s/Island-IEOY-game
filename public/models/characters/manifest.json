@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "textureBudget": {
     "minDimensionPx": 64,
     "maxDimensionPx": 256,
@@ -16,26 +16,26 @@
         "ReactPositive": "agree",
         "ReactFunny": "laugh_02",
         "Panic": "afraid",
-        "Hurt": "hit_to_stomach",
         "Death": "fall",
-        "OnFire": "fire",
-        "GhostIdle": "idle"
+        "GhostIdle": "idle",
+        "Hurt": "hit_to_stomach",
+        "OnFire": "fire"
       },
       "retainedClips": [
-        "idle",
-        "agree",
-        "cheer",
         "laugh_02",
-        "afraid",
-        "hit_to_stomach",
         "fall",
-        "fire"
+        "fire",
+        "idle",
+        "hit_to_stomach",
+        "afraid",
+        "agree",
+        "cheer"
       ],
       "renderProfile": {
         "id": "ps1-character",
         "meshopt": true,
-        "tintable": true,
-        "textureMaxPx": 256
+        "textureMaxPx": 256,
+        "tintable": true
       },
       "license": {
         "id": "LicenseRef-User-Provided",
@@ -44,7 +44,778 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "/models/characters/daniel-animation-library.glb#walk"
+      },
+      "modelBytes": 1835652,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "samantha",
+      "displayName": "Samantha",
+      "url": "/models/characters/samantha-raut.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "agree",
+        "cheer",
+        "afraid",
+        "laugh_01",
+        "fall",
+        "dance_02",
+        "make_a_call_01",
+        "look_around",
+        "greet_01",
+        "wait",
+        "cry",
+        "complain_01",
+        "idle"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 985652,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "jim-young",
+      "displayName": "Jim Young",
+      "url": "/models/characters/jim-young.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "wave_goodbye_02",
+        "fall",
+        "idle",
+        "box_03",
+        "box_01",
+        "agree",
+        "dance_05",
+        "scared_01",
+        "cheer",
+        "afraid",
+        "wait",
+        "scratch"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "ReactFunny": "Runtime alias to an available dance/cheer clip",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 876492,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "esther-morgan",
+      "displayName": "Esther Morgan",
+      "url": "/models/characters/esther-morgan.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "complain_01",
+        "wait",
+        "cheer",
+        "idle",
+        "make_a_call_01",
+        "laugh_01",
+        "afraid",
+        "fall",
+        "greet_01",
+        "dance_05",
+        "look_around",
+        "cry",
+        "agree"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 939396,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "tim",
+      "displayName": "Tim",
+      "url": "/models/characters/tim-corrigan.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "greet_01",
+        "look_around",
+        "cry",
+        "wait",
+        "idle",
+        "afraid",
+        "complain_01",
+        "fall",
+        "laugh_01",
+        "make_a_call_01",
+        "agree",
+        "cheer"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 883336,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "tony",
+      "displayName": "Tony",
+      "url": "/models/characters/tony.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "clap",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "idle",
+        "box_02",
+        "jump_rope_01",
+        "wait",
+        "fall",
+        "agree",
+        "afraid",
+        "fold_arms",
+        "angry_03",
+        "clap",
+        "warm_up",
+        "jump_down",
+        "scratch",
+        "cry"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Panic",
+        "OnFire": "Panic"
+      },
+      "modelBytes": 1251604,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "michelle",
+      "displayName": "Michelle",
+      "url": "/models/characters/michelle.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "idle",
+        "fall",
+        "agree",
+        "greet_01",
+        "complain_01",
+        "dance_01",
+        "look_around",
+        "make_a_call_01",
+        "cry",
+        "afraid",
+        "laugh_01",
+        "cheer",
+        "wait"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 1056520,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "jacob-ramirez",
+      "displayName": "Jacob Ramirez",
+      "url": "/models/characters/jacob-ramirez.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "idle",
+        "look_around",
+        "afraid",
+        "complain_01",
+        "dance_01",
+        "fall",
+        "wait",
+        "cheer",
+        "make_a_call_01",
+        "cry",
+        "dance_04",
+        "agree",
+        "greet_01",
+        "laugh_01"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 1146404,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "zach",
+      "displayName": "Zach",
+      "url": "/models/characters/zach.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "cry",
+        "fall",
+        "make_a_call_01",
+        "dance_02",
+        "cheer",
+        "greet_01",
+        "afraid",
+        "laugh_01",
+        "agree",
+        "idle",
+        "look_around",
+        "wait",
+        "complain_01"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 992496,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "jessica-adlock",
+      "displayName": "Jessica Adlock",
+      "url": "/models/characters/jessica-adlock.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "agree",
+        "laugh_01",
+        "greet_01",
+        "cheer",
+        "afraid",
+        "look_around",
+        "idle",
+        "fall",
+        "cry",
+        "make_a_call_01",
+        "wait",
+        "complain_01"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 1044208,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "jorge",
+      "displayName": "Jorge",
+      "url": "/models/characters/jorge.glb?v=reimport1",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "laugh_01",
+        "fall",
+        "idle",
+        "cry",
+        "agree",
+        "complain_01",
+        "cheer",
+        "dance_01",
+        "greet_01",
+        "afraid",
+        "make_a_call_01",
+        "look_around",
+        "wait"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 1265656,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "maria",
+      "displayName": "Maria",
+      "url": "/models/characters/maria.glb?v=reimport1",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "look_around",
+        "laugh_01",
+        "complain_01",
+        "greet_01",
+        "afraid",
+        "cry",
+        "make_a_call_01",
+        "idle",
+        "fall",
+        "cheer",
+        "agree",
+        "dance_03",
+        "wait"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 1192996,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "richard-wang",
+      "displayName": "Richard Wang",
+      "url": "/models/characters/richard-wang.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "fall",
+        "agree",
+        "wait",
+        "afraid",
+        "cry",
+        "laugh_01",
+        "dance_06",
+        "idle",
+        "greet_01",
+        "cheer",
+        "look_around",
+        "complain_01",
+        "make_a_call_01"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 966840,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "steve",
+      "displayName": "Steve",
+      "url": "/models/characters/steve.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_01",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle"
+      },
+      "retainedClips": [
+        "look_around",
+        "complain_01",
+        "cry",
+        "afraid",
+        "laugh_01",
+        "cheer",
+        "dance_06",
+        "agree",
+        "wait",
+        "idle",
+        "greet_01",
+        "fall",
+        "make_a_call_01"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "runtimeFallbacks": {
+        "Walk": "idle",
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      },
+      "modelBytes": 967420,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65
+    },
+    {
+      "id": "walter",
+      "displayName": "Walter",
+      "url": "/models/characters/walter.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "idle",
+        "ReactPositive": "agree",
+        "ReactFunny": "laugh_02",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "idle",
+        "Walk": "walk"
+      },
+      "retainedClips": [
+        "wait",
+        "cry",
+        "greet_03",
+        "walk",
+        "laugh_02",
+        "look_around",
+        "afraid",
+        "cheer",
+        "agree",
+        "idle",
+        "complain_02",
+        "make_a_call_01",
+        "fall",
+        "make_a_call_02"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "modelBytes": 1045952,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65,
+      "runtimeFallbacks": {
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic",
+        "Walk": "idle"
+      }
+    },
+    {
+      "id": "courtney",
+      "displayName": "Courtney",
+      "url": "/models/characters/courtney.glb",
+      "heightMeters": 1.76,
+      "animationMap": {
+        "Idle": "agree",
+        "ReactPositive": "agree",
+        "ReactFunny": "clap",
+        "Panic": "afraid",
+        "Death": "fall",
+        "GhostIdle": "agree",
+        "Walk": "walk"
+      },
+      "retainedClips": [
+        "agree",
+        "clap",
+        "afraid",
+        "dig",
+        "run",
+        "dance_01",
+        "fall",
+        "cheer",
+        "angry_02",
+        "walk",
+        "defeat_03",
+        "box_03"
+      ],
+      "renderProfile": {
+        "id": "ps1-character",
+        "meshopt": true,
+        "textureMaxPx": 256,
+        "tintable": true
+      },
+      "license": {
+        "id": "LicenseRef-User-Provided",
+        "author": "User-provided custom model",
+        "sourceUrl": null,
+        "attribution": "See docs/licenses/assets.md"
+      },
+      "repositoryApproved": true,
+      "deploymentApproved": false,
+      "modelBytes": 1132228,
+      "skeleton": "Mixamo",
+      "skeletonJoints": 65,
+      "runtimeFallbacks": {
+        "Hurt": "Runtime alias to Panic",
+        "OnFire": "Runtime alias to Panic"
+      }
     }
   ]
 }

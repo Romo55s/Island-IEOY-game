@@ -22,7 +22,7 @@ export function SessionIslandView({ snapshot, freeCamera = false, sceneLabel, im
 
   return <section className={styles.view} aria-label="Live island and crew" data-phase={snapshot.phase} data-history-count={snapshot.eventHistory.length} data-immersive={immersive || undefined}>
     <GameCanvas directed={!freeCamera} zoom={scene.members.length > 4 ? 48 : 64} target={target} onCreated={() => setReady(true)}>
-      <IslandScene staging="encounter" serverClockOffsetMs={serverClockOffsetMs} crewMembers={scene.members} zoneId={scene.zoneId} interactionPairCharacterIds={scene.interactionPairCharacterIds} motorboatPresentation={scene.motorboat} />
+      <IslandScene bearDefeated={snapshot.campaign?.storyFlags.includes("bear-defeated")} staging="encounter" serverClockOffsetMs={serverClockOffsetMs} crewMembers={scene.members} zoneId={scene.zoneId} interactionPairCharacterIds={scene.interactionPairCharacterIds} motorboatPresentation={scene.motorboat} />
     </GameCanvas>
     {!ready && <div className={styles.loading} role="status">Loading the island…</div>}
     {!immersive && <div className={styles.missionStrip} aria-live="polite">

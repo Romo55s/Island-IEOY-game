@@ -1,0 +1,24 @@
+export const SOUND_CUES = [
+  { id: "ambient-island", label: "Retro island wind and surf", group: "World", channel: "music", loop: true, gain: 0.58, description: "A clearly audible, normalized low fidelity breeze and distant surf loop for the island scene." },
+  { id: "menu-theme", label: "Previous title theme sketch", group: "Music archive", channel: "music", loop: true, gain: 0.5, description: "The earlier generated title loop, kept here for comparison with the new Tone.js composition." },
+  { id: "crash-impact", label: "Crash impact", group: "World", channel: "effects", loop: false, gain: 0.7, description: "A short metal-and-dirt impact for the opening crash." },
+  { id: "ui-select", label: "Menu selection · Tone", group: "Interface", channel: "effects", loop: false, gain: 0.35, description: "A short D-minor two-note confirmation made with Tone.js." },
+  { id: "decision-open", label: "Decision opened · Tone", group: "Interface", channel: "effects", loop: false, gain: 0.4, description: "A four-note radio-like alert that recalls the title motif when a crew choice arrives." },
+  { id: "vote-submit", label: "Vote submitted · Tone", group: "Interface", channel: "effects", loop: false, gain: 0.45, description: "A quick fifth-to-tonic confirmation for a submitted ballot." },
+  { id: "countdown-tick", label: "Quiet clock tick · Tone", group: "Interface", channel: "effects", loop: false, gain: 0.12, description: "A very soft, low tick marking each second of an active vote or choice clock." },
+  { id: "countdown-expired", label: "Time is up · Tone", group: "Interface", channel: "effects", loop: false, gain: 0.42, description: "A short two-note warning with a low thump when a timed vote or choice closes." },
+  { id: "consequence-reveal", label: "Incident report sting · Tone", group: "Outcomes", channel: "effects", loop: false, gain: 0.55, description: "A restrained dissonant chord and low report stamp; the paper turn remains a separate library sound." },
+  { id: "outcome-success", label: "Crew success · Tone", group: "Outcomes", channel: "effects", loop: false, gain: 0.4, description: "A cautious D-minor arpeggio that resolves upward without sounding triumphant." },
+  { id: "outcome-setback", label: "Crew setback · Tone", group: "Outcomes", channel: "effects", loop: false, gain: 0.45, description: "A descending semitone gesture with a low impact for a setback." },
+  { id: "character-fire", label: "Retro fire crackle", group: "Character", channel: "effects", loop: false, gain: 0.38, description: "A short, crunchy game-style ember pop with a warm low pulse." },
+  { id: "ghost-arrival", label: "Ghost arrival · Tone", group: "Character", channel: "effects", loop: false, gain: 0.5, description: "A rising D-minor shimmer for a character death, kept brief so it does not cover the report." },
+  { id: "crew-radio", label: "Crew radio murmur", group: "Character", channel: "effects", loop: false, gain: 0.35, description: "Synthetic, indistinct voices under the written crew exchange; it contains no spoken words." },
+  { id: "motorboat-start", label: "Motorboat starter", group: "World", channel: "effects", loop: false, gain: 0.55, description: "A rough starter pull that sputters and nearly catches." },
+  { id: "library-ui-select", label: "Kenney menu select", group: "Asset library · Kenney CC0", channel: "effects", loop: false, gain: 0.4, file: "/audio/library/kenney/interface-sounds/select_001.ogg", format: "ogg", source: "Kenney Interface Sounds · CC0", sourceUrl: "https://kenney.nl/assets/interface-sounds", description: "A crisp menu select from Kenney’s CC0 interface sound pack." },
+  { id: "library-ui-confirm", label: "Kenney confirmation", group: "Asset library · Kenney CC0", channel: "effects", loop: false, gain: 0.4, file: "/audio/library/kenney/interface-sounds/confirmation_001.ogg", format: "ogg", source: "Kenney Interface Sounds · CC0", sourceUrl: "https://kenney.nl/assets/interface-sounds", description: "A short confirmation cue from Kenney’s CC0 interface sound pack." },
+  { id: "library-report-paper", label: "Kenney report paper", group: "Asset library · Kenney CC0", channel: "effects", loop: false, gain: 0.42, file: "/audio/library/kenney/rpg-audio/bookFlip1.ogg", format: "ogg", source: "Kenney RPG Audio · CC0", sourceUrl: "https://kenney.nl/assets/rpg-audio", description: "A paper page turn for the recovered incident report." },
+  { id: "library-metal-latch", label: "Kenney metal latch", group: "Asset library · Kenney CC0", channel: "effects", loop: false, gain: 0.4, file: "/audio/library/kenney/rpg-audio/metalLatch.ogg", format: "ogg", source: "Kenney RPG Audio · CC0", sourceUrl: "https://kenney.nl/assets/rpg-audio", description: "A metallic latch click for the boat launch sequence." },
+] as const;
+
+export type SoundCueId = (typeof SOUND_CUES)[number]["id"];
+export type SoundCue = (typeof SOUND_CUES)[number];

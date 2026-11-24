@@ -4,18 +4,24 @@ import { createPortal, useFrame } from "@react-three/fiber";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { type Group, type Mesh, type SkinnedMesh } from "three";
 import { MeshoptDecoder } from "meshoptimizer";
-import { retargetClip } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { StartingItemProp } from "./StartingItemProp";
-import { CREW_WALK_SPEED } from "../routeMotion";
 import { createAnimationPlayback } from "./animationPlayback";
 
 const MODEL_URL = "/models/characters/daniel.glb";
 // Keep one shared source for every character so newly added Daniel clips
 // automatically become available to every compatible rig.
 const ANIMATION_SOURCE_URL = "/models/characters/daniel-animation-library.glb";
+const SOURCE_ALIGNED_CHARACTER_IDS = new Set(["cast-jorge", "cast-maria", "cast-jessica-adlock", "cast-tony", "cast-courtney"]);
+
+function stableHash(value: string): number {
+  let hash = 2166136261;
+  for (const character of value) hash = Math.imul(hash ^ character.charCodeAt(0), 16777619);
+  return hash >>> 0;
+}
 
 export function CharacterModel({
   tint,
+  characterId,
   modelUrl = MODEL_URL,
   animationName,
   animationOnce = false,
@@ -24,10 +30,10 @@ export function CharacterModel({
   animationStartedAt,
   serverClockOffsetMs = 0,
   startingItemId,
-  animationMode = "retarget",
-  walkSpeed,
+  showGroundMarker = true,
 }: {
   tint: string;
+  characterId?: string;
   modelUrl?: string;
   animationName?: string;
   animationOnce?: boolean;
@@ -36,11 +42,12 @@ export function CharacterModel({
   animationStartedAt?: number;
   serverClockOffsetMs?: number;
   startingItemId?: string;
-  animationMode?: "direct" | "retarget";
-  walkSpeed?: React.RefObject<number>;
+  showGroundMarker?: boolean;
 }) {
+  const isDaniel = modelUrl === MODEL_URL && (characterId === undefined || characterId === "cast-daniel");
+  const needsFootPivotCompensation = !isDaniel && !SOURCE_ALIGNED_CHARACTER_IDS.has(characterId ?? "");
   const gltf = useGLTF(modelUrl, false, true, (loader) => loader.setMeshoptDecoder(MeshoptDecoder));
-  const animationSource = useGLTF(ANIMATION_SOURCE_URL, false, true, (loader) => loader.setMeshoptDecoder(MeshoptDecoder));
+  const animationSource = useGLTF(isDaniel ? ANIMATION_SOURCE_URL : modelUrl, false, true, (loader) => loader.setMeshoptDecoder(MeshoptDecoder));
   const model = useMemo(() => {
     const instance = clone(gltf.scene) as Group;
     instance.traverse((node) => {
@@ -51,20 +58,17 @@ export function CharacterModel({
     });
     return instance;
   }, [gltf.scene]);
-  const sourceSkin = animationSource.scene.getObjectByProperty("isSkinnedMesh", true) as SkinnedMesh | undefined;
-  const targetSkin = model.getObjectByProperty("isSkinnedMesh", true) as SkinnedMesh | undefined;
   const rightHand = model.getObjectByName("mixamorig:RightHand") ?? model.getObjectByName("mixamorigRightHand");
   const heldItem = useMemo(() => rightHand && startingItemId
     ? createPortal(<group position={[0, 0.025, 0]} rotation={[Math.PI / 2, 0, Math.PI / 2]}><StartingItemProp itemId={startingItemId} /></group>, rightHand)
     : null, [rightHand, startingItemId]);
-  const isDaniel = modelUrl === MODEL_URL;
-  const animationRoot = isDaniel || animationMode === "direct" ? model : targetSkin ?? model;
-  // Retarget in pose space: same Mixamo bone labels do not imply identical
-  // rest-pose axes. SkeletonUtils also omits joints absent from Courtney.
-  const compatibleClips = useMemo(() => animationSource.animations.map((clip) => {
-    if (isDaniel || !sourceSkin || !targetSkin) return clip;
-
-    if (animationMode === "direct") {
+  const animationRoot = model;
+  // Each cast member uses clips embedded in their own model. Daniel's separate
+  // library is reserved for Daniel's model and is never retargeted to other rigs.
+  const compatibleClips = useMemo(() => {
+    const sourceClips = isDaniel ? animationSource.animations : gltf.animations;
+    return sourceClips.map((clip) => {
+      if (isDaniel) return clip;
       const compatible = clip.clone();
       compatible.tracks = clip.tracks.filter((track) => {
         const separator = track.name.indexOf(".");
@@ -72,25 +76,37 @@ export function CharacterModel({
         return model.getObjectByName(targetName) !== undefined;
       });
       return compatible;
-    }
-
-    const normalizeBoneName = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const sourceNames = new Map(sourceSkin.skeleton.bones.map((bone) => [normalizeBoneName(bone.name), bone.name]));
-    const names = Object.fromEntries(targetSkin.skeleton.bones.flatMap((bone) => {
-      const sourceName = sourceNames.get(normalizeBoneName(bone.name));
-      return sourceName ? [[bone.name, sourceName]] : [];
-    }));
-    const sourceHip = sourceSkin.skeleton.bones.find((bone) => /hips?/i.test(bone.name));
-
-    return retargetClip(targetSkin, sourceSkin, clip, {
-      names,
-      hip: sourceHip?.name,
-      preserveBoneMatrix: true,
-      preserveHipPosition: true,
     });
-  }), [animationSource.animations, animationMode, isDaniel, model, sourceSkin, targetSkin]);
+  }, [animationSource.animations, gltf.animations, isDaniel, model]);
   const { actions, names, mixer } = useAnimations(compatibleClips, animationRoot);
   const idleName = names.find((name) => name.toLowerCase().includes("idle")) ?? names[0] ?? "";
+  const idleVariant = stableHash(modelUrl);
+  const idleSpeed = ([0.72, 0.86, 1] as const)[idleVariant % 3]!;
+  const idlePhase = ((idleVariant >>> 8) % 1000) / 1000;
+  const resolveClipName = (requested: string): string | undefined => {
+    const normalized = (name: string) => name.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const exact = names.find((name) => normalized(name) === normalized(requested));
+    if (exact) return exact;
+    const key = normalized(requested);
+    const aliases: Record<string, string[]> = {
+      laugh02: ["laugh01"], greet03: ["greet01", "greet02"], greet01: ["greet03", "greet02", "wavegoodbye02"],
+      complain01: ["complain02", "scratch", "afraid", "scared01"], complain02: ["complain01"], frustrated02: ["complain01", "complain02"],
+      afraid: ["scared01"], scared01: ["afraid"], hittohead: ["afraid", "scared01"], hittostomach: ["afraid", "scared01"],
+      depressed: ["cry", "afraid", "scared01"], cry: ["depressed", "afraid", "scared01"], clap: ["cheer", "agree"],
+      foldarms: ["agree", "complain01", "complain02"],
+      hug: ["cheer", "greet01", "greet03"], fire: ["afraid", "scared01"],
+      lookaround: ["wait", "scratch"],
+    };
+    const alias = aliases[key]?.map((candidate) => names.find((name) => normalized(name) === candidate)).find(Boolean);
+    if (alias) return alias;
+    if (key.startsWith("dance")) return names.find((name) => normalized(name).startsWith("dance"));
+    if (key.startsWith("laugh")) return names.find((name) => normalized(name).startsWith("laugh")) ?? names.find((name) => normalized(name).startsWith("cheer")) ?? names.find((name) => normalized(name) === "clap");
+    if (key.startsWith("cheer")) return names.find((name) => normalized(name).startsWith("cheer")) ?? names.find((name) => normalized(name) === "clap") ?? names.find((name) => normalized(name) === "agree");
+    if (key.startsWith("greet")) return names.find((name) => normalized(name).startsWith("greet")) ?? names.find((name) => normalized(name).startsWith("wavegoodbye"));
+    if (key.startsWith("complain") || key.startsWith("frustrated")) return names.find((name) => normalized(name).startsWith("complain")) ?? names.find((name) => normalized(name).startsWith("afraid")) ?? names.find((name) => normalized(name).startsWith("scared"));
+    return undefined;
+  };
+  const effectiveAnimationName = animationName ? resolveClipName(animationName) ?? animationName : idleName;
   const playback = useMemo(() => createAnimationPlayback(mixer, actions, idleName, (name) => {
     if (import.meta.env.DEV) console.warn(`Missing character animation "${name}"; using "${idleName}".`);
   }), [mixer, actions, idleName]);
@@ -99,23 +115,29 @@ export function CharacterModel({
 
   useEffect(() => () => playback.dispose(), [playback]);
   useEffect(() => {
-    playback.request({ name: animationName ?? idleName, once: animationOnce, holdAtEnd: animationHoldAtEnd, eventId: animationEventId, elapsedSeconds: elapsedSeconds() });
-  }, [playback, animationName, animationOnce, animationHoldAtEnd, animationEventId, animationStartedAt, serverClockOffsetMs, idleName]);
+    playback.request({ name: effectiveAnimationName, once: animationOnce, holdAtEnd: animationHoldAtEnd, eventId: animationEventId, elapsedSeconds: elapsedSeconds() });
+    if (!animationOnce && effectiveAnimationName.toLowerCase() === idleName.toLowerCase()) {
+      const idleAction = actions[effectiveAnimationName];
+      if (idleAction) idleAction.time = idleAction.getClip().duration * idlePhase;
+    }
+  }, [playback, actions, effectiveAnimationName, animationOnce, animationHoldAtEnd, animationEventId, animationStartedAt, serverClockOffsetMs, idleName, idlePhase]);
 
   useFrame(() => {
     playback.tick(elapsedSeconds());
-    if (animationName?.toLowerCase() !== "walk") return;
-    const action = animationName ? actions[animationName] : undefined;
-    if (!action) return;
-    action.timeScale = Math.max(0.08, Math.min(1.25, (walkSpeed?.current ?? CREW_WALK_SPEED) / CREW_WALK_SPEED));
+    if (effectiveAnimationName.toLowerCase() === idleName.toLowerCase()) {
+      const idleAction = actions[effectiveAnimationName];
+      if (idleAction) idleAction.timeScale = idleSpeed;
+      return;
+    }
   });
 
   return <group>
-    <primitive object={model} scale={1.76} />
-    {heldItem}
-    <mesh position={[0, 0.07, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+    {!needsFootPivotCompensation
+      ? <group scale={1.76}><primitive object={model} />{heldItem}</group>
+      : <group scale={1.76}><group position={[0, -1, 0]} scale={2}><primitive object={model} />{heldItem}</group></group>}
+    {showGroundMarker && <mesh position={[0, 0.07, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <ringGeometry args={[0.22, 0.3, 8]} /><meshBasicMaterial color={tint} />
-    </mesh>
+    </mesh>}
   </group>;
 }
 

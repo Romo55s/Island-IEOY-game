@@ -40,6 +40,15 @@ describe("UI Lab", () => {
     expect(screen.getByRole("button", { name: /B/i })).toHaveAttribute("data-submitted", "false");
   });
 
+  it("locks choices and keyboard submission while a vote is awaiting server acknowledgement", () => {
+    const onVote = vi.fn();
+    render(<DecisionConsole decision={{ id: "d", prompt: "Choose", options: [{ id: "a", label: "A" }, { id: "b", label: "B" }] }} deadline={Date.now() + 20_000} selectedId="a" submitting onVote={onVote} />);
+    expect(screen.getByRole("button", { name: /A/i })).toBeDisabled();
+    expect(screen.getByRole("status")).toHaveTextContent("Sending your vote");
+    fireEvent.keyDown(window, { key: "1" });
+    expect(onVote).not.toHaveBeenCalled();
+  });
+
   it("supports number-key voting only for present options", () => {
     const onVote = vi.fn();
     render(<DecisionConsole decision={{ id: "d", prompt: "Choose", options: [{ id: "a", label: "A" }, { id: "b", label: "B" }] }} deadline={Date.now() + 20_000} onVote={onVote} />);

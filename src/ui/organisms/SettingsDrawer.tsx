@@ -1,2 +1,15 @@
+import { setAudioSetting, useAudioSettings } from "../../audio/audioSettings";
 import styles from "./organisms.module.css";
-export function SettingsDrawer({ master = 70, music = 45, effects = 80 }: { master?: number; music?: number; effects?: number }) { return <aside className={styles.drawer} aria-labelledby="settings-title"><h2 className={styles.heading} id="settings-title">Black-box settings</h2>{[["Master volume", master], ["Music volume", music], ["Effects volume", effects]].map(([label, value]) => <label className={styles.control} key={String(label)}>{label}<input type="range" min="0" max="100" value={value} readOnly aria-label={String(label)} /></label>)}</aside>; }
+export function SettingsDrawer() {
+  const settings = useAudioSettings();
+  return <aside className={styles.drawer} aria-labelledby="settings-title">
+    <h2 className={styles.heading} id="settings-title">Black-box settings</h2>
+    {(["master", "music", "effects"] as const).map((channel) => {
+      const label = `${channel[0]!.toUpperCase()}${channel.slice(1)} volume`;
+      return <label className={styles.control} key={channel}>
+        <span>{label} · {settings[channel]}%</span>
+        <input type="range" min="0" max="100" step="1" value={settings[channel]} aria-label={label} onChange={(event) => setAudioSetting(channel, Number(event.target.value))} />
+      </label>;
+    })}
+  </aside>;
+}

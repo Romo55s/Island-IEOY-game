@@ -2,6 +2,7 @@ import type { PrivateRoomState } from "../domain";
 
 export const DAILY_FOOD_CONSUMPTION = 10;
 export const STARVATION_HEALTH_DAMAGE = 20;
+export const CAMPAIGN_DECISIONS_PER_DAY = 3;
 
 export interface DailySurvivalResult {
   state: PrivateRoomState;
@@ -10,7 +11,7 @@ export interface DailySurvivalResult {
   starvationDamageByCharacterId: Record<string, number>;
 }
 
-/** One resolved group decision is one in-game day. Food at zero on day start causes starvation damage. */
+/** One in-game day consumes food; campaign pacing decides when the day tick applies. */
 export function applyDailySurvival(state: PrivateRoomState): DailySurvivalResult {
   const players = { ...state.players };
   const characters = { ...state.characters };

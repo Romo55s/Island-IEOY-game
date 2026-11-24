@@ -1,0 +1,5 @@
+.control { position: fixed; z-index: 40; right: clamp(12px, 2.2vw, 28px); bottom: clamp(12px, 2.2vw, 28px); display: inline-flex; min-width: 112px; min-height: 44px; align-items: center; justify-content: center; gap: 8px; padding: 7px 10px; color: var(--paper-bone); background: var(--metal-inset); border: 2px solid var(--metal-edge); box-shadow: 3px 3px 0 rgb(0 0 0 / 65%); font: .5rem var(--font-display); letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+.control:hover, .control:focus-visible { color: var(--bright-amber); border-color: var(--vest-yellow); outline: 2px solid var(--vest-yellow); outline-offset: 2px; }
+.icon { width: 20px; height: 20px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-linecap: square; stroke-linejoin: miter; stroke-width: 1.8; }
+@media (max-width: 520px) { .control { right: 12px; bottom: 12px; min-width: 44px; width: 44px; padding: 8px; } .control span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
+@media (prefers-reduced-motion: reduce) { .control { transition: none; } }

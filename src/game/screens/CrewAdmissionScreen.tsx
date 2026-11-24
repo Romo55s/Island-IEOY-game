@@ -1,6 +1,8 @@
 import { useId, useState } from "react";
 import { createSession, joinSession } from "../../client/sessionApi";
 import { savePendingAdmission } from "../../client/sessionStorage";
+import { navigateTo } from "../../app/navigation";
+import { BackButton, RetroButton } from "../../ui/atoms/RetroButton";
 import styles from "./CrewAdmissionScreen.module.css";
 
 export type CrewAdmissionMode = "create" | "join";
@@ -50,7 +52,7 @@ export function CrewAdmissionScreen({ mode }: CrewAdmissionScreenProps) {
         ? await createSession({ displayName, password })
         : await joinSession({ code, displayName, password });
       savePendingAdmission(admission);
-      window.location.assign("/");
+      navigateTo("/");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Could not enter the session.");
     } finally {
@@ -86,15 +88,15 @@ export function CrewAdmissionScreen({ mode }: CrewAdmissionScreenProps) {
           </label>
           <p className={styles.fieldHint}>{text.help}</p>
           {error && <p className={styles.validationMessage} id={errorId} role="alert">{error}</p>}
-          <button type="submit" disabled={isSubmitting}>
+          <RetroButton className={styles.submitButton} type="submit" tone="primary" disabled={isSubmitting}>
             {isSubmitting && <span className={styles.loadingMark} aria-hidden="true" />}
             {isSubmitting ? text.submitting : text.submit}
-          </button>
+          </RetroButton>
         </div>
       </form>
 
       <footer className={styles.footer}>
-        <button className={styles.backButton} type="button" onClick={() => window.location.assign("/")}>Back</button>
+        <BackButton className={styles.backButton} href="/">Back</BackButton>
         <a className={styles.devLink} href="/sandbox">Open island sandbox <span>DEV</span></a>
       </footer>
     </section>

@@ -2,6 +2,10 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PrivateChoicePanel } from "../../src/ui/organisms/PrivateChoicePanel";
 
+
+vi.mock("../../src/ui/organisms/CharacterNominationModal", () => ({
+  CharacterNominationModal: ({ eligibleCharacterIds, onSelect, onConfirm }: { eligibleCharacterIds: string[]; onSelect(id: string): void; onConfirm(): void }) => <div role="dialog">{eligibleCharacterIds.map(id => <button key={id} onClick={() => onSelect(id)}>{id}</button>)}<button onClick={onConfirm}>Confirm nominee</button></div>,
+}));
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
@@ -39,7 +43,9 @@ describe("private motorboat choice", () => {
     />);
     const transfer = screen.getByRole("button", { name: "Give it privately" });
     expect(transfer).toBeDisabled();
-    fireEvent.change(screen.getByRole("combobox", { name: "Fuel transfer target" }), { target: { value: "cast-samantha" } });
+    fireEvent.click(screen.getByRole("button", { name: "Choose a living character to receive the fuel" }));
+    fireEvent.click(screen.getByRole("button", { name: "cast-samantha" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm nominee" }));
     expect(transfer).toBeEnabled();
     fireEvent.click(transfer);
     expect(onRespond).toHaveBeenCalledWith("transfer", "cast-samantha");

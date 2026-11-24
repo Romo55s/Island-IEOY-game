@@ -1,0 +1,73 @@
+- main [ref=e4]:
+  - heading "Encounter presentation preview" [level=1] [ref=e5]
+  - paragraph [ref=e6]: Development fixtures · real live renderer · no gameplay state is changed.
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - text: Crew size
+      - combobox "Crew size" [ref=e9]:
+        - option "2"
+        - option "8" [selected]
+    - generic [ref=e10]:
+      - text: Encounter
+      - combobox "Encounter" [ref=e11]:
+        - option "Crash beach"
+        - option "Jungle clearing"
+        - option "Rocky coast"
+        - option "Waterfall pool" [selected]
+        - option "Forest crossroads"
+        - option "Mountain foothills"
+    - button "Replay success" [ref=e12]
+    - button "Show death" [ref=e13]
+    - button "Reset to decision" [ref=e14]
+    - status "Preview event" [ref=e15]: "2"
+  - region "Live island and crew" [ref=e16]:
+    - generic [ref=e20]:
+      - generic [ref=e21]: Decision 3 of 10
+      - generic [ref=e22]: Waterfall pool
+      - generic [ref=e23]: 8 living · 0 ghosts
+    - generic [ref=e24]:
+      - text: CREW THOUGHTS
+      - paragraph [ref=e25]: "Player 1: “I made a checklist. It has a tab called unexpected island.”"
+    - list "Players on the island" [ref=e26]:
+      - listitem [ref=e27]: Player 1 as Daniel
+      - listitem [ref=e28]: Player 2 as Samantha
+      - listitem [ref=e29]: Player 3 as Jim Young
+      - listitem [ref=e30]: Player 4 as Esther Morgan
+      - listitem [ref=e31]: Player 5 as Tim
+      - listitem [ref=e32]: Player 6 as Tony
+      - listitem [ref=e33]: Player 7 as Michelle
+      - listitem [ref=e34]: Player 8 as Jacob Ramirez
+    - list "Crew survival status" [ref=e35]:
+      - listitem [ref=e36]:
+        - generic [ref=e37]: Daniel
+        - generic [ref=e38]: ALIVE
+        - generic [ref=e39]: HP 100 · Food 80
+      - listitem [ref=e40]:
+        - generic [ref=e41]: Samantha
+        - generic [ref=e42]: ALIVE
+        - generic [ref=e43]: HP 100 · Food 80
+      - listitem [ref=e44]:
+        - generic [ref=e45]: Jim Young
+        - generic [ref=e46]: ALIVE
+        - generic [ref=e47]: HP 100 · Food 80
+      - listitem [ref=e48]:
+        - generic [ref=e49]: Esther Morgan
+        - generic [ref=e50]: ALIVE
+        - generic [ref=e51]: HP 100 · Food 80
+      - listitem [ref=e52]:
+        - generic [ref=e53]: Tim
+        - generic [ref=e54]: ALIVE
+        - generic [ref=e55]: HP 100 · Food 80
+      - listitem [ref=e56]:
+        - generic [ref=e57]: Tony
+        - generic [ref=e58]: ALIVE
+        - generic [ref=e59]: HP 100 · Food 80
+      - listitem [ref=e60]:
+        - generic [ref=e61]: Michelle
+        - generic [ref=e62]: ALIVE
+        - generic [ref=e63]: HP 100 · Food 80
+      - listitem [ref=e64]:
+        - generic [ref=e65]: Jacob Ramirez
+        - generic [ref=e66]: ALIVE
+        - generic [ref=e67]: HP 100 · Food 80
+    - paragraph [ref=e68]: Directed encounter view

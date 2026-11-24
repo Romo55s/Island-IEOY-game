@@ -14,7 +14,7 @@ This is the current creative brief, not a blanket claim of implemented functiona
 - Items unlock actions, food is consumed, equipment can break, and players can feed or heal each other.
 - Retain hunger, injury, shared supplies, water, morale, and shelter as meaningful systems.
 - Unexpected chaos should be common. Early death is allowed; dead players still participate in group decisions.
-- No fixed real-time session duration is specified; escape determines success. Boat escape and other alternatives should be developed.
+- Target a roughly 15-minute run, with time for the group to discuss decisions. This is a pacing target, not a hard session timer; escape and story outcomes determine when a run ends. A 40-second vote deadline is being trialed; all-player votes still resolve immediately. Human pacing remains untested.
 - Directed cinematic camera, desktop first, dark humor. Phones are not the immediate priority.
 - Death Road to Canada is a reference for character-driven situations and consequences, not a request to copy its action gameplay.
 - First successful escape ends the entire session, even if only one character escapes. Fade to black, then tell what happened to escapees and the abandoned crew, including darkly comic later fates.
@@ -22,16 +22,28 @@ This is the current creative brief, not a blanket claim of implemented functiona
 - Group decisions can publicly force a living character into a task. Only that player receives a 15-second Accept / Try to refuse response; timeout accepts, refusal is attempted once, and a failed refusal forces the original task. The attempt and result become public after resolution. See [Compulsory assignment and refusal v1](design/assignment-refusal-v1.md).
 - Living players and ghosts have equal group vote weight. The option with the most votes wins; ties are selected randomly between tied leaders; no votes means a random available answer. This interprets “majority” as most votes, not a requirement for more than half of all players.
 - Show descriptive risk, not numerical success percentages. Probabilities still exist internally.
-- Remove the fixed ten-decision limit. Build authored, connected paths toward endings rather than unrelated shuffled encounters. Detailed branch/pace architecture below is proposed.
+- The main story should be an authored, connected decision tree with multiple routes and distinct good, mixed, and bad endings. Earlier choices must open, close, or change later situations and ending conditions. Randomness can add uncertainty to outcomes, but should not scramble the story into unrelated encounters. The exact tree and ending set still need to be authored.
+- Remove the fixed ten-decision limit. Build authored, connected paths toward endings rather than unrelated shuffled encounters.
 - Typed-language interpretation is deferred. Authored choices and bounded actions are the first version.
 - Target the actual group of approximately 14 players; current testing is with 8. This is a desired capacity, not a claim that the current implementation supports 14.
 - The owner specified no additional humor boundaries. Use dark fictional game events; do not invent biographical claims about the real people represented by the cast. Existing asset/privacy constraints are unchanged.
+- **Presentation direction approved 2026-10-23:** the normal multiplayer session is a story-led incident room, not a player-controlled 3D island sandbox. Players spend time reading the situation, talking, choosing, and seeing the consequences through authored scene illustrations and crew reactions.
+- The 3D island remains accessible as a development sandbox. Character models are intended as portraits beside their names in the story interface; use distinct approved character renders/models when available. Do not treat the currently shared Daniel GLB as nine distinct identities.
+- Optional skill mini-games, such as making fire, can be considered after the story-and-choice loop works well. They are not part of the current implementation slice.
 
-The current code uses the motorboat route rather than a ten-card completion loop and still has eight-player limits. Voice/in-person setup remains unspecified. Three success categories, general resource rates, and later-route pressure remain proposals. The assignment/refusal behavior is implemented and proven by the cave and motorboat-repair encounters; the first motorboat route is implemented but still requires balance and human playtest acceptance.
+The current prototype starts a server-owned campaign graph with shoreline and first-night choices, then runs through daybreak, freshwater, wildlife, triage, cave, shelter, crew council, and storm decisions before the escape project. The signal route adds preparation, approach, and weather-window choices before its rescue attempt; the boat route adds a coastal expedition and hazard before the existing motorboat system. This expands the authored run to about 15 group decisions on the signal path and about 16 on the boat path, plus the crash and boat's private/assigned actions. The roughly 15-minute session is a target that still needs full human playtesting and pacing adjustment. The room supports up to 15 players, one for each selectable character. Voice/in-person setup and broader balance remain open.
+
+## 1.1 Story structure direction
+
+The intended campaign is a branching narrative graph, not a random event playlist. Each situation reads the authoritative crew and island state, offers choices with visible stakes, and records durable facts. Those facts determine which situations become available, how later scenes are written, and which endings are reachable. Branches may deliberately reconverge after their consequences have been recorded; reconvergence should preserve differences in relationships, resources, injuries, items, and who is alive.
+
+Use authored randomness only where it creates uncertainty inside a coherent situation: vote ties, fallback actor selection, and risky action outcomes. Do not randomly choose an ineligible event, erase an earlier choice, or promise a consequence the server did not resolve. The server remains the source of truth; scene art and dialogue present the resolved facts.
+
+The first full story arc is mapped and the expanded playable path is implemented: crash setup, linked survival decisions, signal rescue, motorboat escape, and five target endings. The raft and further branches remain future content. The campaign coherence review is recorded in `docs/design/2026-10-28-campaign-review.md`; its correction plan is in `docs/superpowers/plans/2026-10-28-campaign-coherence-and-validation.md`. Full-route multiplayer acceptance and human pacing/balance still need verification.
 
 ## 2. Pitch and reference
 
-**Working genre:** semi-cooperative, choice-driven survival party game with cinematic consequences and dark comedy.
+**Working genre:** semi-cooperative, story-led survival party game with consequential group decisions, illustrated incidents, and dark comedy.
 
 Friends stranded on an island need one another's skills to survive and build an escape. Every helpful act can create a debt; every useful discovery can become a secret. The group chooses a plan, individual players decide how much to contribute, and the cast acts out the resulting success, humiliation, injury, or betrayal. Someone may escape without everyone else.
 
@@ -41,7 +53,7 @@ Death Road to Canada's publisher describes randomized encounters/personalities, 
 
 ## 3. Proposed core loop
 
-Situation → group plan → relevant personal commitments → cinematic resolution → persistent aftermath → new situation.
+Situation → group plan → relevant personal commitments → illustrated resolution and crew reactions → persistent aftermath → new situation.
 
 1. **Establish:** show the actual problem, location, involved characters, relevant resources, and known risks. Present eligible actions, not an arbitrary unrelated card.
 2. **Choose:** group votes on the plan, such as hunt, distract, retreat, or spend food to avoid the bear. Assign a named living actor/helper when needed; group assignment can be compulsory.
@@ -170,7 +182,7 @@ Proposed first acceptance checks:
 - A human group can explain the cause of a disaster and at least one alternative action afterward.
 - Fade-to-black epilogues distinguish actual session facts from later authored fates and contain no resurrected dead characters or inconsistent island/escapee assignments.
 
-Keep the work at design/roadmap level for this discussion. Next produce separately testable implementation plans for presentation repair, shared/private event rules, and the escape slice. Do not generate a speculative whole-game code plan or start implementation from unapproved defaults. The target group is 14, but first validate the existing eight-player format. Fourteen-player support requires room/protocol limits, enough selectable characters, cast staging, HUD/ballot capacity, parallel private prompts, and load/reconnect testing; it is not just increasing one constant.
+The roster-capacity milestone now supports up to 16 players, matching the 16 selectable characters including Courtney. Worker admission, public protocol bounds, player counters, and island staging use the same catalog-derived limit. A 16-player browser load/reconnect playtest and human campaign pacing validation remain open.
 
 ## 11. Proposed authored story map and progression
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { sequenceRandom } from "../../src/shared/rules/random";
+import { INITIAL_CHARACTER_RESOURCES, type DecisionCard } from "../../src/shared/domain";
 import { nextAlarmAt, processDueEvents } from "../../worker/game/roomScheduler";
 import { newPrivateRoom, type PersistedRoomState } from "../../worker/game/roomStorage";
 
@@ -41,6 +42,33 @@ describe("room scheduler", () => {
     expect(next.phaseDeadlineAt).toBeNull();
     expect(next.votingOpensAt).toBeNull();
     expect(next.earliestResolveAt).toBeNull();
+  });
+
+  it("resolves a decision as soon as every connected player has voted", () => {
+    const state = room();
+    const card: DecisionCard = { id: "quick-vote", prompt: "Choose.", options: [{ id: "go", label: "Go", outcomes: [{ id: "went", text: "The crew goes.", weight: 1 }] }] };
+    state.phase = "decision";
+    state.phaseStartedAt = 1_000;
+    state.votingOpensAt = 2_000;
+    state.earliestResolveAt = 2_000;
+    state.phaseDeadlineAt = 30_000;
+    state.phaseEndsAt = 30_000;
+    state.players = {
+      p_host: { id: "p_host", displayName: "Host", status: "alive", characterId: "cast-daniel", ready: true, connected: true, joinedAt: 1 },
+      p_friend: { id: "p_friend", displayName: "Friend", status: "alive", characterId: "cast-samantha", ready: true, connected: true, joinedAt: 2 },
+    };
+    state.characters = {
+      "cast-daniel": { characterId: "cast-daniel", status: "alive", resources: { ...INITIAL_CHARACTER_RESOURCES } },
+      "cast-samantha": { characterId: "cast-samantha", status: "alive", resources: { ...INITIAL_CHARACTER_RESOURCES } },
+    };
+    state.deck = [card];
+    state.currentDecisionId = card.id;
+    state.votesByPlayer = { p_host: "go", p_friend: "go" };
+    state.eligibleVoterIds = ["p_host", "p_friend"];
+
+    const resolved = processDueEvents(state, 2_001, sequenceRandom([0]));
+    expect(resolved.phase).toBe("reveal");
+    expect(resolved.phaseDeadlineAt).toBeGreaterThan(2_001);
   });
 
   it("resolves an assignment response immediately and timeout acceptance at the exact deadline", () => {

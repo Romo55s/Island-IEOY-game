@@ -1,4 +1,4 @@
-import type { DecisionCard, MotorboatRouteState, Outcome } from "../domain";
+import type { CampaignState, DecisionCard, MotorboatRouteState, Outcome } from "../domain";
 
 export const MOTORBOAT_DECISION_IDS = {
   discovery: "motorboat-discovery",
@@ -30,6 +30,24 @@ export const MOTORBOAT_DISCOVERY_CARD: DecisionCard = {
     { id: "strip-wreck", label: "Strip the nearby wreck for parts", outcomes: [{ id: "parts-salvaged", text: "Useful repair parts are found. The tide has time to chew a leak in the hull.", weight: 1, motorboatEffect: { type: "discovery", hull: "leaking", repairParts: true, engineDiagnosed: false } }] },
   ],
 };
+
+export function createMotorboatDiscoveryCard(campaign?: CampaignState): DecisionCard {
+  if (!campaign?.coveLocated) return campaign?.coveReached
+    ? { ...MOTORBOAT_DISCOVERY_CARD, prompt: campaign.signalFailed ? "The signal failed, but the crew reached the cove. What should they inspect first?" : "The crew reaches the cove. What should they inspect first?" }
+    : campaign?.signalFailed
+      ? { ...MOTORBOAT_DISCOVERY_CARD, prompt: "The signal failed to reach anyone. The crew follows the coastline, searching for the motorboat." }
+      : MOTORBOAT_DISCOVERY_CARD;
+  return {
+    ...MOTORBOAT_DISCOVERY_CARD,
+    prompt: campaign.signalFailed
+      ? "With the signal unanswered, the crew follows the scout's tide marks to the sheltered cove. What do you inspect first?"
+      : "The scout's tide marks lead the crew straight to the sheltered cove. What do you inspect first?",
+    options: [
+      ...MOTORBOAT_DISCOVERY_CARD.options,
+      { id: "follow-scout-marks", label: "Follow the scout's safe tide marks", outcomes: [{ id: "scout-found-repair-parts", text: "The scout's route avoids the worst surf and leads to a dry parts crate beside the boat.", weight: 1, motorboatEffect: { type: "discovery", hull: "sound", repairParts: true, engineDiagnosed: true } }] },
+    ],
+  };
+}
 
 export function createMotorboatRepairCard(state: MotorboatRouteState, shelter: number, startingItemIds: readonly string[] = []): DecisionCard {
   const options: DecisionCard["options"] = [];

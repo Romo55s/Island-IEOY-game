@@ -19,18 +19,20 @@ const SEMANTIC_ACTIONS = [
   "Death",
   "OnFire",
   "GhostIdle",
+  "Walk",
 ] as const;
 
 const animationMapSchema = z
   .object({
-    Idle: z.string().min(1),
-    ReactPositive: z.string().min(1),
-    ReactFunny: z.string().min(1),
-    Panic: z.string().min(1),
-    Hurt: z.string().min(1),
-    Death: z.string().min(1),
-    OnFire: z.string().min(1),
-    GhostIdle: z.string().min(1),
+    Idle: z.string().min(1).optional(),
+    ReactPositive: z.string().min(1).optional(),
+    ReactFunny: z.string().min(1).optional(),
+    Panic: z.string().min(1).optional(),
+    Hurt: z.string().min(1).optional(),
+    Death: z.string().min(1).optional(),
+    OnFire: z.string().min(1).optional(),
+    GhostIdle: z.string().min(1).optional(),
+    Walk: z.string().min(1).optional(),
   })
   .strict();
 
@@ -44,7 +46,12 @@ const characterSchema = z
       .refine((url) => !url.includes("..") && !url.includes("\\"), "unsafe character URL"),
     heightMeters: z.number().positive().max(3),
     animationMap: animationMapSchema,
+    runtimeFallbacks: z.record(z.string(), z.string()).optional(),
     retainedClips: z.array(z.string().min(1)).min(1).max(24),
+    modelBytes: z.number().int().positive(),
+    skeleton: z.literal("Mixamo"),
+    skeletonJoints: z.number().int().positive(),
+    note: z.string().optional(),
     renderProfile: z
       .object({
         id: z.literal("ps1-character"),
@@ -70,15 +77,15 @@ const characterSchema = z
       context.addIssue({ code: "custom", message: "duplicate retained clip" });
     }
     for (const action of SEMANTIC_ACTIONS) {
-      if (!character.retainedClips.includes(character.animationMap[action])) {
-        context.addIssue({ code: "custom", message: `mapped clip is not retained: ${action}` });
-      }
+      const mappedClip = character.animationMap[action];
+      if (mappedClip && !character.retainedClips.includes(mappedClip)) context.addIssue({ code: "custom", message: `mapped clip is not retained: ${action}` });
+      if (!mappedClip && !character.runtimeFallbacks?.[action]) context.addIssue({ code: "custom", message: `missing runtime mapping or fallback: ${action}` });
     }
   });
 
 const manifestSchema = z
   .object({
-    version: z.literal(1),
+    version: z.literal(2),
     textureBudget: z
       .object({
         minDimensionPx: z.number().int().min(1).max(256),
@@ -87,7 +94,7 @@ const manifestSchema = z
       })
       .strict()
       .refine((budget) => budget.minDimensionPx <= budget.maxDimensionPx),
-    characters: z.array(characterSchema).min(1).max(8),
+    characters: z.array(characterSchema).length(16),
   })
   .strict()
   .superRefine((manifest, context) => {
@@ -95,6 +102,8 @@ const manifestSchema = z
     if (new Set(ids).size !== ids.length) {
       context.addIssue({ code: "custom", message: "duplicate character ID" });
     }
+    const names = manifest.characters.map(({ displayName }) => displayName);
+    if (new Set(names).size !== names.length) context.addIssue({ code: "custom", message: "duplicate display name" });
   });
 
 type CharacterManifest = z.infer<typeof manifestSchema>;
@@ -154,10 +163,14 @@ describe("character manifest", () => {
 
       expect(new Set(character.retainedClips)).toEqual(clips);
       for (const action of SEMANTIC_ACTIONS) {
-        expect(clips.has(character.animationMap[action]), `${action} clip`).toBe(true);
+        const mappedClip = character.animationMap[action];
+        if (mappedClip) expect(clips.has(mappedClip), `${character.displayName} ${action} clip`).toBe(true);
+        else expect(character.runtimeFallbacks?.[action], `${character.displayName} ${action} fallback`).toBeTruthy();
       }
 
-      expect((await stat(filePath)).size).toBeLessThanOrEqual(manifest.textureBudget.maxModelBytes);
+      const modelSize = (await stat(filePath)).size;
+      expect(modelSize).toBe(character.modelBytes);
+      expect(modelSize).toBeLessThanOrEqual(manifest.textureBudget.maxModelBytes);
       for (const texture of root.listTextures()) {
         const size = texture.getSize();
         expect(size).not.toBeNull();
@@ -177,6 +190,7 @@ describe("character manifest", () => {
       expect(Math.abs(bounds.min[1])).toBeLessThanOrEqual(0.02);
       const skinnedMeshNodes = root.listNodes().filter((node) => node.getMesh() && node.getSkin());
       expect(skinnedMeshNodes.length).toBeGreaterThan(0);
+      expect(root.listSkins()[0]?.listJoints()).toHaveLength(character.skeletonJoints);
       expect(skinnedMeshNodes.every((node) => node.getParentNode() !== null)).toBe(true);
       expect(root.listExtensionsUsed().map((extension) => extension.extensionName)).toContain(
         "EXT_meshopt_compression",

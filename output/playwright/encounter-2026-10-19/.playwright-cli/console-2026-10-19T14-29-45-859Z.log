@@ -1,0 +1,7 @@
+[     479ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5174/node_modules/.vite/deps/client-wnb62rx7.js?v=3982f6e9:15557
+[     947ms] [WARNING] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://127.0.0.1:5174/node_modules/.vite/deps/three.module-dSlfew9g.js?v=3982f6e9:1748
+[   47205ms] [WARNING] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://127.0.0.1:5174/node_modules/.vite/deps/three.module-dSlfew9g.js?v=3982f6e9:1748
+[   47864ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://127.0.0.1:5174/node_modules/.vite/deps/client-wnb62rx7.js?v=3982f6e9:15557
+[   48249ms] [WARNING] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://127.0.0.1:5174/node_modules/.vite/deps/three.module-dSlfew9g.js?v=3982f6e9:1748
+[  245735ms] [WARNING] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://127.0.0.1:5174/node_modules/.vite/deps/three.module-dSlfew9g.js?v=3982f6e9:1748
+[  720166ms] [WARNING] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead. @ http://127.0.0.1:5174/node_modules/.vite/deps/three.module-dSlfew9g.js?v=3982f6e9:1748

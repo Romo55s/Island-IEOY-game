@@ -8,14 +8,14 @@
 .gameplayHud > * { pointer-events: auto; }
 .gameIdentity { align-self: center; margin: 0; color: var(--paper-bone); font: clamp(.58rem, 1.1vw, .78rem) var(--font-display); letter-spacing: .08em; text-shadow: 2px 2px 0 #080b0c; }
 .gameplayHud .resourceStrip { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; padding: 4px; background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 3px 3px 0 var(--metal-shadow); }
-.gameplayHud .resourceStrip span { min-width: 0; padding: 6px 8px; background: var(--metal-inset); border: 1px solid rgb(232 224 201 / 18%); }
-.gameplayHud .resourceStrip b { color: var(--subdued-text); font-size: .5rem; }
-.gameplayHud .resourceStrip strong { color: var(--bright-amber); font-size: .76rem; }
+.gameplayHud .resourceStrip span { min-width: 0; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; justify-items: center; gap: 2px; padding: 4px 6px; background: var(--metal-inset); border: 1px solid rgb(232 224 201 / 18%); }
+.gameplayHud .resourceStrip b { overflow: visible; color: var(--subdued-text); font-size: .4rem; text-overflow: clip; white-space: nowrap; }
+.gameplayHud .resourceStrip strong { color: var(--bright-amber); font-size: .68rem; }
 .sessionControls { display: grid; justify-items: end; gap: 5px; }
 .compactCode { width: max-content; min-width: 126px; padding: 6px 8px; color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border-color: var(--metal-edge); box-shadow: 2px 2px 0 var(--metal-shadow); }
 .compactCode :global(strong) { color: var(--bright-amber); font-size: 1rem; }
 .compactConnection { min-height: 0; max-width: 190px; padding: 4px 6px; border-width: 1px; box-shadow: none; font-size: .56rem; }
-.pauseButton, .overlayButton { min-height: 36px; padding: 7px 10px; color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 2px 2px 0 var(--metal-shadow); font: .58rem var(--font-display); cursor: pointer; }
+.pauseButton, .overlayButton { min-height: 44px; padding: 7px 10px; color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 2px 2px 0 var(--metal-shadow); font: .58rem var(--font-display); cursor: pointer; }
 .pauseButton:hover, .overlayButton:hover, .pauseButton:focus-visible, .overlayButton:focus-visible { color: var(--bright-amber); border-color: var(--vest-yellow); outline: 2px solid var(--vest-yellow); outline-offset: 2px; }
 .worldControls { position: absolute; z-index: var(--layer-hud); top: 54px; left: 12px; display: grid; gap: 7px; pointer-events: none; }
 .worldControls > * { pointer-events: auto; }
@@ -40,7 +40,7 @@
 .lobbyActions button:hover, .footer button:hover { translate: -1px -1px; box-shadow: 4px 4px 0 #030506; }
 .lobbyActions button:focus-visible, .footer button:focus-visible { outline: 3px solid var(--paper-bone); outline-offset: 3px; }
 .lobbyActions button:disabled { opacity: .45; cursor: not-allowed; }
-.titleScreen { display: grid; min-height: 100vh; align-items: center; padding-inline: clamp(24px, 5vw, 76px); }
+.titleScreen { position: relative; display: grid; min-height: 100vh; align-items: center; padding-inline: clamp(24px, 5vw, 76px); }
 .titleContent { display: grid; align-content: center; gap: 18px; width: min(530px, 100%); min-height: 82vh; padding-block: 48px; }
 .titleContent h1 { max-width: 13ch; margin: 0; color: #eee2c4; font-size: clamp(2rem, 5vw, 4.5rem); line-height: .92; text-shadow: 3px 3px 0 rgb(0 0 0 / 72%); }
 .titleBlurb { max-width: 33ch; margin: 3px 0 0; color: #eee2c4; line-height: 1.55; text-shadow: 1px 1px 0 #080b0c; }
@@ -73,5 +73,86 @@
 .footer button { min-height: 36px; padding: 6px 10px; font-size: .6rem; }
 @media (max-width: 1100px) { .sessionGrid { grid-template-columns: minmax(210px, .68fr) minmax(0, 1.32fr); } .rightRail { grid-column: 1 / -1; } .rightRail > * { width: min(360px, 100%); } }
 @media (max-width: 900px) { .gameplayHud { grid-template-columns: auto minmax(0, 1fr) auto; gap: 7px; } .gameIdentity { max-width: 13ch; } .compactConnection { display: none; } .gameplayHud .resourceStrip span { padding: 5px 6px; } }
-@media (max-width: 760px) { .lobby, .sessionGrid { grid-template-columns: 1fr; } .topbar { flex-direction: column; } .roomInfo { justify-items: start; } .rightRail { grid-column: auto; } .resourceStrip { grid-template-columns: repeat(3, minmax(0, 1fr)); } .footer { align-items: flex-start; flex-direction: column; } .gameplayHud { top: 8px; right: 8px; left: 8px; grid-template-columns: 1fr auto; } .gameIdentity { display: none; } .gameplayHud .resourceStrip { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(5, minmax(0, 1fr)); } .gameplayHud .resourceStrip span { padding: 4px; } .gameplayHud .resourceStrip b { font-size: .42rem; } .gameplayHud .resourceStrip strong { font-size: .66rem; } .compactCode { min-width: 100px; padding: 4px 6px; } .compactCode :global(strong) { font-size: .78rem; } .pauseButton { min-height: 32px; font-size: .52rem; } .worldControls { top: 89px; left: 8px; grid-auto-flow: column; } .overlayButton { min-height: 32px; padding: 6px 8px; font-size: .52rem; } .manifestOverlay, .routeOverlay { top: 129px; left: 8px; width: min(310px, calc(100% - 16px)); max-height: min(56dvh, 480px); } .routeOverlay { top: 169px; } .phaseOverlay { right: 8px; bottom: 8px; left: 8px; width: auto; max-height: min(48dvh, 420px); transform: none; } .phaseOverlay[data-phase="decision"] { width: auto; max-height: min(50dvh, 440px); } .connectionOverlay { top: 129px; right: 8px; } .pauseOverlay { padding: 14px; } }
+@media (max-width: 760px) { .lobby, .sessionGrid { grid-template-columns: 1fr; } .topbar { flex-direction: column; } .roomInfo { justify-items: start; } .rightRail { grid-column: auto; } .resourceStrip { grid-template-columns: repeat(3, minmax(0, 1fr)); } .footer { align-items: flex-start; flex-direction: column; } .gameplayHud { top: 8px; right: 8px; left: 8px; grid-template-columns: minmax(0, 1fr) auto; } .gameIdentity { display: block; max-width: 18ch; align-self: center; font-size: .48rem; line-height: 1.5; } .gameplayHud .resourceStrip { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(5, minmax(0, 1fr)); } .gameplayHud .resourceStrip span { padding: 4px; } .gameplayHud .resourceStrip b { font-size: .42rem; } .gameplayHud .resourceStrip strong { font-size: .66rem; } .compactCode { min-width: 100px; padding: 4px 6px; } .compactCode :global(strong) { font-size: .78rem; } .pauseButton { min-height: 44px; font-size: .52rem; } .worldControls { top: 89px; left: 8px; grid-auto-flow: column; } .overlayButton { min-height: 44px; padding: 6px 8px; font-size: .52rem; } .manifestOverlay, .routeOverlay { top: 129px; left: 8px; width: min(310px, calc(100% - 16px)); max-height: min(56dvh, 480px); } .routeOverlay { top: 169px; } .phaseOverlay { right: 8px; bottom: 8px; left: 8px; width: auto; max-height: min(48dvh, 420px); transform: none; } .phaseOverlay[data-phase="decision"] { width: auto; max-height: min(50dvh, 440px); } .connectionOverlay { top: 129px; right: 8px; } .pauseOverlay { padding: 14px; } }
 @media (prefers-reduced-motion: reduce) { .lobbyActions button, .footer button { transition: none; } }
+
+/* Adaptive cinematic gameplay shell */
+.gameplayPage { display: block; width: 100%; height: 100dvh; min-height: 0; padding: 0; overflow: hidden; background: #0b0e13; }
+.gameplayPage::before { display: none; }
+.sessionViewport { display: grid; grid-template-rows: 64px minmax(0, 1fr); width: 100%; height: 100%; min-height: 0; overflow: hidden; background: #0b0e13; }
+.gameplayHud { position: relative; z-index: var(--layer-hud); display: grid; grid-template-columns: minmax(300px, auto) minmax(0, 1fr) auto; gap: clamp(8px, 1vw, 14px); align-items: center; padding: 5px 14px; background: var(--metal-face); background-image: var(--texture-metal); border-bottom: 2px solid var(--metal-edge); box-shadow: 0 3px 0 var(--metal-shadow); }
+.identityCluster { display: flex; min-width: 0; align-items: center; gap: 10px; }
+.gameIdentity { max-width: none; white-space: nowrap; font-size: .57rem; line-height: 1.4; }
+.shortIdentity { display: none; }
+.gameplayHud .resourceStrip { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.gameplayHud .resourceStrip [data-scope="character"] b::before { content: "YOU · "; color: var(--vest-yellow); }
+.gameplayHud .resourceStrip [data-scope="crew"] b::before { content: "CREW · "; color: var(--bright-amber); }
+.sessionControls { display: flex; flex-wrap: nowrap; justify-self: end; align-items: center; min-width: 0; gap: 7px; }
+.compactConnection { display: flex; width: fit-content; max-width: none; min-height: 38px; align-items: center; gap: 5px; padding: 6px 8px; background: var(--metal-inset); border: 1px solid var(--metal-edge); box-shadow: none; font-size: 0; line-height: 1.25; }
+.compactConnection[data-state="connected"] { color: var(--paper-bone); background: var(--metal-inset); border: 1px solid var(--metal-edge); box-shadow: none; }
+.compactConnection > span { color: var(--bright-amber); font-size: .58rem; }
+.compactConnection::after { content: attr(data-state); color: var(--subdued-text); font: .38rem var(--font-display); letter-spacing: .04em; text-transform: uppercase; }
+.compactConnection[data-state="reconnecting"]::after, .compactConnection[data-state="failed"]::after { color: var(--night-canopy); }
+.compactCode { display: flex; width: max-content; min-width: 142px; min-height: 38px; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px; }
+.compactCode, .compactConnection, .pauseButton { box-sizing: border-box; height: 44px; min-height: 44px; }
+.compactCode { min-width: 142px; padding-inline: 10px; background: var(--metal-inset); border: 1px solid var(--metal-edge); box-shadow: none; }
+.compactCode :global(span) { color: var(--subdued-text); }
+.compactCode :global(span) { white-space: nowrap; font-size: .36rem; }
+.compactCode :global(strong) { font-size: .72rem; letter-spacing: .04em; }
+.pauseButton { display: inline-flex; min-width: 78px; min-height: 44px; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; text-transform: uppercase; letter-spacing: .06em; }
+.pauseGlyph { width: 9px; height: 11px; flex: 0 0 auto; background: linear-gradient(90deg, currentColor 0 3px, transparent 3px 6px, currentColor 6px 9px); }
+.connectionOverlay { position: absolute; z-index: var(--layer-drawer); top: 72px; right: 12px; max-width: min(310px, calc(100% - 24px)); }
+.phaseContent { display: grid; gap: 10px; min-width: 0; }
+.phaseContent[data-phase="reveal"] { max-height: 100%; overflow-y: auto; }
+.phaseContent[data-phase="decision"], .phaseContent[data-phase="waiting"] { height: 100%; }
+.phaseContent[data-phase="decision"] > *, .phaseContent[data-phase="waiting"] > * { height: 100%; }
+.waitingPanel { display: grid; align-content: center; justify-items: start; gap: 12px; min-height: 0; padding: clamp(16px, 2vw, 24px); color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 4px 4px 0 var(--metal-shadow); }
+.waitingPanel .eyebrow { margin: 0; color: var(--bright-amber); }
+.waitingPanel h2 { margin: 0; font: clamp(.9rem, 1.5vw, 1.2rem)/1.45 var(--font-display); }
+.waitingPanel > p:not(.eyebrow) { margin: 0; font: .78rem/1.6 var(--font-body); }
+.waitingPanel > :last-child { padding: 8px; background: var(--metal-inset); border: 1px solid var(--metal-edge); }
+.gameplayPage .notice { position: absolute; z-index: var(--layer-modal); right: 12px; bottom: 12px; max-width: min(420px, calc(100% - 24px)); margin: 0; }
+@media (max-width: 1199px) {
+  .gameplayHud { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 44px auto; gap: 5px 10px; padding: 5px 10px; }
+  .identityCluster { grid-column: 1; grid-row: 1; }
+  .gameplayHud .resourceStrip { grid-column: 1 / -1; grid-row: 2; }
+  .sessionControls { grid-column: 2; grid-row: 1; gap: 6px; }
+  .gameIdentity { font-size: .49rem; }
+  .gameplayHud .resourceStrip b { font-size: .42rem; }
+  .gameplayHud .resourceStrip strong { font-size: .68rem; }
+  .compactConnection { flex: 0 0 auto; }
+  .pauseButton { min-width: 76px; }
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  .sessionViewport { grid-template-rows: auto minmax(0, 1fr); }
+  .gameplayHud { grid-template-rows: 44px auto; }
+}
+@media (max-width: 767px) {
+  .sessionViewport { grid-template-rows: auto minmax(0, 1fr); }
+  .gameplayHud { grid-template-columns: minmax(0, 1fr) auto; gap: 5px 8px; padding: 5px 8px; }
+  .identityCluster { gap: 6px; }
+  .gameIdentity { max-width: none; align-self: center; font-size: .43rem; }
+  .fullIdentity { display: none; }
+  .shortIdentity { display: inline; }
+  .gameplayHud .resourceStrip { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; padding: 3px; }
+  .gameplayHud .resourceStrip span { padding: 4px 3px; }
+  .gameplayHud .resourceStrip span { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 1px; }
+  .gameplayHud .resourceStrip b { font-size: .39rem; }
+  .gameplayHud .resourceStrip strong { font-size: .62rem; }
+  .sessionControls { display: flex; flex-wrap: nowrap; grid-column: 2; grid-row: 1; min-width: 0; gap: 4px; justify-content: end; }
+  .compactConnection { flex: 0 0 auto; width: auto; max-width: none; gap: 3px; padding: 5px; }
+  .compactConnection::after { font-size: .31rem; }
+  .compactCode { display: grid; flex: 0 0 76px; min-width: 76px; width: 76px; height: 44px; min-height: 44px; gap: 0; padding: 4px; }
+  .compactCode :global(span) { display: none; }
+  .compactCode :global(strong) { font-size: .58rem; }
+  .pauseButton { flex: 0 0 66px; min-width: 66px; min-height: 44px; gap: 5px; padding-inline: 5px; font-size: .43rem; }
+  .pauseGlyph { width: 8px; height: 10px; background: linear-gradient(90deg, currentColor 0 3px, transparent 3px 5px, currentColor 5px 8px); }
+  .connectionOverlay { top: 105px; right: 8px; }
+  .gameplayPage .notice { right: 8px; bottom: 62px; left: 8px; max-width: none; }
+  .phaseContent[data-phase="decision"] { height: auto; }
+  .phaseContent[data-phase="decision"] > * { height: auto; }
+  .pauseActions { grid-template-columns: 1fr; }
+}
+@media (max-height: 650px) and (min-width: 768px) {
+  .gameplayHud { padding-block: 3px; }
+}

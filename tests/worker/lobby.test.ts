@@ -41,7 +41,7 @@ function waitForEvent(socket: WebSocket, predicate: (event: ServerEvent) => bool
 }
 
 function command(socket: WebSocket, commandId: string, type: string, payload: unknown): void {
-  socket.send(JSON.stringify({ protocolVersion: 4, commandId, type, payload }));
+  socket.send(JSON.stringify({ protocolVersion: 7, commandId, type, payload }));
 }
 
 afterEach(() => {

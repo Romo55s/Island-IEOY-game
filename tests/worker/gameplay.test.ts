@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { DECISION_CARDS } from "../../src/shared/content/decisionCards";
-import type { Player, PrivateRoomState } from "../../src/shared/domain";
+import type { CampaignState, Player, PrivateRoomState } from "../../src/shared/domain";
+import { createSignalAttemptCard } from "../../src/shared/content/campaignRoute";
+import { initialMotorboatRoute } from "../../src/shared/rules/motorboat";
 import { toPublicSnapshot } from "../../src/shared/protocol";
 import { sequenceRandom } from "../../src/shared/rules/random";
-import { advancePhase, beginDecision, deriveEndingId, resolveCrashChoices, resolveCurrentDecision, resolveDecisionVote, resolvePendingAssignment, startGame } from "../../src/shared/rules/stateMachine";
+import { advancePhase, beginDecision, beginNextMotorboatStep, deriveEndingId, initialCampaignState, resolveCrashChoices, resolveCurrentDecision, resolveDecisionVote, resolvePendingAssignment, startGame } from "../../src/shared/rules/stateMachine";
 
 function player(id: string, characterId: string, joinedAt: number): Player {
   return { id, displayName: id, status: "alive", characterId, ready: true, connected: true, joinedAt };
@@ -31,8 +33,8 @@ describe("authoritative game progression", () => {
     expect(started.phase).toBe("intro");
     expect(started.phaseDeadlineAt).toBe(40_000);
     const decision = beginDecision(started, 0, 40_000);
-    expect(decision.votingOpensAt).toBe(65_000);
-    expect(decision.earliestResolveAt).toBe(75_000);
+    expect(decision.votingOpensAt).toBe(40_000);
+    expect(decision.earliestResolveAt).toBe(40_000);
     expect(decision.phaseDeadlineAt).toBe(80_000);
   });
 
@@ -72,14 +74,19 @@ describe("authoritative game progression", () => {
     expect(resolved.eligibleVoterIds).toContain("p_a");
   });
 
-  it("reveals only anonymous totals and respects a replacement vote", () => {
-    const base = { ...lobby(), deck: [DECISION_CARDS[2]!], phase: "decision" as const, currentDecisionId: DECISION_CARDS[2]!.id, votingOpensAt: 0, earliestResolveAt: 0, phaseDeadlineAt: 15_000, phaseEndsAt: 15_000, eligibleVoterIds: ["p_a", "p_b", "p_c"] };
+  it("shows live group ballots and reveals aggregate totals after resolution", () => {
+    const base = { ...lobby(), deck: [DECISION_CARDS[2]!], phase: "decision" as const, currentDecisionId: DECISION_CARDS[2]!.id, votingOpensAt: 0, earliestResolveAt: 0, phaseDeadlineAt: 40_000, phaseEndsAt: 40_000, eligibleVoterIds: ["p_a", "p_b", "p_c"] };
     const [a, b] = DECISION_CARDS[2]!.options;
     base.votesByPlayer = { p_a: b!.id, p_b: a!.id, p_c: b!.id };
     base.votesByPlayer.p_a = a!.id;
     const privateSnapshot = toPublicSnapshot(base, "p_a");
     expect(privateSnapshot.viewer.hasVoted).toBe(true);
     expect(privateSnapshot).not.toHaveProperty("resolvedOptionCounts");
+    expect(privateSnapshot.liveVotes).toEqual([
+      { playerId: "p_a", optionId: a!.id },
+      { playerId: "p_b", optionId: a!.id },
+      { playerId: "p_c", optionId: b!.id },
+    ]);
     expect(JSON.stringify(privateSnapshot)).not.toContain("votesByPlayer");
 
     const revealed = resolveCurrentDecision(base, 12_000, sequenceRandom([0]));
@@ -87,7 +94,29 @@ describe("authoritative game progression", () => {
     expect(revealed.resolvedOptionCounts).toMatchObject({ [a!.id]: 2, [b!.id]: 1 });
     const publicReveal = toPublicSnapshot(revealed, "p_b");
     expect(publicReveal.resolvedOptionCounts).toEqual(revealed.resolvedOptionCounts);
+    expect(publicReveal).not.toHaveProperty("liveVotes");
     expect(JSON.stringify(publicReveal)).not.toContain("p_a\":\"");
+  });
+
+  it("persists the same contextual exchange in each reveal snapshot and clears the prompt", () => {
+    const cast = ["cast-daniel", "cast-samantha", "cast-jim-young", "cast-tim", "cast-walter", "cast-jessica-adlock", "cast-jorge"];
+    const players = Object.fromEntries(cast.map((characterId, index) => [`p_${index}`, player(`p_${index}`, characterId, index)]));
+    const characters = Object.fromEntries(cast.map((characterId) => [characterId, { characterId, status: "alive" as const, resources: { food: 50, health: 100, morale: 65, water: 50 } }]));
+    const option = { id: "build-cover", label: "Secure shelter", outcomes: [{ id: "cover-secured", text: "The crew reaches cover above the tide.", weight: 1, resourceDeltas: { shelter: 10 } }] };
+    const base: PrivateRoomState = {
+      ...lobby(), players, characters,
+      phase: "decision", deck: [{ id: "campaign-shelter-reinforcement", prompt: "Where will the crew sleep?", options: [option, { id: "wait", label: "Wait", outcomes: [{ id: "waited", text: "The crew waits.", weight: 1 }] }] }],
+      currentDecisionId: "campaign-shelter-reinforcement", eligibleVoterIds: Object.keys(players), votesByPlayer: Object.fromEntries(Object.keys(players).map((id) => [id, option.id])),
+      votingOpensAt: 0, earliestResolveAt: 0, phaseDeadlineAt: 40_000, phaseEndsAt: 40_000,
+    };
+    const opening = beginDecision(base, 0, 0);
+    expect(opening.activeCrewDialogue?.lines).toHaveLength(2);
+    const resolved = resolveCurrentDecision(opening, 1, sequenceRandom(Array(100).fill(0)));
+    expect(resolved.activeCrewDialogue).toBeUndefined();
+    expect(resolved.eventHistory.at(-1)?.crewDialogue?.templateId).toBe("shelter-ready-product-scope-v1");
+    const firstClient = toPublicSnapshot(resolved, "p_0");
+    const secondClient = toPublicSnapshot(resolved, "p_1");
+    expect(firstClient.eventHistory.at(-1)?.crewDialogue).toEqual(secondClient.eventHistory.at(-1)?.crewDialogue);
   });
 
   it("derives the persisted route ending instead of aggregate resource bands", () => {
@@ -97,7 +126,7 @@ describe("authoritative game progression", () => {
     expect(deriveEndingId(state)).toBe("solo-escape");
   });
 
-  it("replaces the shuffled ten-card run with the authored motorboat discovery", () => {
+  it("starts the authored campaign at the shoreline decision", () => {
     const random = sequenceRandom(Array(2_000).fill(0.1));
     let state = startGame(lobby(), 0, DECISION_CARDS, sequenceRandom(Array(100).fill(0.1)));
     state = advancePhase(state, state.phaseDeadlineAt!, random);
@@ -105,8 +134,52 @@ describe("authoritative game progression", () => {
     state = advancePhase(state, state.phaseDeadlineAt!, random);
     state = advancePhase(state, state.phaseDeadlineAt!, random);
     expect(state.phase).toBe("decision");
+    expect(state.currentDecisionId).toBe("campaign-shoreline-priority");
+  });
+
+  it("routes a failed signal through the coast to the motorboat and exposes the storm recovery decision", () => {
+    const campaign: CampaignState = {
+      ...initialCampaignState(), node: "signal-attempt", signalPosition: "low",
+      storyFlags: ["storm-gust"], signalAttempted: false, signalFailed: false,
+      flareConsumed: true, decisionsSinceFoodTick: 0,
+    };
+    const signalCard = createSignalAttemptCard(campaign, false);
+    const signalOption = signalCard.options.find(({ id }) => id === "smoke-beacon")!;
+    let state = beginDecision({
+      ...lobby(), campaign, motorboat: initialMotorboatRoute(),
+      deck: [signalCard], currentDecisionId: signalCard.id, decisionIndex: 0,
+      votesByPlayer: Object.fromEntries(Object.keys(lobby().players).map((id) => [id, signalOption.id])),
+      eligibleVoterIds: Object.keys(lobby().players),
+    }, 0, 0);
+
+    state = resolveCurrentDecision(state, 1, sequenceRandom([0.999]));
+    expect(state.campaign).toMatchObject({ node: "coastal-expedition", signalAttempted: true, signalFailed: true });
+    expect(state.eventHistory.at(-1)).toMatchObject({ outcomeId: "smoke-beacon-failure", crewDialogue: { lines: expect.any(Array) } });
+
+    state = advancePhase(state, state.phaseDeadlineAt!, sequenceRandom([0]));
+    expect(state.currentDecisionId).toBe("campaign-coastal-expedition");
+    expect(state.deck[0]?.prompt).toContain("The signal failed");
+    const coastOption = state.deck[0]!.options.find(({ id }) => id === "follow-tide-marks")!;
+    state = resolveCurrentDecision({ ...state, votesByPlayer: Object.fromEntries(Object.keys(state.players).map((id) => [id, coastOption.id])) }, state.phaseStartedAt! + 1, sequenceRandom([0]));
+
+    state = advancePhase(state, state.phaseDeadlineAt!, sequenceRandom([0]));
+    expect(state.currentDecisionId).toBe("campaign-coastal-hazard");
+    const descentOption = state.deck[0]!.options[0]!;
+    state = resolveCurrentDecision({ ...state, votesByPlayer: Object.fromEntries(Object.keys(state.players).map((id) => [id, descentOption.id])) }, state.phaseStartedAt! + 1, sequenceRandom([0]));
+
+    state = advancePhase(state, state.phaseDeadlineAt!, sequenceRandom([0]));
     expect(state.currentDecisionId).toBe("motorboat-discovery");
-    expect(state.deck).toHaveLength(1);
+    expect(state.campaign?.node).toBe("motorboat");
+
+    const recovery = beginNextMotorboatStep({
+      ...state,
+      phase: "reveal",
+      currentDecisionId: null,
+      campaign: { ...state.campaign!, node: "complete" },
+      motorboat: { ...state.motorboat!, node: "repair", discovered: true, warningLevel: 1, missedOpportunityIds: ["missed-test-window"] },
+    }, state.phaseStartedAt! + 2, sequenceRandom([0]));
+    expect(recovery.currentDecisionId).toBe("motorboat-recovery");
+    expect(recovery.deck[0]?.prompt).toContain("The last launch failed and the storm is closer");
   });
 
   it("consumes one day of food after a decision and starvation death becomes a recorded ghost", () => {

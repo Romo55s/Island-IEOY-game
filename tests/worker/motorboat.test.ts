@@ -5,7 +5,7 @@ import { PROTOCOL_VERSION, type PrivateRoomState } from "../../src/shared/domain
 import { initialMotorboatRoute } from "../../src/shared/rules/motorboat";
 import { beginNextMotorboatStep } from "../../src/shared/rules/stateMachine";
 import { sequenceRandom } from "../../src/shared/rules/random";
-import type { ClientCommand } from "../../src/shared/protocol";
+import { toPublicSnapshot, type ClientCommand } from "../../src/shared/protocol";
 import { GameRoom } from "../../worker/game/GameRoom";
 import { processDueEvents } from "../../worker/game/roomScheduler";
 import { loadRoom, saveRoom, type PersistedRoomState } from "../../worker/game/roomStorage";
@@ -28,6 +28,16 @@ function privateChoiceCommand(commandId: string, choiceId: string, optionId: str
 }
 
 describe("motorboat durable scheduling",()=>{
+  it("keeps selfish personal responses out of the public live group ballot",()=>{
+    const pending=beginNextMotorboatStep(room(),100,sequenceRandom([0]));
+    const actor=toPublicSnapshot(pending,"p1");
+    const other=toPublicSnapshot(pending,"p2");
+    expect(actor.viewerPrivateChoice?.canRespond).toBe(true);
+    expect(other).not.toHaveProperty("viewerPrivateChoice");
+    expect(actor).not.toHaveProperty("liveVotes");
+    expect(other).not.toHaveProperty("liveVotes");
+    expect(JSON.stringify(other)).not.toContain('"optionId"');
+  });
   it("resolves a disconnected fuel finder timeout through the alarm path",()=>{ const pending=beginNextMotorboatStep(room(),100,sequenceRandom([0])); const deadline=pending.phaseDeadlineAt!; const resolved=processDueEvents(persisted(pending),deadline,sequenceRandom([])); expect(resolved.phase).toBe("decision"); expect(resolved.motorboat).toMatchObject({node:"repair",fuelVisibility:"shared",fuelCharges:3}); expect(resolved.eventHistory.at(-1)?.motorboat?.boatChange).toBe("fuel-shared"); });
   it("does not replay an already resolved private choice",()=>{ const pending=beginNextMotorboatStep(room(),100,sequenceRandom([0])); const once=processDueEvents(persisted(pending),pending.phaseDeadlineAt!,sequenceRandom([])); const twice=processDueEvents(once,pending.phaseDeadlineAt!,sequenceRandom([])); expect(twice.motorboat?.fuelCharges).toBe(3); expect(twice.eventHistory.filter(({motorboat})=>motorboat?.boatChange==="fuel-shared")).toHaveLength(1); });
   it("rejects unauthorized, stale, invalid, dead, and late private responses",()=>{

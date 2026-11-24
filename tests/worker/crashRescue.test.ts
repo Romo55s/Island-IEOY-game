@@ -62,7 +62,8 @@ describe("persisted crash-choice lifecycle", () => {
     const danielSnapshot = toPublicSnapshot(room, "p_b");
     expect(tonySnapshot.crashItemOffer).toEqual(room.crashItemOffersByPlayer?.p_a);
     expect(danielSnapshot.crashItemOffer).toEqual(room.crashItemOffersByPlayer?.p_b);
-    expect(JSON.stringify(tonySnapshot)).not.toContain(room.crashItemOffersByPlayer?.p_b?.[0] ?? "__missing__");
+    expect(tonySnapshot).not.toHaveProperty("crashItemOffersByPlayer");
+    expect(danielSnapshot).not.toHaveProperty("crashItemOffersByPlayer");
 
     room.crashItemsByPlayer = Object.fromEntries(Object.entries(room.crashItemOffersByPlayer ?? {}).map(([id, offer]) => [id, offer[0]!]));
     room = processDueEvents(room, room.phaseStartedAt! + 1, sequenceRandom([]));

@@ -1,0 +1,73 @@
+.page { display: grid; grid-template-rows: auto minmax(0, 1fr); width: 100%; height: 100dvh; min-height: 0; overflow: hidden; color: var(--paper-bone); background: var(--black-box); }
+.toolbar { position: relative; z-index: var(--layer-hud); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "back heading actions" "controls controls controls"; gap: 9px 14px; align-items: center; padding: 9px 14px 12px; background: var(--metal-face); background-image: var(--texture-metal); border-bottom: 2px solid var(--metal-edge); box-shadow: 0 3px 0 var(--metal-shadow); }
+.backLink { grid-area: back; min-height: 44px; padding-inline: 12px; background: var(--metal-inset); }
+.heading { min-width: 0; }
+.heading { grid-area: heading; }
+.heading p { margin: 0 0 3px; color: var(--bright-amber); font: .4rem var(--font-display); letter-spacing: .06em; }
+.heading h1 { margin: 0; color: var(--paper-bone); font: .78rem/1.25 var(--font-display); }
+.previewControls { grid-area: controls; display: grid; grid-template-columns: minmax(230px, 1.65fr) minmax(165px, 1fr) repeat(2, minmax(130px, .65fr)); gap: 9px; min-width: 0; padding: 9px; background: var(--metal-inset); border: 1px solid var(--metal-edge); box-shadow: inset 0 0 0 1px var(--metal-black); }
+.scenario, .sceneArt, .crewSize, .castGroup { display: grid; min-width: 0; gap: 4px; }
+.scenario > span, .sceneArt > span, .crewSize > span, .castGroup > span { color: var(--subdued-text); font: .4rem var(--font-display); text-transform: uppercase; }
+.scenario select, .sceneArt select, .crewSize select, .castGroup select { width: 100%; min-width: 0; min-height: 42px; padding: 6px 28px 6px 8px; color: var(--paper-bone); background: var(--metal-inset); border: 1px solid var(--metal-edge); font: .64rem var(--font-body); }
+.scenario select:focus-visible, .sceneArt select:focus-visible, .crewSize select:focus-visible, .castGroup select:focus-visible { outline: 3px solid var(--vest-yellow); outline-offset: 2px; }
+.toolbarActions { grid-area: actions; display: flex; align-items: center; justify-content: end; gap: 9px; }
+.portraitToggle { display: flex; align-items: center; gap: 6px; color: var(--paper-bone); font: .43rem var(--font-display); white-space: nowrap; }
+.portraitToggle input { width: 16px; height: 16px; accent-color: var(--vest-yellow); }
+.portraitToggle:focus-within { outline: 2px solid var(--vest-yellow); outline-offset: 3px; }
+.room { min-width: 0; min-height: 0; overflow: hidden; }
+.decisionState { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 8px; min-width: 0; min-height: 0; height: 100%; }
+.benchActions { display: grid; gap: 8px; padding: 10px; color: var(--paper-bone); background: var(--metal-inset); border: 1px solid var(--metal-edge); }
+.benchActions > label { display: grid; gap: 5px; color: var(--subdued-text); font: .43rem var(--font-display); text-transform: uppercase; }
+.benchActions select { width: 100%; min-width: 0; min-height: 40px; padding: 7px 8px; color: var(--paper-bone); background: #0b0e13; border: 1px solid var(--metal-edge); font: .68rem/1.4 var(--font-body); text-transform: none; }
+.benchActions select:focus-visible { outline: 3px solid var(--vest-yellow); outline-offset: 2px; }
+.nominationSimulator { display: grid; gap: 7px; min-width: 0; margin: 0; padding: 8px; color: var(--paper-bone); background: #151817; border: 1px solid var(--metal-edge); }
+.nominationSimulator legend { padding: 0 5px; color: var(--bright-amber); font: .43rem var(--font-display); text-transform: uppercase; }
+.nominationSimulator > p { margin: 0; color: var(--subdued-text); font: .61rem/1.4 var(--font-body); }
+.nominationRows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 8px; max-height: 180px; overflow: auto; }
+.nominationRows label { display: grid; grid-template-columns: minmax(82px, .75fr) minmax(0, 1.25fr); gap: 6px; align-items: center; min-width: 0; color: var(--paper-bone); font: .57rem/1.3 var(--font-body); text-transform: none; }
+.nominationRows label > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nominationRows select { min-height: 34px; padding: 5px 6px; }
+.actionButtons { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.benchActions > p, .reportActions > p { margin: 0; color: var(--subdued-text); font: .62rem/1.45 var(--font-body); }
+.dialogueDiagnostics { display: grid; gap: 5px; padding: 7px; color: var(--subdued-text); background: #111416; border: 1px solid var(--metal-edge); }
+.dialogueDiagnostics summary { color: var(--bright-amber); font: .44rem var(--font-display); text-transform: uppercase; cursor: pointer; }
+.dialogueDiagnostics p { margin: 0; overflow-wrap: anywhere; font: .6rem/1.45 var(--font-body); }
+.reportState { display: grid; gap: 10px; }
+.reportActions { display: grid; justify-items: start; gap: 9px; padding: 10px; color: var(--paper-bone); background: var(--metal-inset); border: 1px solid var(--metal-edge); }
+.galleryBackdrop { position: fixed; z-index: var(--layer-modal); inset: 0; display: grid; place-items: center; padding: 18px; background: rgb(3 5 6 / 86%); }
+.gallery { display: grid; grid-template-rows: auto minmax(0, 1fr); width: min(1120px, 100%); height: min(760px, 94dvh); min-height: 0; padding: 10px; color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 8px 8px 0 #000; }
+.galleryHeader { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 6px 8px 12px; border-bottom: 2px solid var(--metal-black); }
+.galleryHeader p, .galleryEyebrow { margin: 0 0 5px; color: var(--bright-amber); font: .44rem var(--font-display); letter-spacing: .05em; }
+.galleryHeader h2 { margin: 0; font: .78rem/1.3 var(--font-display); }
+.galleryBody { display: grid; grid-template-columns: minmax(150px, 205px) minmax(0, 1fr); gap: 10px; min-height: 0; padding-top: 10px; }
+.galleryCast { display: flex; flex-direction: column; gap: 4px; min-height: 0; overflow: auto; padding: 4px; background: var(--metal-inset); border: 1px solid var(--metal-edge); }
+.galleryCast button, .galleryAnimations button { min-height: 34px; padding: 6px 8px; color: var(--paper-bone); background: #171a1a; border: 1px solid var(--metal-edge); text-align: left; font: .5rem var(--font-display); cursor: pointer; }
+.galleryCast button[data-selected="true"], .galleryAnimations button[data-selected="true"] { color: #171511; background: var(--bright-amber); border-color: var(--bright-amber); }
+.galleryCast button:focus-visible, .galleryAnimations button:focus-visible { outline: 3px solid var(--vest-yellow); outline-offset: 2px; }
+.galleryPreview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(205px, .55fr); gap: 12px; min-width: 0; min-height: 0; padding: 8px; background: var(--metal-inset); border: 1px solid var(--metal-edge); }
+.modelCanvas { min-width: 0; min-height: 0; overflow: hidden; border: 1px solid var(--metal-edge); }
+.galleryInfo { display: flex; flex-direction: column; justify-content: center; gap: 10px; min-width: 0; padding: 10px; }
+.galleryInfo h3 { margin: 0; font: clamp(.95rem, 2vw, 1.45rem)/1.3 var(--font-display); }
+.galleryInfo > p:not(.galleryEyebrow) { margin: 0; color: var(--subdued-text); font: .75rem/1.55 var(--font-body); }
+.galleryTraits { display: grid; gap: 5px; color: var(--paper-bone); font: .48rem/1.5 var(--font-display); text-transform: uppercase; }
+.galleryAnimations { display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: 6px; max-height: 220px; margin-top: 8px; overflow-y: auto; scrollbar-color: var(--metal-edge) var(--metal-inset); }
+.galleryAnimations button { text-align: center; }
+@media (max-width: 1050px) {
+  .previewControls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .toolbar { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "back heading" "actions actions" "controls controls"; gap: 8px; padding: 8px; }
+  .toolbarActions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; justify-content: stretch; }
+  .toolbarActions > button { width: 100%; }
+  .previewControls { grid-template-columns: 1fr; padding: 8px; }
+  .decisionState { grid-template-rows: auto auto; height: auto; }
+  .nominationRows { grid-template-columns: 1fr; }
+  .actionButtons { grid-template-columns: 1fr; }
+  .galleryBackdrop { padding: 0; }
+  .gallery { width: 100%; height: 100dvh; padding: 7px; }
+  .galleryBody { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 7px; }
+  .galleryCast { flex-direction: row; max-height: 52px; overflow-x: auto; overflow-y: hidden; }
+  .galleryCast button { flex: 0 0 auto; }
+  .galleryPreview { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(250px, 44dvh) auto; overflow: auto; }
+  .galleryInfo { padding: 8px 4px; }
+}

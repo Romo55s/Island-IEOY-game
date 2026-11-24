@@ -6,24 +6,27 @@ import { CHARACTER_CATALOG } from "../../shared/domain";
 import { CharacterStatusPanel } from "../../ui/organisms/CharacterStatusPanel";
 import styles from "./IslandSandboxScreen.module.css";
 
-const crew = CHARACTER_CATALOG.slice(0, 8).map(({ displayName }) => displayName);
+const crew = CHARACTER_CATALOG.map(({ displayName }) => displayName);
 const demoItems = Object.fromEntries(CHARACTER_CATALOG.slice(0, 3).map((character, index) => [character.id, ["guitar", "knife", "apple"][index]! ]));
-const demoCharacters = CHARACTER_CATALOG.slice(0, 8).map((character, index) => ({
+const demoCharacters = CHARACTER_CATALOG.map((character, index) => ({
   characterId: character.id,
   status: "alive" as const,
-  resources: { health: [81, 74, 92, 67, 88, 76, 95, 71][index]!, food: [62, 49, 71, 58, 43, 66, 55, 38][index]!, morale: [54, 68, 47, 79, 61, 42, 73, 57][index]!, water: [72, 56, 83, 61, 48, 69, 52, 77][index]! },
+  resources: {
+    health: 68 + ((index * 13) % 31),
+    food: 38 + ((index * 17) % 43),
+    morale: 42 + ((index * 19) % 48),
+    water: 44 + ((index * 11) % 47),
+  },
 }));
 
 export function IslandSandboxScreen({ title }: { title: string }) {
   const [sceneReady, setSceneReady] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
-  const animationTest = new URLSearchParams(window.location.search).get("animation-test") === "1";
-
   return (
     <main className={styles.screen}>
       <div className={styles.world}>
-        <GameCanvas key={retryKey} onCreated={() => setSceneReady(true)} zoom={animationTest ? 72 : undefined}>
-          <IslandScene crew={crew} animationTest={animationTest} startingItemsByCharacter={animationTest ? {} : demoItems} />
+        <GameCanvas key={retryKey} onCreated={() => setSceneReady(true)}>
+          <IslandScene crew={crew} startingItemsByCharacter={demoItems} />
         </GameCanvas>
         {!sceneReady && <div className={styles.loading} aria-live="polite">Waking up on the island…</div>}
         <header className={styles.topHud}>

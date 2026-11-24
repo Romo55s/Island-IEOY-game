@@ -51,6 +51,8 @@ export default function MotorboatRoutePreviewScreen() {
       viewerChoice={snapshot.viewerPrivateChoice}
       actorName={snapshot.activePrivateChoice.publicActorCharacterId ? characterNames[snapshot.activePrivateChoice.publicActorCharacterId] : undefined}
       characterNames={characterNames}
+      players={snapshot.players}
+      characterCatalog={snapshot.characterCatalog}
       motorboat={snapshot.motorboat}
       serverClockOffsetMs={previewClockOffsetMs}
       onRespond={() => undefined}

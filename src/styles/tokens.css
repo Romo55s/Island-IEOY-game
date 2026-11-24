@@ -1,13 +1,13 @@
 :root {
   --night-canopy: #141a1d;
-  --black-box: #0b0d0e;
+  --black-box: #0b0e13;
   --metal-face: #393731;
   --metal-edge: #746b5d;
   --metal-rust: #b4312c;
   --metal-rust-deep: #5e1817;
   --metal-inset: #111317;
   --metal-black: #060708;
-  --report-paper: #c8b895;
+  --report-paper: #d5c5a8;
   --dusk-violet: #42364d;
   --paper-bone: #e8e0c9;
   --subdued-text: #b6ac9a;
@@ -16,7 +16,6 @@
   --bright-amber: #e9c64d;
   --amber-veil: rgb(214 173 50 / 28%);
   --metal-shadow: rgb(0 0 0 / 66%);
-  --sea-glass: #68a89a;
   --ink: var(--night-canopy);
   --paper: var(--paper-bone);
   --space-1: 4px;

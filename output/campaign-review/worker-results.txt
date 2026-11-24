@@ -1,0 +1,14 @@
+
+> ieoy-game@1.0.0 test:worker
+> vitest run --config vitest.worker.config.ts --max-workers=1 --no-isolate tests/worker/gameplay.test.ts tests/worker/motorboat.test.ts tests/worker/scheduler.test.ts --reporter=dot
+
+
+ RUN  v4.1.12 /Users/tonyromo55/Documents/IEOY-game
+
+······················
+
+ Test Files  3 passed (3)
+      Tests  22 passed (22)
+   Start at  23:36:31
+   Duration  804ms (transform 208ms, setup 0ms, import 485ms, tests 25ms, environment 0ms)
+

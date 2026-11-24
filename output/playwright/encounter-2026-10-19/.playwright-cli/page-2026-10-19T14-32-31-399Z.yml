@@ -1,0 +1,43 @@
+- main [ref=f1e4]:
+  - heading "Encounter presentation preview" [level=1] [ref=f1e5]
+  - paragraph [ref=f1e6]: Development fixtures · real live renderer · no gameplay state is changed.
+  - generic [ref=f1e7]:
+    - generic [ref=f1e8]:
+      - text: Crew size
+      - combobox "Crew size" [ref=f1e9]:
+        - option "2" [selected]
+        - option "8"
+    - generic [ref=f1e10]:
+      - text: Encounter
+      - combobox "Encounter" [ref=f1e11]:
+        - option "Crash beach"
+        - option "Jungle clearing"
+        - option "Rocky coast" [selected]
+        - option "Waterfall pool"
+        - option "Forest crossroads"
+        - option "Mountain foothills"
+    - button "Replay success" [ref=f1e12]
+    - button "Show death" [active] [ref=f1e13]
+    - button "Reset to decision" [ref=f1e14]
+    - status "Preview event" [ref=f1e15]: "8"
+  - region "Live island and crew" [ref=f1e16]:
+    - generic [ref=f1e20]:
+      - generic [ref=f1e21]: Decision 9 of 10
+      - generic [ref=f1e22]: Rocky coast
+      - generic [ref=f1e23]: 2 living · 0 ghosts
+    - generic [ref=f1e24]:
+      - text: CREW THOUGHTS
+      - paragraph [ref=f1e69]: "Player 1: “I made a checklist. It has a tab called unexpected island.”"
+    - list "Players on the island" [ref=f1e26]:
+      - listitem [ref=f1e27]: Player 1 as Daniel
+      - listitem [ref=f1e28]: Player 2 as Samantha
+    - list "Crew survival status" [ref=f1e35]:
+      - listitem [ref=f1e36]:
+        - generic [ref=f1e37]: Daniel
+        - generic [ref=f1e38]: ALIVE
+        - generic [ref=f1e39]: HP 100 · Food 80
+      - listitem [ref=f1e40]:
+        - generic [ref=f1e41]: Samantha
+        - generic [ref=f1e42]: ALIVE
+        - generic [ref=f1e43]: HP 100 · Food 80
+    - paragraph [ref=f1e68]: Directed encounter view

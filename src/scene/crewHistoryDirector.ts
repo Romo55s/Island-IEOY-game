@@ -6,6 +6,7 @@ export interface CrewHistoryBeat {
   interactionPairCharacterIds: [string, string] | null;
   animationByCharacterId: Record<string, string>;
   behaviorByCharacterId: Record<string, string>;
+  emotionByCharacterId?: Record<string, "neutral" | "happy" | "sad" | "afraid" | "angry" | "relieved">;
 }
 
 function hash(value: string): number {
@@ -41,17 +42,36 @@ export function deriveCrewHistoryBeat(snapshot: PublicGameSnapshot): CrewHistory
   const eventCue = event.resolution?.presentationCue ?? event.socialCue;
   const recentCueCount = snapshot.eventHistory.slice(0, -1).filter((candidate) => (candidate.resolution?.presentationCue ?? candidate.socialCue) === eventCue).length;
   const seed = `${event.id}:${recentCueCount}`;
-  const deaths = event.resolution?.statusChanges.filter(({ after }) => after === "ghost").map(({ characterId }) => characterId) ?? event.deathCharacterIds ?? [];
+  const deaths = [...new Set([
+    ...(event.resolution?.statusChanges.filter(({ after }) => after === "ghost").map(({ characterId }) => characterId) ?? []),
+    ...(event.motorboat?.statusChanges?.filter(({ after }) => after === "ghost").map(({ characterId }) => characterId) ?? []),
+    ...(event.deathCharacterIds ?? []),
+  ])];
   if (deaths.length > 0) {
     for (const id of deaths) animationByCharacterId[id] = "fall";
     const profilesById = new Map(CHARACTER_PROFILES.map((profile) => [profile.characterId, profile]));
     const comforter = stableOrder(aliveIds.filter((id) => profilesById.get(id)?.strengths.includes("empathetic")), seed)[0]
       ?? stableOrder(aliveIds, seed)[0];
-    if (comforter) animationByCharacterId[comforter] = "depressed";
-    for (const id of deaths) behaviorByCharacterId[id] = "Lost in the crash";
-    if (comforter) behaviorByCharacterId[comforter] = "Mourning a crewmate";
+    const emotionByCharacterId: NonNullable<CrewHistoryBeat["emotionByCharacterId"]> = {};
+    for (const id of deaths) emotionByCharacterId[id] = "sad";
+    for (const id of aliveIds) {
+      if (id === comforter) {
+        emotionByCharacterId[id] = "sad";
+        animationByCharacterId[id] = "depressed";
+        behaviorByCharacterId[id] = "Mourning a crewmate";
+        continue;
+      }
+      const roll = hash(`${seed}:${id}:mourning`) % 100;
+      const empathetic = profilesById.get(id)?.strengths.includes("empathetic") ?? false;
+      const emotion = roll < (empathetic ? 82 : 65) ? "sad" : roll < (empathetic ? 95 : 85) ? "afraid" : "relieved";
+      emotionByCharacterId[id] = emotion;
+      animationByCharacterId[id] = emotion === "sad" ? "cry" : emotion === "afraid" ? "afraid" : "idle";
+      behaviorByCharacterId[id] = emotion === "sad" ? "Mourning a crewmate"
+        : emotion === "afraid" ? "Shaken by a crewmate's death" : "Relieved to have survived";
+    }
+    for (const id of deaths) behaviorByCharacterId[id] = "Ghost after the incident";
     const pair = comforter && deaths[0] ? [comforter, deaths[0]] as [string, string] : null;
-    return { kind: "mourning", interactionPairCharacterIds: pair, animationByCharacterId, behaviorByCharacterId };
+    return { kind: "mourning", interactionPairCharacterIds: pair, animationByCharacterId, behaviorByCharacterId, emotionByCharacterId };
   }
 
   const livingCharacters = snapshot.characters.filter(({ status }) => status === "alive");
@@ -100,6 +120,8 @@ export function deriveCrewHistoryBeat(snapshot: PublicGameSnapshot): CrewHistory
       animationByCharacterId[pair[1]!] = "hug";
     }
     for (const id of aliveIds) if (!animationByCharacterId[id]) animationByCharacterId[id] = "clap";
+    const extraCelebrator = stableOrder(aliveIds.filter((id) => !pair.includes(id)), `${seed}:extra-celebration`)[0];
+    if (extraCelebrator && hash(`${seed}:dance`) % 3 === 0) animationByCharacterId[extraCelebrator] = "dance_02";
     for (const id of aliveIds) behaviorByCharacterId[id] = "Celebrating the group win";
     return { kind: "shared-success", interactionPairCharacterIds: pair.length === 2 ? [pair[0]!, pair[1]!] : null, animationByCharacterId, behaviorByCharacterId };
   }
@@ -128,7 +150,7 @@ export function deriveCrewHistoryBeat(snapshot: PublicGameSnapshot): CrewHistory
   if (snapshot.phase === "reveal") {
     const [watcher, resting] = stableOrder(aliveIds, seed);
     if (watcher) { animationByCharacterId[watcher] = "look_around"; behaviorByCharacterId[watcher] = "Keeping watch"; }
-    if (resting) { animationByCharacterId[resting] = "idle"; behaviorByCharacterId[resting] = "Catching a breath"; }
+    if (resting) { animationByCharacterId[resting] = "wait"; behaviorByCharacterId[resting] = "Catching a breath"; }
     return { kind: "quiet", interactionPairCharacterIds: null, animationByCharacterId, behaviorByCharacterId };
   }
 

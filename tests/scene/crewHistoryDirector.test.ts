@@ -114,6 +114,26 @@ describe("history-aware crew behavior", () => {
     expect(beat.kind).toBe("mourning");
     expect(beat.animationByCharacterId).toMatchObject({ "cast-daniel": "fall", "cast-esther-morgan": "depressed" });
     expect(beat.interactionPairCharacterIds).toEqual(["cast-esther-morgan", "cast-daniel"]);
+    expect(beat.emotionByCharacterId).toMatchObject({ "cast-daniel": "sad", "cast-esther-morgan": "sad" });
+  });
+
+  it("gives the surviving crew deterministic, varied grief reactions", () => {
+    const observed = new Set<string>();
+    for (let index = 0; index < 80; index += 1) {
+      const game = snapshot("danger");
+      game.characters[0]!.status = "ghost";
+      game.players[0]!.status = "ghost";
+      game.eventHistory[0]!.id = `death-event-${index}`;
+      game.eventHistory[0]!.deathCharacterIds = [game.characters[0]!.characterId];
+      const beat = deriveCrewHistoryBeat(game);
+      expect(deriveCrewHistoryBeat(game)).toEqual(beat);
+      for (const character of game.characters.filter(({ status }) => status === "alive")) {
+        observed.add(beat.emotionByCharacterId?.[character.characterId] ?? "missing");
+      }
+    }
+    expect(observed.has("sad")).toBe(true);
+    expect(observed.has("afraid")).toBe(true);
+    expect(observed.has("relieved")).toBe(true);
   });
 
   it("prefers the structured presentation cue over stale compact fields", () => {

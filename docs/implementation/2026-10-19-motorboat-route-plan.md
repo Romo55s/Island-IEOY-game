@@ -6,7 +6,7 @@
 
 **Design contract:** [Motorboat escape route v1](../design/motorboat-route-v1.md), depending on the completed [assignment/refusal foundation](2026-10-19-assignment-refusal-foundation-plan.md).
 
-**Scope boundary:** keep the current eight-player cap. Typed ideas, other escape projects, fourteen-player capacity, a general inventory/economy framework, and content expansion remain out of scope. Fuel is the first real consumable item; existing starting items remain unchanged unless a route option explicitly reads them without spending them.
+**Historical scope boundary:** this plan was written for the original eight-player cap. Session capacity has since expanded to 15 to match the character roster. Typed ideas, other escape projects, a general inventory/economy framework, and content expansion remain out of scope. Fuel is the first real consumable item; existing starting items remain unchanged unless a route option explicitly reads them without spending them.
 
 ## Architecture
 

@@ -1,0 +1,369 @@
+.header {
+  position: relative;
+  z-index: 12;
+  min-width: 0;
+  background: var(--metal-face);
+  background-image: var(--texture-metal);
+  border-bottom: 2px solid var(--metal-edge);
+  box-shadow: 0 3px 0 var(--metal-shadow);
+}
+
+.headerMain {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 82px;
+  padding: 10px 18px;
+}
+
+.back {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 0.52rem;
+}
+.heading {
+  min-width: 0;
+}
+.heading p {
+  margin: 0 0 4px;
+  color: var(--bright-amber);
+  font: 0.4rem var(--font-display);
+  letter-spacing: 0.03em;
+}
+.heading h1 {
+  margin: 0;
+  color: var(--paper-bone);
+  font: 0.76rem/1.4 var(--font-display);
+}
+.heading > span {
+  display: block;
+  max-width: 52ch;
+  overflow: hidden;
+  color: var(--subdued-text);
+  font: 0.59rem/1.4 var(--font-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.counts {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--metal-edge);
+  background: var(--metal-inset);
+  box-shadow: inset 0 0 0 1px var(--metal-black);
+}
+.count {
+  display: grid;
+  min-width: 62px;
+  align-content: center;
+  gap: 2px;
+  padding: 5px 8px;
+  text-align: center;
+}
+.count + .count {
+  border-left: 1px solid var(--metal-edge);
+}
+.count strong {
+  color: var(--vest-yellow);
+  font: 0.62rem/1.2 var(--font-display);
+}
+.count small {
+  color: var(--subdued-text);
+  font: 0.38rem/1.3 var(--font-body);
+  white-space: nowrap;
+}
+
+.controls {
+  position: relative;
+}
+.controlsTrigger {
+  min-height: 44px;
+  padding: 8px 11px;
+  font-size: 0.45rem;
+  white-space: nowrap;
+}
+.triggerGlyph {
+  display: grid;
+  width: 13px;
+  gap: 3px;
+}
+.triggerGlyph i {
+  display: block;
+  height: 2px;
+  background: currentColor;
+}
+.triggerGlyph i:nth-child(2) {
+  width: 8px;
+}
+.controlPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  width: min(760px, calc(100vw - 24px));
+  padding: 12px;
+  color: var(--paper-bone);
+  background: var(--metal-face);
+  background-image: var(--texture-metal);
+  border: 2px solid var(--metal-edge);
+  box-shadow:
+    5px 5px 0 var(--metal-shadow),
+    inset 0 0 0 1px var(--metal-black);
+  animation: panelOpen 120ms steps(2, end);
+}
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--metal-edge);
+}
+.panelHeader h2 {
+  margin: 0;
+  color: var(--bright-amber);
+  font: 0.48rem var(--font-display);
+  text-transform: uppercase;
+}
+.closePanel {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  color: var(--paper-bone);
+  background: var(--metal-inset);
+  border: 1px solid var(--metal-edge);
+  font: 1.1rem/1 var(--font-body);
+  cursor: pointer;
+}
+.closePanel:hover,
+.closePanel:focus-visible {
+  color: var(--bright-amber);
+  border-color: var(--vest-yellow);
+  outline: 2px solid var(--vest-yellow);
+  outline-offset: 1px;
+}
+.controlBody {
+  display: grid;
+  grid-template-columns: auto minmax(240px, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding-top: 12px;
+}
+.viewGroup {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px;
+  background: var(--metal-inset);
+  border: 1px solid var(--metal-edge);
+  box-shadow: inset 0 0 0 1px var(--metal-black);
+}
+.viewButton {
+  min-height: 44px;
+  padding: 8px 10px;
+  font-size: 0.42rem;
+  white-space: nowrap;
+}
+.focusDecision {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  color: var(--subdued-text);
+  font: 0.4rem var(--font-display);
+  text-transform: uppercase;
+}
+.selectShell {
+  position: relative;
+  display: block;
+  min-width: 0;
+  background: var(--metal-inset);
+  border: 1px solid var(--metal-edge);
+  box-shadow: inset 0 2px 0 var(--metal-black);
+}
+.selectShell:focus-within {
+  border-color: var(--vest-yellow);
+  outline: 2px solid var(--vest-yellow);
+  outline-offset: 2px;
+}
+.selectShell select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 38px 8px 10px;
+  appearance: none;
+  color: var(--paper-bone);
+  background: transparent;
+  border: 0;
+  font: 0.63rem var(--font-body);
+  cursor: pointer;
+}
+.selectShell select:focus {
+  outline: none;
+}
+.selectShell select option {
+  color: var(--paper-bone);
+  background: var(--metal-inset);
+}
+.selectArrow {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--vest-yellow);
+  border-bottom: 2px solid var(--vest-yellow);
+  pointer-events: none;
+  transform: translateY(-70%) rotate(45deg);
+}
+.scopeButton {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 0.42rem;
+  white-space: nowrap;
+}
+.help {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  color: var(--subdued-text);
+  border-top: 1px solid rgb(116 107 93 / 55%);
+  font: 0.57rem/1.4 var(--font-body);
+}
+
+@keyframes panelOpen {
+  from {
+    opacity: 0.65;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .headerMain {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 9px 12px;
+  }
+  .counts {
+    grid-column: 1 / 3;
+    justify-self: start;
+  }
+  .controls {
+    grid-column: 3;
+    grid-row: 1;
+    position: static;
+  }
+  .controlBody {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .viewGroup {
+    grid-column: 1 / -1;
+    justify-self: start;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .focusDecision {
+    grid-column: 1;
+  }
+  .scopeButton {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .headerMain {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 8px;
+  }
+  .back {
+    min-height: 44px;
+    padding: 7px 8px;
+    font-size: 0.43rem;
+  }
+  .heading p {
+    margin-bottom: 2px;
+    font-size: 0.34rem;
+  }
+  .heading h1 {
+    font-size: 0.55rem;
+  }
+  .heading > span {
+    max-width: 25ch;
+    font-size: 0.48rem;
+  }
+  .counts {
+    grid-column: 1 / 3;
+    justify-self: stretch;
+  }
+  .count {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 3px;
+  }
+  .count small {
+    font-size: 0.34rem;
+  }
+  .controls {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .controlsTrigger {
+    width: 44px;
+    min-width: 44px;
+    justify-content: center;
+    padding: 8px;
+    font-size: 0;
+  }
+  .triggerGlyph {
+    width: 15px;
+  }
+  .controlPanel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 8px;
+    width: min(390px, calc(100vw - 16px));
+    padding: 10px;
+  }
+  .controlBody {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .viewGroup {
+    grid-column: 1;
+    justify-self: stretch;
+    gap: 3px;
+  }
+  .viewButton {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px 4px;
+    font-size: 0.33rem;
+    white-space: normal;
+  }
+  .focusDecision {
+    grid-column: 1;
+  }
+  .scopeButton {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+  }
+  .help {
+    margin-top: 2px;
+    font-size: 0.54rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controlPanel {
+    animation: none;
+  }
+}

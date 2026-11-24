@@ -1,6 +1,6 @@
 import { Server, type Connection, type ConnectionContext, type WSMessage } from "partyserver";
 
-import { CHARACTER_CATALOG, INITIAL_CHARACTER_RESOURCES, PROTOCOL_VERSION, type PrivateRoomState } from "../../src/shared/domain";
+import { CHARACTER_CATALOG, INITIAL_CHARACTER_RESOURCES, MAX_PLAYER_COUNT, PROTOCOL_VERSION, type PrivateRoomState } from "../../src/shared/domain";
 import { DECISION_CARDS } from "../../src/shared/content/decisionCards";
 import { SURVIVAL_ITEMS } from "../../src/shared/content/items";
 import {
@@ -75,7 +75,7 @@ export class GameRoom extends Server<Env> {
     let displayName: string;
     if (input.mode === "join") {
       if (room.phase !== "lobby") return { ok: false, status: 409, code: "GAME_ALREADY_STARTED", message: "The game has already started." };
-      if (Object.keys(room.players).length >= 8) return { ok: false, status: 409, code: "ROOM_FULL", message: "The session already has eight players." };
+      if (Object.keys(room.players).length >= MAX_PLAYER_COUNT) return { ok: false, status: 409, code: "ROOM_FULL", message: `The session already has ${MAX_PLAYER_COUNT} players.` };
       if (isRateLimited(room.failedAttemptsByAddress[input.address], input.now)) {
         return { ok: false, status: 429, code: "RATE_LIMITED", message: "Too many password attempts. Try again shortly." };
       }
@@ -123,7 +123,7 @@ export class GameRoom extends Server<Env> {
       const existingPlayer = room.players[record.playerId];
       if (record.mode === "join" && !existingPlayer) {
         if (room.phase !== "lobby") return { ok: false, status: 409, code: "GAME_ALREADY_STARTED", message: "The game has already started." };
-        if (Object.keys(room.players).length >= 8) return { ok: false, status: 409, code: "ROOM_FULL", message: "The session already has eight players." };
+        if (Object.keys(room.players).length >= MAX_PLAYER_COUNT) return { ok: false, status: 409, code: "ROOM_FULL", message: `The session already has ${MAX_PLAYER_COUNT} players.` };
         room.players[record.playerId] = {
           id: record.playerId,
           displayName: record.displayName,
@@ -334,7 +334,7 @@ export class GameRoom extends Server<Env> {
       if (room.hostPlayerId !== playerId) return { code: "UNAUTHORIZED", message: "Only the host may start the game." };
       const presence = this.withPresence(room);
       const connected = Object.values(presence.players).filter(({ connected }) => connected);
-      if (connected.length < 2 || connected.length > 8) return { code: "SESSION_FULL", message: "Two to eight connected players are required." };
+      if (connected.length < 2 || connected.length > MAX_PLAYER_COUNT) return { code: "SESSION_FULL", message: `Two to ${MAX_PLAYER_COUNT} connected players are required.` };
       if (Object.values(room.players).some(({ characterId }) => characterId === null)) return { code: "INVALID_CHARACTER", message: "Every player needs a character." };
       if (connected.some(({ ready }) => !ready)) return { code: "UNAUTHORIZED", message: "Every connected player must be ready." };
       const started = startGame(room, now, DECISION_CARDS, cryptoRandom) as PersistedRoomState;
@@ -349,12 +349,21 @@ export class GameRoom extends Server<Env> {
       const card = room.deck.find(({ id }) => id === room.currentDecisionId);
       const option = card?.options.find(({ id }) => id === command.payload.optionId);
       if (!option) return { code: "INVALID_OPTION", message: "That option is not available." };
+      if (option.targetSelection) {
+        const target = command.payload.targetCharacterId;
+        if (!target || room.characters[target]?.status !== "alive" || !Object.values(room.players).some(p => p.characterId === target && p.status === "alive")) return {code:"INVALID_OPTION",message:"Choose a living target."};
+        if (command.payload.assignedCharacterId) return {code:"INVALID_ASSIGNMENT",message:"This choice selects a target, not a worker."};
+        room.targetNominationsByPlayer = {...room.targetNominationsByPlayer, [playerId]:target};
+      } else {
+        if (command.payload.targetCharacterId) return {code:"INVALID_OPTION",message:"This option does not select a target."};
+        if (room.targetNominationsByPlayer) delete room.targetNominationsByPlayer[playerId];
+      }
       if (option.assignment) {
         const nominated = command.payload.assignedCharacterId;
         const assignedPlayer = nominated
           ? Object.values(room.players).find(({ characterId }) => characterId === nominated)
           : undefined;
-        if (!nominated || assignedPlayer?.status !== "alive" || room.characters[nominated]?.status !== "alive") {
+        if (!nominated || assignedPlayer?.status !== "alive" || room.characters[nominated]?.status !== "alive" || (option.assignment.requiredStartingItemId && room.characters[nominated]?.startingItemId !== option.assignment.requiredStartingItemId)) {
           return { code: "INVALID_ASSIGNMENT", message: "Choose a living character for this task." };
         }
         room.assignmentNominationsByPlayer = { ...(room.assignmentNominationsByPlayer ?? {}), [playerId]: nominated };
@@ -376,9 +385,9 @@ export class GameRoom extends Server<Env> {
     if (command.type === "private-choice.respond") {
       const choice=room.pendingPrivateChoice;
       if (room.phase!=="privateChoice" || !choice || choice.id!==command.payload.choiceId || choice.actorPlayerId!==playerId || choice.response!==null || now>=choice.deadlineAt || player.status!=="alive" || player.characterId!==choice.actorCharacterId || room.characters[choice.actorCharacterId]?.status!=="alive" || !choice.allowedOptionIds.includes(command.payload.optionId)) return {code:"INVALID_PRIVATE_CHOICE",message:"That private choice is not available."};
-      if (command.payload.optionId==="transfer") {
+      if (command.payload.optionId==="transfer" || command.payload.optionId==="attempt-eat") {
         const target=command.payload.targetCharacterId;
-        if (!target || target===choice.actorCharacterId || room.characters[target]?.status!=="alive" || !Object.values(room.players).some(({characterId,status})=>characterId===target&&status==="alive")) return {code:"INVALID_PRIVATE_CHOICE",message:"Choose another living character to receive the fuel."};
+        if (!target || target===choice.actorCharacterId || room.characters[target]?.status!=="alive" || !Object.values(room.players).some(({characterId,status})=>characterId===target&&status==="alive")) return {code:"INVALID_PRIVATE_CHOICE",message:"Choose another living character."};
       } else if (command.payload.targetCharacterId) return {code:"INVALID_PRIVATE_CHOICE",message:"That choice does not accept a target."};
       choice.response={optionId:command.payload.optionId,...(command.payload.targetCharacterId?{targetCharacterId:command.payload.targetCharacterId}:{})};
       const resolved=resolvePendingPrivateChoice(room,now,cryptoRandom) as PersistedRoomState;

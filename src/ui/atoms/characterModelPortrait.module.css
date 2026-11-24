@@ -1,0 +1,2 @@
+.canvas { position: absolute !important; z-index: 5; inset: 0; width: 100% !important; height: 100% !important; pointer-events: none !important; }
+.view { position: absolute !important; z-index: 2; inset: 0; display: block; overflow: hidden; pointer-events: none !important; }

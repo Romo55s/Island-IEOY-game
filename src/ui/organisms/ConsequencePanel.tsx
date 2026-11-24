@@ -1,5 +1,7 @@
 import { useId } from "react";
 import type { EventEntry, MotorboatEventFacts, ResolvedResourceChange } from "../../shared/domain";
+import { CharacterPortrait } from "../atoms/CharacterPortrait";
+import { CHARACTER_CATALOG } from "../../shared/domain";
 import styles from "./organisms.module.css";
 
 const RESOURCE_LABELS = { food: "Food", health: "Health", morale: "Morale", water: "Water", shelter: "Shelter" } as const;
@@ -69,7 +71,9 @@ function motorboatFacts(event: EventEntry, characterNames: Record<string, string
   ];
 }
 
-export function ConsequencePanel({ event, characterNames = {} }: { event: EventEntry; characterNames?: Record<string, string> }) {
+export interface IncidentCrewVoice { characterId: string; name: string; tint: string; status: "alive" | "ghost"; line: string; animationName?: string; animationOnce?: boolean; animationHoldAtEnd?: boolean; animationEventId?: string }
+
+export function ConsequencePanel({ event, characterNames = {}, crewDialogue = [] }: { event: EventEntry; characterNames?: Record<string, string>; crewDialogue?: IncidentCrewVoice[] }) {
   const headingId = useId();
   const resolution = event.resolution;
   const groupedChanges = resolution ? groupResourceChanges(resolution.resourceChanges, characterNames) : [];
@@ -77,7 +81,7 @@ export function ConsequencePanel({ event, characterNames = {} }: { event: EventE
   const boatFacts = motorboatFacts(event, characterNames);
   return <section className={styles.reportFrame} aria-labelledby={headingId}><article className={`${styles.paper} ${styles.report}`}>
     <span className={styles.stamp}>Incident report</span>
-    <h2 className={styles.heading} id={headingId}>{resolution ? `The crew chose “${resolution.winningOptionLabel}.”` : "The island responded."}</h2>
+    <h2 className={styles.heading} id={headingId}>{resolution?.desperation?.kind === "night" ? "What happened while camp slept" : resolution ? `The crew chose “${resolution.winningOptionLabel}.”` : "The island responded."}</h2>
     <p className={styles.outcome}>{resolution?.outcomeText ?? event.text}</p>
     {boatFacts.length > 0 && <section className={styles.reportSection} aria-labelledby={`${headingId}-motorboat`}>
       <h3 id={`${headingId}-motorboat`}>Motorboat route</h3>
@@ -85,12 +89,12 @@ export function ConsequencePanel({ event, characterNames = {} }: { event: EventE
     </section>}
     {resolution && <>
       {assignmentResult && <p className={styles.assignmentResult}>{assignmentResult}</p>}
-      <section className={styles.reportSection} aria-labelledby={`${headingId}-votes`}>
-        <h3 id={`${headingId}-votes`}>Anonymous vote</h3>
+      {resolution.optionResults.length > 0 && <section className={styles.reportSection} aria-labelledby={`${headingId}-votes`}>
+        <h3 id={`${headingId}-votes`}>Vote results</h3>
         <ul className={styles.voteResults}>{resolution.optionResults.map((result) => <li key={result.optionId} data-winner={result.optionId === resolution.winningOptionId}>
           <span>{result.label}</span><b>{result.votes}</b>
         </li>)}</ul>
-      </section>
+      </section>}
       <section className={styles.reportSection} aria-labelledby={`${headingId}-changes`}>
         <h3 id={`${headingId}-changes`}>What actually changed</h3>
         {resolution.resourceChanges.length === 0 && resolution.statusChanges.length === 0
@@ -100,6 +104,15 @@ export function ConsequencePanel({ event, characterNames = {} }: { event: EventE
             {resolution.statusChanges.map((change) => <li key={`${change.characterId}:${change.cause}`} data-direction="loss">{characterNames[change.characterId] ?? change.characterId} became a ghost ({CAUSE_LABELS[change.cause]}).</li>)}
           </ul>}
       </section>
+      {crewDialogue.length > 0 && <section className={styles.reportSection} aria-labelledby={`${headingId}-voices`}>
+        <h3 id={`${headingId}-voices`}>Crew exchange</h3>
+        <div className={styles.reportDialogue} aria-live="polite">
+          {crewDialogue.map((voice) => <article className={styles.reportVoice} key={voice.characterId} data-status={voice.status}>
+            <CharacterPortrait name={voice.name} tint={voice.tint} state={voice.status === "ghost" ? "claimed" : "selected"} className={styles.reportPortrait} characterId={voice.characterId} modelUrl={CHARACTER_CATALOG.find(({ id }) => id === voice.characterId)?.modelUrl} animationName={voice.animationName} animationOnce={voice.animationOnce} animationHoldAtEnd={voice.animationHoldAtEnd} animationEventId={voice.animationEventId} />
+            <div><strong>{voice.name}</strong><p>“{voice.line}”</p></div>
+          </article>)}
+        </div>
+      </section>}
     </>}
   </article></section>;
 }

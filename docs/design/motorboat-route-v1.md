@@ -108,7 +108,7 @@ Leaving alone immediately attempts a solo launch. Waking the group opens a publi
 - **Launch together now.**
 - **Wait for a better tide.**
 
-For the current eight-player prototype, a sturdy boat carries all living characters. Capacity above eight is not approved by this spec and must be revisited with the fourteen-player milestone.
+This route spec was first authored for an eight-player prototype. The live roster now supports up to 16 players; group launch and passenger results include all living characters. Validate readability and load for a full 16-player run before claiming large-group acceptance.
 
 Approved tense-but-fair internal launch chances. Follow-up playtests can still retune them:
 

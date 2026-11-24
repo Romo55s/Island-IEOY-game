@@ -11,7 +11,7 @@
 .castNote strong, .castNote span { display: block; }
 .castNote strong { font-size: 13px; }
 .castNote div span { margin-top: 4px; color: #b6b2a4; font-size: 11px; }
-.signal { width: 9px; height: 9px; background: var(--sea-glass); box-shadow: 0 0 0 3px #68a89a33; }
+.signal { width: 9px; height: 9px; background: var(--vest-yellow); box-shadow: 0 0 0 3px #68a89a33; }
 .retry { padding: 10px 14px; pointer-events: auto; color: var(--night-canopy); background: var(--vest-yellow); border: 2px solid var(--night-canopy); box-shadow: 3px 3px 0 #141a1d; font-size: 12px; cursor: pointer; }
 .retry:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #141a1d; }
 .edgeMark { position: absolute; right: 14px; bottom: 6px; color: #d9d2bb88; font-size: 8px; letter-spacing: .12em; }

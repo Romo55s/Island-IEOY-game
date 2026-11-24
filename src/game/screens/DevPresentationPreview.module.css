@@ -24,7 +24,7 @@
 .deckLabel,
 .frameLabel {
   margin: 0;
-  color: var(--sea-glass);
+  color: var(--vest-yellow);
   font: 0.62rem var(--font-display);
   letter-spacing: 0.08em;
 }
@@ -103,7 +103,7 @@
   min-height: 42px;
   padding: 8px 10px;
   color: var(--night-canopy);
-  background: var(--sea-glass);
+  background: var(--vest-yellow);
   border: 2px solid var(--night-canopy);
   box-shadow: 3px 3px 0 #080b0c;
   font: 0.66rem / 1.2 var(--font-display);

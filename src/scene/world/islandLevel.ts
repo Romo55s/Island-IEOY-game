@@ -1,10 +1,13 @@
+import { MAX_PLAYER_COUNT } from "../../shared/domain";
+
 export type Vec3 = readonly [number, number, number];
 export type Vec2 = readonly [number, number];
 
-export const PLAYER_SLOT_OFFSETS: readonly Vec2[] = [
-  [-3, -1.5], [-1, -1.5], [1, -1.5], [3, -1.5],
-  [-3, 1.5], [-1, 1.5], [1, 1.5], [3, 1.5],
-];
+const PLAYER_SLOT_COLUMNS = 5;
+export const PLAYER_SLOT_OFFSETS: readonly Vec2[] = Array.from({ length: MAX_PLAYER_COUNT }, (_, index) => [
+  ((index % PLAYER_SLOT_COLUMNS) - 2) * 1.8,
+  (Math.floor(index / PLAYER_SLOT_COLUMNS) - 1) * 1.8,
+] as const);
 
 export type EncounterZoneId =
   | "crash_beach"
@@ -106,7 +109,7 @@ export const ISLAND_LEVEL = {
   seaLevel: 0,
   maxElevation: 85,
   trailWidth: 2.5,
-  maxPlayers: 8,
+  maxPlayers: MAX_PLAYER_COUNT,
   aircraft: { position: [-140, 2, -100], fuselageLength: 24, wingspan: 22 },
   mountain: { baseCenter: [35, 15, 112], baseFootprint: [140, 130], summit: [35, 85, 112], summitClearing: [22, 18] },
   waterfall: { pool: [32, 15, 24], upperEdge: [32, 33, 24], width: 6, poolSize: [20, 16] },

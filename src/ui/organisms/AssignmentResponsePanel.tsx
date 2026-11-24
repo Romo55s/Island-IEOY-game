@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { QualitativeRisk } from "../../shared/domain";
 import { Countdown } from "../molecules/Countdown";
 import styles from "./organisms.module.css";
@@ -41,6 +41,7 @@ export function AssignmentResponsePanel({
   const [estimatedNow, setEstimatedNow] = useState(() => Date.now() + (serverClockOffsetMs ?? 0));
   const [submittedResponse, setSubmittedResponse] = useState<AssignmentResponse>();
   const isOpen = estimatedNow < assignment.deadlineAt;
+  const countdownNow = useCallback(() => Date.now() + (serverClockOffsetMs ?? 0), [serverClockOffsetMs]);
 
   useEffect(() => {
     setSubmittedResponse(undefined);
@@ -66,7 +67,7 @@ export function AssignmentResponsePanel({
         <p className={styles.assignmentEyebrow}>Compulsory assignment</p>
         <h2 className={styles.heading} id={headingId}>The crew assigned {actorName} to {assignment.roleLabel}.</h2>
       </div>
-      <Countdown deadline={assignment.deadlineAt} now={() => estimatedNow} mode="choice" />
+      <Countdown deadline={assignment.deadlineAt} now={countdownNow} mode="choice" />
     </div>
     {viewerAssignment ? <>
       <p className={styles.assignmentRisk}>{riskCopy[viewerAssignment.qualitativeRisk]}</p>

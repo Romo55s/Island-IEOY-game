@@ -1,16 +1,26 @@
 # Game refinement roadmap
 
-Updated 2026-10-19. This is the active backlog. It replaces the overlapping historical plans listed in the [archive](archive/2026-10-18/README.md).
+Updated 2026-10-23. This is the active backlog. It replaces the overlapping historical plans listed in the [archive](archive/2026-10-18/README.md).
 
-**Goal:** make each decision understandable, consequential, and visibly performed by the cast, then build a replayable session around that experience.
+**Goal:** make each decision understandable and consequential, show the cast's reactions, then build a replayable session around that experience.
 
-**Current creative basis:** [Design brief v4](GAME_DESIGN.md) records the owner's answers through 2026-10-19. First successful escape ends the session with fade-to-black aftermath; compulsory assignments allow one individual probabilistic refusal attempt; ghosts have equal votes; highest count wins with random tied/no-vote selection; risk is descriptive; typed-language interpretation is deferred. The third genuine missed motorboat opportunity triggers the authored storm-surge failure. Replace the fixed ten-round ending with connected routes. Test with 8 players first; support for the actual group of 14 remains later work.
+**Current creative basis:** [Design brief v4](GAME_DESIGN.md) records the owner's answers through 2026-10-19. First successful escape ends the session with fade-to-black aftermath; compulsory assignments allow one individual probabilistic refusal attempt; ghosts have equal votes; highest count wins with random tied/no-vote selection; risk is descriptive; typed-language interpretation is deferred. The third genuine missed motorboat opportunity triggers the authored storm-surge failure. Replace the fixed ten-round ending with connected routes. Session capacity now matches the 15-character roster; full-scale reliability and human playtesting remain open.
 
 **Scope:** active implementation sequence after the audit and owner approvals. Preserve the working multiplayer foundation and existing uncommitted development. Implement the approved motorboat slice before expanding content or capacity.
 
 **Technical basis:** React/TypeScript, React Three Fiber/Three.js, Cloudflare Worker/PartyServer, Zod, Vitest, Playwright. The server owns game facts; clients present those facts. No new engine, database, accounts, or deployment is needed for the next slice.
 
+**Presentation pivot — 2026-10-23:** the owner approved a story-first incident room as the normal multiplayer view. Contextual illustrations and authored crew dialogue frame the existing choice phases; the server-owned decision mechanics remain intact. The 3D island is a development sandbox at `/sandbox`, and its route is lazy-loaded. Character models are intended as portraits once distinct approved models/renders exist; the shared Daniel GLB is not a cast portrait set. Minigames are deferred until the decision loop has been accepted.
+
+**Contextual dialogue slice — 2026-11-10:** resolved event exchanges and decision-opening lines are selected from explicit public event/outcome IDs, saved on room history, and reused by the incident report and crew radio. Dialogue selection is deterministic and isolated from gameplay RNG; role-aware content, serious loss/injury fallbacks, a short motif cooldown, and `/decision-test` seed preview are implemented. Coverage and QA limits are recorded in `docs/qa/crew-dialogue.md`; expanding the authored exchange library remains content work.
+
+**Narrative direction — 2026-10-23:** the owner clarified that the intended game is a connected authored decision tree with multiple routes and good, mixed, and bad endings. Prior choices must affect later scene eligibility, state, narration, and reachable endings. Randomness should resolve uncertainty within that authored story, not shuffle unrelated scenes into a fake branching campaign. The motorboat route is one current route foundation, not the complete story.
+
 **Implementation status — 2026-10-22:** the three foundations remain implemented, and the first authored [motorboat route](implementation/2026-10-19-motorboat-route-plan.md) is now implemented too: discovery, private fuel custody, compulsory repair, group/solo departure, bounded recovery, third-miss storm failure, factual escape sets, and fade-to-black aftermath. The current verification baseline is 184 client/shared/scene tests and 45 Worker tests, both TypeScript checks, production build/bundle validation, real Durable Object timeout tests, a fresh two-client browser route through discovery, repair, and the storm ending, deterministic Chromium coverage for group/solo endings, and a development-only route preview. It is an implemented prototype, not balance acceptance, a completed content set, or fourteen-player support.
+
+**Campaign coherence corrections — 2026-10-28:** successful signal/group escape now bypasses the same-resolution food tick; direct outcome effects still resolve. Signal position and cove arrival are tracked separately from map knowledge/scouting. Contradictory history claims and unsupported time/supply stakes were corrected; story-map edges now have endpoints. The vote deadline is trialed at 40 seconds, with all-voted immediate resolution retained. Deterministic schedule upper bounds become 16:17 for the reviewed successful signal path and 18:02 for direct boat; human timing remains untested. App typechecks and 14 focused client / 22 focused Worker tests pass. Full route acceptance remains open. See the [review](design/2026-10-28-campaign-review.md), [correction plan](superpowers/plans/2026-10-28-campaign-coherence-and-validation.md), and [first campaign story map](design/first-campaign-story-map-v1.md).
+
+**Roster capacity — 2026-11-12:** 16 selectable characters are present, including Courtney. Room admission, start validation, protocol array bounds, passenger counts, and island staging now share the character-catalog capacity. A full 16-client load/reconnect playtest remains open.
 
 ## M0 — Audit and documentation reset: completed
 
@@ -114,9 +124,9 @@ These boxes track implementation only. Rescue incentives, survival balance, narr
 
 **Exit condition:** nobody must scroll away from the consequence to understand the decision; no hidden score determines an unexplained result.
 
-## M3 — Build a three-encounter story with real choices
+## M3 — Build a branching island story with real choices
 
-### 5. Repair meaning before adding content volume
+### 5. Make choices form a connected story tree
 
 **Files:** shared domain/content/rules, `worker/game/GameRoom.ts`, `worker/game/roomStorage.ts`, `worker/game/roomScheduler.ts`, scene presentation and relevant unit/Worker tests.
 
@@ -124,7 +134,11 @@ These boxes track implementation only. Rescue incentives, survival balance, narr
 - [ ] Implement a small selected set of real item uses; record consumption, ownership after death, and effects. Do not imply mechanics for flavor-only items.
 - [ ] Connect the retained survival meters to understandable choices. Fix rainwater semantics; provide recovery opportunities if starvation is intended as a manageable threat.
 - [x] Implement compulsory group assignment to a living actor with an individual accept/refuse response, timeout acceptance, one probabilistic refusal attempt, authored success fallback, actor-targeted effects, truthful narration, persistence, and reconnect privacy. The cave is the proving encounter; motorboat use remains next.
-- [ ] Add encounter eligibility and world-state prerequisites to three linked situations: setup → consequence/complication → payoff. Show at least two meaningfully different paths from earlier choices.
+- [x] Author the first-arc branch map with connected crash/camp setup, signal and motorboat routes, five target endings, branch conditions, reconvergence, and ending rules in `docs/design/first-campaign-story-map-v1.md`.
+- [x] Define the minimum persistent story facts for rescue, inventory, shelter, signal readiness, cove discovery, route outcomes, and character condition in the branch map; relationship/debt tracking is excluded until a later scene uses it.
+- [x] Route new sessions through server-selected shoreline, first-night, signal, and motorboat nodes; keep random rolls inside vote/actor/risky-action resolution. Older persisted sessions retain their legacy progression.
+- [x] Make earlier choices visibly change later scene access, available options, character reactions, and ending eligibility through campaign flags and route conditions. Full path variation and motorboat browser playthroughs remain in M4.
+- [ ] Validate graph reachability: every intended ending is reachable; no nonterminal state dead-ends; each route has a credible recovery or terminal consequence; early deaths and hidden/private facts have defined fallbacks.
 - [x] Implement one proposed escape project (motorboat first) with explicit prerequisites, capacity, and failed-attempt aftermath. First successful escape ends the session; replace round-count success with this confirmed rule.
 - [x] Exercise group departure, selfish departure, and no-survivor failure in deterministic rules/Worker/UI coverage. A human acceptance run for both successful exits remains in M4.
 - [x] Implement authored missed-escape escalation: unique persisted opportunities, public warnings, bounded recovery, and the coherent third-miss storm terminal; successful escape has precedence.
@@ -140,7 +154,7 @@ These boxes track implementation only. Rescue incentives, survival balance, narr
 
 ### 6. Validate the slice with the actual group
 
-- [ ] Play the small authored slice with the current eight-person test group. Validate full-run play with approximately fourteen after the capacity milestone, not before claiming support.
+- [ ] Play the small authored slice with a group sized for the current 15-player roster. Validate full-run pacing and reliability before claiming support for large groups.
 - [ ] Ask after each consequence: “What did you choose, what happened, and what could you do differently?” Record confusion without coaching the answer.
 - [ ] Observe idle time, discussion, laughter, frustration with chance, ghost engagement, repeated dialogue, and which scene actions players notice.
 - [ ] Keep numerical balance reports separate from human observations; do not claim that a passing simulation proves fun.
@@ -148,13 +162,14 @@ These boxes track implementation only. Rescue incentives, survival balance, narr
 
 ### 7. Expand only the proven pattern
 
-- [ ] Expand the encounter pool and conditional follow-ups around escape progress, not an assumed fixed session length; preserve authored prerequisites and actor/world-state validation.
+- [ ] Expand the encounter pool and conditional follow-ups only after the first connected story tree passes playtests; preserve authored prerequisites and actor/world-state validation.
 - [ ] Add alternative escape routes only after the first works. Verify every blocked project has obtainable recovery/substitution options rather than waiting indefinitely for a rare card.
 - [ ] Design explicit long-session pause/resume and disconnection handling if needed; do not equate storage persistence with a finished resume experience.
 - [ ] Add audio startup/mute/volume controls and short consequence cues with valid media licenses.
-- [ ] Validate and optimize the actual model + animation library payload; profile loading and frame performance with two/eight characters.
+- [ ] Validate and optimize the actual model + animation library payload; profile loading and frame performance with two/fifteen characters.
 - [ ] Add approved distinct character assets and test retargeting/action coverage per rig.
-- [ ] Expand capacity to 14: centralize room/start/protocol limits; provide enough distinct selectable character identities; verify inventories, ghost votes, tie picker, private prompts, HUD, camera/staging, reconnect and load at 14. Current `worker/game/GameRoom.ts` and `src/shared/protocol.ts` cap players at 8; the catalog has 9 identities. Do not report this as a one-constant change.
+- [x] Expand session capacity to the full character roster (15): Worker admission and start checks, public snapshot/event bounds, player counters, and 3D staging now use the catalog-derived maximum. Eight-player sessions remain within the new bounds.
+- [ ] Validate the 15-player lobby and gameplay under full browser load, including reconnect, private prompts, ghost votes, and report readability.
 - [ ] Verify the final live game on agreed browsers/devices, including reduced motion, slow loading, disconnection, and complete sessions.
 - [ ] Run release checks and obtain local gameplay/visual acceptance before any separate deployment request.
 

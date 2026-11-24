@@ -7,11 +7,23 @@ const MANIFEST_PATH = path.resolve("public/audio/manifest.json");
 const MAX_AUDIO_BYTES = 2 * 1024 * 1024;
 const REQUIRED_CUE_IDS = [
   "ambient-island",
+  "menu-theme",
   "crash-impact",
   "vote-submit",
   "consequence-reveal",
   "character-fire",
   "ghost-arrival",
+  "ui-select",
+  "decision-open",
+  "countdown-tick",
+  "crew-radio",
+  "motorboat-start",
+  "outcome-success",
+  "outcome-setback",
+  "library-ui-select",
+  "library-ui-confirm",
+  "library-report-paper",
+  "library-metal-latch",
 ] as const;
 
 const licenseSchema = z
@@ -39,7 +51,7 @@ const cueSchema = z
   })
   .strict()
   .superRefine((cue, context) => {
-    if (cue.available && cue.license.sourceUrl === null) {
+    if (cue.available && cue.license.sourceUrl === null && cue.license.id !== "LicenseRef-Project-Original") {
       context.addIssue({ code: "custom", message: "enabled cues require a source URL" });
     }
     if (cue.available && cue.license.id === "LicenseRef-UndistributedPlaceholder") {
@@ -109,7 +121,7 @@ describe("audio manifest", () => {
 
   it("does not allow a placeholder license to be enabled", async () => {
     const candidate = clone(await readManifest()) as AudioManifest;
-    candidate.cues[0]!.available = true;
+    candidate.cues[0]!.license.id = "LicenseRef-UndistributedPlaceholder";
     expect(() => audioManifestSchema.parse(candidate)).toThrow();
   });
 });

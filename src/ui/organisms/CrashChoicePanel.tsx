@@ -20,13 +20,14 @@ export interface CrashChoicePanelProps {
   resolution?: CrashResolution;
   onSubmitItem(itemId: string): void;
   onSubmitRescue(targetCharacterId: string): void;
+  layout?: "default" | "story";
 }
 
 export function CrashChoicePanel(props: CrashChoicePanelProps) {
   const now = useCallback(() => Date.now() + (props.serverClockOffsetMs ?? 0), [props.serverClockOffsetMs]);
-  if (props.phase === "crashResolution") return props.resolution ? <CrashReport resolution={props.resolution} characters={props.characters} catalog={props.characterCatalog} /> : null;
+  if (props.phase === "crashResolution") return props.resolution ? <CrashReport resolution={props.resolution} characters={props.characters} catalog={props.characterCatalog} layout={props.layout} /> : null;
   const deadline = props.deadline;
-  return <section className={styles.panel} aria-labelledby="crash-choice-title">
+  return <section className={styles.panel} data-layout={props.layout ?? "default"} aria-labelledby="crash-choice-title">
     <header className={styles.header}>
       <div><p className={styles.kicker}>FLIGHT 404 · EMERGENCY PROCEDURE</p><h2 id="crash-choice-title">{props.phase === "crashItemChoice" ? "Choose what you carried out" : "Who do you try to save?"}</h2></div>
       {deadline !== null && <Countdown deadline={deadline} now={now} mode="choice" />}
@@ -76,10 +77,10 @@ function RescueChoice({ viewerCharacterId, players, characters, characterCatalog
   </>;
 }
 
-export function CrashReport({ resolution, characters, catalog }: { resolution: CrashResolution; characters: CharacterState[]; catalog: CharacterDefinition[] }) {
+export function CrashReport({ resolution, characters, catalog, layout = "default" }: { resolution: CrashResolution; characters: CharacterState[]; catalog: CharacterDefinition[]; layout?: "default" | "story" }) {
   const characterName = (id: string) => catalog.find(({ id: candidate }) => candidate === id)?.displayName ?? id;
   const ghosts = resolution.eliminatedCharacterIds.length;
-  return <section className={`${styles.panel} ${styles.report}`} aria-labelledby="crash-report-title">
+  return <section className={`${styles.panel} ${styles.report}`} data-layout={layout} aria-labelledby="crash-report-title">
     <header className={styles.header}><div><p className={styles.kicker}>BLACK BOX · CRASH REPORT</p><h2 id="crash-report-title">The rescue attempts are in</h2></div><span className={styles.stamp}>RESOLVED</span></header>
     <p className={styles.summary}>{resolution.summary}</p>
     <ul className={styles.attempts}>

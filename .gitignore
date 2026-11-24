@@ -12,3 +12,9 @@ test-results/
 # Unapproved character sources belong here until intake is complete.
 asset-intake/characters/
 
+
+# Local agent/browser tooling state and generated QA captures
+/.agents/
+/.playwright-cli/
+/.tripo/
+/output/

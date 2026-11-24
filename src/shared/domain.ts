@@ -1,8 +1,9 @@
+import type { DesperationState, DesperationEventFacts } from "./desperation/types";
 export const APP_NAME = "Island of Extremely Questionable Judgment";
-export const PROTOCOL_VERSION = 4 as const;
+export const PROTOCOL_VERSION = 7 as const;
 
 export type GamePhase = "lobby" | "intro" | "crashItemChoice" | "crashRescueChoice" | "crashResolution" | "decision" | "assignmentResponse" | "privateChoice" | "reveal" | "ending" | "expired";
-export type EndingId = "group-escape" | "solo-escape" | "no-survivors";
+export type EndingId = "group-escape" | "solo-escape" | "signal-rescue" | "no-survivors";
 export type PlayerStatus = "alive" | "ghost";
 export type ResourceKey = "food" | "health" | "morale" | "water" | "shelter";
 export type CharacterResourceKey = Exclude<ResourceKey, "shelter">;
@@ -70,6 +71,47 @@ export interface Outcome {
   eliminateCharacterId?: string;
   effectTarget?: "all-living" | "assigned-actor";
   motorboatEffect?: MotorboatOutcomeEffect;
+  campaignEffect?: CampaignOutcomeEffect;
+}
+
+export type CampaignNodeId =
+  | "shoreline-priority" | "first-night" | "daybreak-survey" | "freshwater-run"
+  | "bear-encounter" | "wildlife-encounter" | "medical-triage" | "cave-expedition" | "shelter-reinforcement"
+  | "crew-council" | "storm-warning" | "escape-project" | "signal-preparation"
+  | "signal-approach" | "signal-window" | "signal-attempt" | "coastal-expedition" | "coastal-hazard" | "motorboat" | "complete";
+export type CampaignStoryFlag =
+  | "wreck-supplies" | "freshwater-found" | "boar-distracted" | "boar-driven-off"
+  | "cave-supplies" | "cave-disturbed" | "shelter-reinforced" | "crew-unified"
+  | "storm-shelter" | "signal-kit-prepared" | "coast-route-marked" | "coast-injured"
+  | "clear-signal-window" | "storm-gust" | "bear-defeated";
+export interface CampaignState {
+  node: CampaignNodeId;
+  radioRecovered: boolean;
+  radioRepaired: boolean;
+  shelterSecured: boolean;
+  coveLocated: boolean;
+  lookoutSent: boolean;
+  flareConsumed: boolean;
+  signalAttempted: boolean;
+  signalFailed: boolean;
+  signalPosition: "unselected" | "low" | "ridge";
+  coveReached: boolean;
+  storyFlags: CampaignStoryFlag[];
+  decisionsSinceFoodTick: 0 | 1 | 2;
+}
+export interface PublicCampaignState extends Omit<CampaignState, "node"> {
+  node: CampaignNodeId;
+}
+export type CampaignOutcomeEffect =
+  | { type: "shoreline"; choice: "salvage" | "shelter" | "scout" }
+  | { type: "preparation"; choice: "radio-repaired" | "radio-failed" | "rested" | "lookout" | "foraged" }
+  | { type: "route-choice"; route: "signal" | "motorboat" }
+  | { type: "signal-attempt"; method: "radio" | "flare" | "smoke"; result: "success" | "failure" }
+  | { type: "story-beat"; nextNode: CampaignNodeId; choice: string; addFlag?: CampaignStoryFlag; signalPosition?: "low" | "ridge"; coveReached?: true };
+export interface CampaignEventFacts {
+  node: CampaignNodeId;
+  choice: string;
+  result?: "success" | "failure";
 }
 
 export type MotorboatNode = "discovery" | "fuel-choice" | "repair" | "launch" | "terminal" | "complete";
@@ -100,16 +142,16 @@ export interface MotorboatRouteState {
   engineDiagnosed: boolean;
 }
 
-export type PrivateChoiceOptionId = "share" | "hide" | "transfer" | "wake" | "solo" | "quiet";
+export type PrivateChoiceOptionId = "share" | "hide" | "transfer" | "wake" | "solo" | "quiet" | "sleep" | "attempt-eat";
 export interface PendingPrivateChoice {
   id: string;
-  kind: "fuel-discovery" | "launch-custodian";
+  kind: "fuel-discovery" | "launch-custodian" | "night-hunger";
   actorPlayerId: string;
   actorCharacterId: string;
   createdAt: number;
   deadlineAt: number;
   allowedOptionIds: PrivateChoiceOptionId[];
-  defaultOptionId: "share" | "wake";
+  defaultOptionId: "share" | "wake" | "sleep";
   response: { optionId: PrivateChoiceOptionId; targetCharacterId?: string } | null;
   publicActorCharacterId?: string;
 }
@@ -119,8 +161,8 @@ export interface EscapeResult {
   escapedCharacterIds: string[];
   strandedCharacterIds: string[];
   deadCharacterIds: string[];
-  cause: "group-launch" | "solo-launch" | "storm-surge" | "all-dead";
-  epilogueId: "motorboat-group-aftermath-v1" | "motorboat-selfish-aftermath-v1" | "motorboat-storm-aftermath-v1" | "motorboat-all-dead-aftermath-v1";
+  cause: "group-launch" | "solo-launch" | "signal-rescue" | "storm-surge" | "all-dead";
+  epilogueId: "motorboat-group-aftermath-v1" | "motorboat-selfish-aftermath-v1" | "signal-rescue-aftermath-v1" | "motorboat-storm-aftermath-v1" | "motorboat-all-dead-aftermath-v1";
 }
 
 export interface PublicMotorboatRouteState {
@@ -142,7 +184,7 @@ export interface MotorboatEventFacts {
   opportunityId?: string;
   passengerCharacterIds?: string[];
   missNumber?: number;
-  endingCause?: EscapeResult["cause"];
+  endingCause?: Exclude<EscapeResult["cause"], "signal-rescue">;
   fuelConsumed?: boolean;
   statusChanges?: ResolvedStatusChange[];
 }
@@ -150,6 +192,7 @@ export interface MotorboatEventFacts {
 export type QualitativeRisk = "favorable" | "uncertain" | "risky";
 
 export interface AssignmentSpec {
+  requiredStartingItemId?: string;
   roleLabel: string;
   actorSelection: "group-nominated-living";
   refusal: {
@@ -160,6 +203,7 @@ export interface AssignmentSpec {
 }
 
 export interface DecisionOption {
+  targetSelection?: { label: string };
   id: string;
   label: string;
   outcomes: Outcome[];
@@ -167,6 +211,7 @@ export interface DecisionOption {
 }
 
 export interface DecisionCard {
+  kind?: "normal" | "hunger-crisis";
   id: string;
   prompt: string;
   options: DecisionOption[];
@@ -224,6 +269,7 @@ export interface ResolvedAssignment {
 }
 
 export interface ResolvedDecision {
+  desperation?: DesperationEventFacts;
   decisionId: string;
   prompt: string;
   winningOptionId: string;
@@ -237,9 +283,25 @@ export interface ResolvedDecision {
   presentationCue: EventPresentationCue;
   assignment?: ResolvedAssignment;
   motorboat?: MotorboatEventFacts;
+  campaign?: CampaignEventFacts;
+}
+
+export interface CrewDialogueLine {
+  characterId: string;
+  text: string;
+  emotion: "neutral" | "happy" | "sad" | "afraid" | "angry" | "relieved";
+  animation: "idle" | "agree" | "laugh" | "celebrate" | "sad" | "concern";
+}
+
+export interface CrewDialogueExchange {
+  id: string;
+  templateId: string;
+  motifIds?: string[];
+  lines: CrewDialogueLine[];
 }
 
 export interface EventEntry {
+  desperation?: DesperationEventFacts;
   id: string;
   text: string;
   createdAt: number;
@@ -252,9 +314,13 @@ export interface EventEntry {
   /** Authoritative public facts for the full reveal; compact `text` remains the activity-log form. */
   resolution?: ResolvedDecision;
   motorboat?: MotorboatEventFacts;
+  campaign?: CampaignEventFacts;
+  crewDialogue?: CrewDialogueExchange;
 }
 
 export interface PrivateRoomState {
+  desperation?: DesperationState;
+  targetNominationsByPlayer?: Record<string, string>;
   code: string;
   revision: number;
   phase: GamePhase;
@@ -279,6 +345,8 @@ export interface PrivateRoomState {
   crashItemsByPlayer?: Record<string, string>;
   rescueTargetsByPlayer?: Record<string, string>;
   crashResolution?: CrashResolution;
+  activeCrewDialogue?: CrewDialogueExchange;
+  recentPromptDialogues?: CrewDialogueExchange[];
   eventHistory: EventEntry[];
   resolvedOptionCounts?: Record<string, number>;
   winningOptionId?: string;
@@ -287,6 +355,7 @@ export interface PrivateRoomState {
   pendingAssignment?: PendingAssignment;
   resolutionSequence?: number;
   motorboat?: MotorboatRouteState;
+  campaign?: CampaignState;
   pendingPrivateChoice?: PendingPrivateChoice;
   escapeResult?: EscapeResult;
 }
@@ -294,7 +363,14 @@ export interface PrivateRoomState {
 export interface PublicDecision {
   id: string;
   prompt: string;
-  options: Array<{ id: string; label: string; assignment?: { roleLabel: string; eligibleCharacterIds: string[] } }>;
+  options: Array<{ id: string; label: string; targetSelection?: { label: string; eligibleCharacterIds: string[] }; assignment?: { roleLabel: string; eligibleCharacterIds: string[] } }>;
+}
+
+export interface PublicLiveVote {
+  targetCharacterId?: string;
+  playerId: string;
+  optionId: string;
+  assignedCharacterId?: string;
 }
 
 export interface PublicGameSnapshot {
@@ -317,7 +393,10 @@ export interface PublicGameSnapshot {
   totalDecisions: number;
   eligibleVoterIds: string[];
   eventHistory: EventEntry[];
+  activeCrewDialogue?: CrewDialogueExchange;
   viewer: { playerId: string; hasVoted: boolean };
+  /** Public group ballots while a decision is open. Private-choice responses never appear here. */
+  liveVotes?: PublicLiveVote[];
   crashItemOffer?: string[];
   viewerCrashChoices?: { hasSelectedItem: boolean; hasSelectedRescueTarget: boolean; selectedItemId?: string; selectedTargetCharacterId?: string };
   crashResolution?: CrashResolution;
@@ -327,26 +406,36 @@ export interface PublicGameSnapshot {
   activeAssignment?: Pick<PendingAssignment, "id" | "decisionId" | "optionId" | "actorCharacterId" | "roleLabel" | "deadlineAt">;
   viewerAssignment?: { canRespond: true; qualitativeRisk: QualitativeRisk };
   motorboat?: PublicMotorboatRouteState;
+  campaign?: PublicCampaignState;
   activePrivateChoice?: Pick<PendingPrivateChoice, "id" | "kind" | "deadlineAt" | "publicActorCharacterId">;
   viewerPrivateChoice?: {
     canRespond: true;
     optionIds: PrivateChoiceOptionId[];
     transferableTargetCharacterIds?: string[];
+    targetCharacterIds?: string[];
   };
   escapeResult?: EscapeResult;
 }
 
-const sharedModelUrl = "/models/characters/daniel.glb";
-
 export const CHARACTER_CATALOG: CharacterDefinition[] = [
-  { id: "cast-daniel", displayName: "Daniel", modelUrl: sharedModelUrl, tint: "#e05a47" },
-  { id: "cast-samantha", displayName: "Samantha", modelUrl: sharedModelUrl, tint: "#6f9f62" },
-  { id: "cast-jim-young", displayName: "Jim Young", modelUrl: sharedModelUrl, tint: "#e7b84d" },
-  { id: "cast-esther-morgan", displayName: "Esther Morgan", modelUrl: sharedModelUrl, tint: "#4d93b6" },
-  { id: "cast-tim", displayName: "Tim", modelUrl: sharedModelUrl, tint: "#93659f" },
-  { id: "cast-tony", displayName: "Tony", modelUrl: sharedModelUrl, tint: "#b77b52" },
-  { id: "cast-michelle", displayName: "Michelle", modelUrl: sharedModelUrl, tint: "#66b8a0" },
-  { id: "cast-jacob-ramirez", displayName: "Jacob Ramirez", modelUrl: sharedModelUrl, tint: "#7d8584" },
-  { id: "cast-zach", displayName: "Zach", modelUrl: sharedModelUrl, tint: "#c76178" },
+  { id: "cast-daniel", displayName: "Daniel", modelUrl: "/models/characters/daniel.glb", tint: "#e05a47" },
+  { id: "cast-samantha", displayName: "Samantha", modelUrl: "/models/characters/samantha-raut.glb", tint: "#6f9f62" },
+  { id: "cast-jim-young", displayName: "Jim Young", modelUrl: "/models/characters/jim-young.glb", tint: "#e7b84d" },
+  { id: "cast-esther-morgan", displayName: "Esther Morgan", modelUrl: "/models/characters/esther-morgan.glb", tint: "#4d93b6" },
+  { id: "cast-tim", displayName: "Tim", modelUrl: "/models/characters/tim-corrigan.glb", tint: "#93659f" },
+  { id: "cast-tony", displayName: "Tony", modelUrl: "/models/characters/tony.glb", tint: "#b77b52" },
+  { id: "cast-michelle", displayName: "Michelle", modelUrl: "/models/characters/michelle.glb", tint: "#66b8a0" },
+  { id: "cast-jacob-ramirez", displayName: "Jacob Ramirez", modelUrl: "/models/characters/jacob-ramirez.glb", tint: "#7d8584" },
+  { id: "cast-zach", displayName: "Zach", modelUrl: "/models/characters/zach.glb", tint: "#c76178" },
+  { id: "cast-jessica-adlock", displayName: "Jessica Adlock", modelUrl: "/models/characters/jessica-adlock.glb", tint: "#d17673" },
+  { id: "cast-jorge", displayName: "Jorge", modelUrl: "/models/characters/jorge.glb?v=reimport1", tint: "#668b9e" },
+  { id: "cast-maria", displayName: "Maria", modelUrl: "/models/characters/maria.glb?v=reimport1", tint: "#b57a91" },
+  { id: "cast-richard-wang", displayName: "Richard Wang", modelUrl: "/models/characters/richard-wang.glb", tint: "#8b9a76" },
+  { id: "cast-steve", displayName: "Steve", modelUrl: "/models/characters/steve.glb", tint: "#b88956" },
+  { id: "cast-walter", displayName: "Walter", modelUrl: "/models/characters/walter.glb", tint: "#8981a5" },
+  { id: "cast-courtney", displayName: "Courtney", modelUrl: "/models/characters/courtney.glb", tint: "#4e8b80" },
 ];
+
+/** A room has one player slot for each selectable character. */
+export const MAX_PLAYER_COUNT = CHARACTER_CATALOG.length;
 

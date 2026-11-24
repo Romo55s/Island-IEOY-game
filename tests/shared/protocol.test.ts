@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import type { PrivateRoomState } from "../../src/shared/domain";
+import type { CrewDialogueExchange, EventEntry, PrivateRoomState } from "../../src/shared/domain";
 import { ApiErrorResponseSchema, ClientCommandSchema, CreateSessionRequestSchema, PublicGameSnapshotSchema, TicketRequestSchema, toPublicSnapshot } from "../../src/shared/protocol";
 
-const validVote = { protocolVersion: 4, commandId: "command-1", type: "vote.submit", payload: { optionId: "option-1" } } as const;
+const validVote = { protocolVersion: 7, commandId: "command-1", type: "vote.submit", payload: { optionId: "option-1" } } as const;
 const privateState: PrivateRoomState = {
   code: "ABC234", revision: 1, phase: "decision", createdAt: 0, lastActivityAt: 0, hostPlayerId: "p_ana", phaseStartedAt: 0,
   phaseDeadlineAt: 30_000, votingOpensAt: 10_000, earliestResolveAt: 20_000, phaseEndsAt: 30_000,
@@ -19,13 +19,13 @@ describe("shared protocol", () => {
     expect(ClientCommandSchema.safeParse({ ...validVote, payload: { optionId: "" } }).success).toBe(false);
   });
   it("validates private crash-choice commands", () => {
-    expect(ClientCommandSchema.safeParse({ protocolVersion: 4, commandId: "item-1", type: "crash.item.submit", payload: { itemId: "lighter" } }).success).toBe(true);
-    expect(ClientCommandSchema.safeParse({ protocolVersion: 4, commandId: "rescue-1", type: "crash.rescue.submit", payload: { targetCharacterId: "cast-daniel" } }).success).toBe(true);
-    expect(ClientCommandSchema.safeParse({ protocolVersion: 4, commandId: "item-2", type: "crash.item.submit", payload: { itemId: "lighter", targetCharacterId: "cast-daniel" } }).success).toBe(false);
+    expect(ClientCommandSchema.safeParse({ protocolVersion: 7, commandId: "item-1", type: "crash.item.submit", payload: { itemId: "lighter" } }).success).toBe(true);
+    expect(ClientCommandSchema.safeParse({ protocolVersion: 7, commandId: "rescue-1", type: "crash.rescue.submit", payload: { targetCharacterId: "cast-daniel" } }).success).toBe(true);
+    expect(ClientCommandSchema.safeParse({ protocolVersion: 7, commandId: "item-2", type: "crash.item.submit", payload: { itemId: "lighter", targetCharacterId: "cast-daniel" } }).success).toBe(false);
   });
   it("validates assigned votes, assignment responses, and viewer-private response controls", () => {
     expect(ClientCommandSchema.safeParse({ ...validVote, payload: { optionId: "option-1", assignedCharacterId: "cast-daniel" } }).success).toBe(true);
-    expect(ClientCommandSchema.safeParse({ protocolVersion: 4, commandId: "respond-1", type: "assignment.respond", payload: { assignmentId: "assignment-1", response: "try-refuse" } }).success).toBe(true);
+    expect(ClientCommandSchema.safeParse({ protocolVersion: 7, commandId: "respond-1", type: "assignment.respond", payload: { assignmentId: "assignment-1", response: "try-refuse" } }).success).toBe(true);
     const assignedState: PrivateRoomState = {
       ...privateState,
       phase: "assignmentResponse",
@@ -49,14 +49,15 @@ describe("shared protocol", () => {
     }).success).toBe(false);
   });
   it("validates v4 private-choice commands and ending invariants",()=>{
-    expect(ClientCommandSchema.safeParse({protocolVersion:4,commandId:"private-1",type:"private-choice.respond",payload:{choiceId:"fuel-1",optionId:"transfer",targetCharacterId:"cast-samantha"}}).success).toBe(true);
-    expect(ClientCommandSchema.safeParse({protocolVersion:4,commandId:"private-2",type:"private-choice.respond",payload:{choiceId:"fuel-1",optionId:"invented"}}).success).toBe(false);
+    expect(ClientCommandSchema.safeParse({protocolVersion:7,commandId:"private-1",type:"private-choice.respond",payload:{choiceId:"fuel-1",optionId:"transfer",targetCharacterId:"cast-samantha"}}).success).toBe(true);
+    expect(ClientCommandSchema.safeParse({protocolVersion:7,commandId:"private-2",type:"private-choice.respond",payload:{choiceId:"fuel-1",optionId:"invented"}}).success).toBe(false);
     const ending={...toPublicSnapshot(privateState,"p_ana"),phase:"ending" as const,phaseDeadlineAt:null,phaseEndsAt:null,endingId:"solo-escape" as const,escapeResult:{type:"solo-escape" as const,escapedCharacterIds:[],strandedCharacterIds:[],deadCharacterIds:[],cause:"solo-launch" as const,epilogueId:"motorboat-selfish-aftermath-v1" as const}};
     expect(PublicGameSnapshotSchema.safeParse(ending).success).toBe(false);
   });
-  it("keeps passwords and individual votes out of public snapshots", () => {
+  it("exposes active group ballots but keeps private state and credentials out of snapshots", () => {
     const snapshot = toPublicSnapshot(privateState, "p_ana");
     expect(snapshot.viewer.hasVoted).toBe(true);
+    expect(snapshot.liveVotes).toEqual([{ playerId: "p_ana", optionId: "option-1" }]);
     expect("resolvedOptionCounts" in snapshot).toBe(false);
     expect(PublicGameSnapshotSchema.safeParse({ ...snapshot, passwordHash: "secret" }).success).toBe(false);
     expect(PublicGameSnapshotSchema.safeParse({ ...snapshot, votesByPlayer: { p_ana: "option-1" } }).success).toBe(false);
@@ -66,7 +67,14 @@ describe("shared protocol", () => {
     const snapshot = toPublicSnapshot({ ...privateState, eventHistory: [{ id: "decision-1", text: "Starvation claims Ana.", createdAt: 1, decisionId: "coconut-jury", winningOptionId: "shake-palm", outcomeId: "coconut-falls", socialCue: "danger", deathCharacterIds: ["cast-daniel"] }] }, "p_ana");
     expect(snapshot.eventHistory[0]).toMatchObject({ decisionId: "coconut-jury", winningOptionId: "shake-palm", outcomeId: "coconut-falls", socialCue: "danger" });
     expect(PublicGameSnapshotSchema.safeParse(snapshot).success).toBe(true);
-    expect(PublicGameSnapshotSchema.safeParse({ ...snapshot, eventHistory: [{ ...snapshot.eventHistory[0], deathCharacterIds: Array(9).fill("cast-daniel") }] }).success).toBe(false);
+    expect(PublicGameSnapshotSchema.safeParse({ ...snapshot, eventHistory: [{ ...snapshot.eventHistory[0], deathCharacterIds: Array(16).fill("cast-daniel") }] }).success).toBe(false);
+  });
+  it("accepts bounded persisted dialogue metadata and rejects duplicate speakers", () => {
+    const exchange: CrewDialogueExchange = { id: "event-dialogue-1", templateId: "repair-failed-debug-v1", motifIds: ["drupal-debug"], lines: [{ characterId: "cast-daniel", text: "Let's inspect the fault.", emotion: "neutral", animation: "agree" }, { characterId: "cast-jim-young", text: "No error log? A Drupal classic.", emotion: "neutral", animation: "laugh" }] };
+    const event: EventEntry = { id: "dialogue-event", text: "The engine is still broken.", createdAt: 1, outcomeId: "radio-repair-failed", socialCue: "setback", crewDialogue: exchange };
+    expect(PublicGameSnapshotSchema.safeParse(toPublicSnapshot({ ...privateState, eventHistory: [event] }, "p_ana")).success).toBe(true);
+    const duplicate: EventEntry = { ...event, crewDialogue: { ...exchange, lines: [exchange.lines[0]!, { ...exchange.lines[1]!, characterId: "cast-daniel" }] } };
+    expect(PublicGameSnapshotSchema.safeParse(toPublicSnapshot({ ...privateState, eventHistory: [duplicate] }, "p_ana")).success).toBe(false);
   });
   it("validates coherent structured decision facts without exposing voter identities", () => {
     const resolution = {

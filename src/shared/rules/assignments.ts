@@ -3,9 +3,10 @@ import type { RandomSource } from "./random";
 import { randomIndex } from "./random";
 import { resolveWinningOption } from "./resolveVote";
 
-export function eligibleLivingAssignments(state: PrivateRoomState): Array<{ actorCharacterId: string; actorPlayerId: string }> {
+export function eligibleLivingAssignments(state: PrivateRoomState, requiredStartingItemId?: string): Array<{ actorCharacterId: string; actorPlayerId: string }> {
   return Object.values(state.players)
     .filter((player) => player.status === "alive" && player.characterId !== null && state.characters[player.characterId]?.status === "alive")
+    .filter(player => !requiredStartingItemId || state.characters[player.characterId!]?.startingItemId === requiredStartingItemId)
     .map((player) => ({ actorCharacterId: player.characterId!, actorPlayerId: player.id }))
     .sort((left, right) => left.actorCharacterId.localeCompare(right.actorCharacterId));
 }
@@ -15,7 +16,8 @@ export function resolveAssignedActor(
   winningOptionId: string,
   random: RandomSource,
 ): { actorCharacterId: string; actorPlayerId: string; selectionMethod: "group-nomination" | "random-fallback" } | null {
-  const candidates = eligibleLivingAssignments(state);
+  const requiredItem = state.deck.find(card => card.id === state.currentDecisionId)?.options.find(option => option.id === winningOptionId)?.assignment?.requiredStartingItemId;
+  const candidates = eligibleLivingAssignments(state, requiredItem);
   if (candidates.length === 0) return null;
   const byCharacterId = new Map(candidates.map((candidate) => [candidate.actorCharacterId, candidate]));
   const counts: Record<string, number> = {};

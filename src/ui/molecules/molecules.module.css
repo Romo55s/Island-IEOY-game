@@ -1,21 +1,31 @@
-.vote { position: relative; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; min-height: 64px; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; color: var(--paper-bone); text-align: left; background: #171b1b; border: 2px solid var(--metal-edge); box-shadow: 4px 4px 0 rgb(0 0 0 / 48%); cursor: pointer; }
+.vote { position: relative; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; min-height: 56px; align-items: center; gap: 9px; width: 100%; padding: 8px 10px; color: var(--paper-bone); text-align: left; background: #171b1b; border: 2px solid var(--metal-edge); box-shadow: 3px 3px 0 rgb(0 0 0 / 48%); cursor: pointer; }
 .vote[data-option="1"] { border-left: 6px solid var(--flare-orange); }
-.vote[data-option="2"] { border-left: 6px solid var(--sea-glass); }
+.vote[data-option="2"] { border-left: 6px solid var(--vest-yellow); }
 .vote[data-option="3"] { border-left: 6px solid var(--vest-yellow); }
 .vote:hover:not(:disabled) { background: #242a28; }
 .vote:focus-visible { outline: 3px solid var(--vest-yellow); outline-offset: 3px; box-shadow: 0 0 0 2px var(--amber-veil), 4px 4px 0 rgb(0 0 0 / 60%); z-index: 1; }
 .vote[data-selected="true"] { border-color: var(--vest-yellow); box-shadow: inset 0 0 0 2px #080b0c, 4px 4px 0 rgb(0 0 0 / 48%); }
 .vote[data-selected="true"]::before { content: "✓ SELECTED"; position: absolute; top: -9px; right: 8px; padding: 2px 6px; color: var(--paper-bone); background: var(--night-canopy); border: 2px solid var(--paper-bone); font: 0.55rem var(--font-display); }
-.vote[data-submitted="true"]::after { content: "LOCKED"; padding: 3px 6px; color: var(--night-canopy); background: var(--bright-amber); border: 2px solid var(--metal-black); font: 0.6rem var(--font-display); }
 .vote[data-rejected="true"] { background: #4a211d; }
 .vote:disabled { cursor: not-allowed; opacity: 0.82; }
+.voteLabel { min-width: 0; line-height: 1.4; overflow-wrap: anywhere; }
+.voteMeta { display: flex; max-width: min(180px, 36vw); flex-wrap: wrap; justify-content: end; gap: 5px; align-items: center; }
+.voteVoters { display: flex; flex-wrap: wrap; justify-content: end; gap: 3px; }
+.voteVoter { display: inline-grid; width: 25px; height: 29px; }
+.voteVoter[data-pending="true"] { outline: 1px dashed var(--bright-amber); outline-offset: 1px; }
+.vote .votePortrait { width: 25px; height: 29px; min-width: 25px; padding: 0 0 3px; font-size: .4rem; }
+.submittedMark { padding: 3px 5px; color: var(--night-canopy); background: var(--bright-amber); border: 1px solid var(--metal-black); font: .48rem var(--font-display); white-space: nowrap; }
 .key { display: grid; width: 30px; height: 30px; place-items: center; color: var(--paper-bone); background: var(--night-canopy); font-family: var(--font-display); }
 @media (prefers-reduced-motion: reduce) { .vote { transition: none; } }
 .player { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; min-height: 44px; padding: 8px 0; color: var(--paper-bone); border-bottom: 1px dashed rgb(217 210 187 / 25%); }
-.playerName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.playerCompact { min-height: 28px; grid-template-columns: minmax(0, 1fr) auto; gap: 4px; padding: 3px 0; }
+.playerCompact .playerName { font: .52rem/1.25 var(--font-body); }
+.playerCompact .playerBadge { min-height: 16px; padding: 1px 3px; border-width: 1px; font: .34rem/1.2 var(--font-display); }
+.playerName { overflow: visible; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }
 .session { display: grid; gap: 6px; padding: 12px; color: var(--paper-bone); background: var(--night-canopy); border: 2px solid var(--paper-bone); }
 .code { font: clamp(1.35rem, 4vw, 2rem) var(--font-display); letter-spacing: 0.08em; }
-.banner { display: flex; align-items: center; gap: 8px; max-width: 42ch; padding: 8px 12px; color: var(--night-canopy); background: var(--sea-glass); border: 2px solid var(--night-canopy); box-shadow: var(--shadow-hard); }
+.banner { display: flex; align-items: center; gap: 8px; max-width: 42ch; padding: 8px 12px; color: var(--paper-bone); background: var(--metal-inset); border: 2px solid var(--metal-edge); box-shadow: var(--shadow-hard); }
+.banner[data-state="connected"] > span { color: var(--bright-amber); }
 .banner[data-state="reconnecting"], .banner[data-state="failed"] { background: var(--vest-yellow); }
 .banner[data-state="expired"] { background: var(--flare-orange); }
 .countdown { display: grid; min-width: 94px; gap: 2px; padding: 8px 10px; color: var(--vest-yellow); text-align: center; background: var(--night-canopy); border: 2px solid var(--vest-yellow); }

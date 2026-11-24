@@ -38,6 +38,14 @@ export const SURVIVAL_ITEMS: SurvivalItemDefinition[] = [
   { id: "improvised-bow", displayName: "Improvised bow", category: "improvised", flavorText: "A flexible branch with an ambitious job title.", assetKey: "item-improvised-bow" },
   { id: "emergency-blanket", displayName: "Emergency blanket", category: "survival", flavorText: "Warmth, shelter, and a dramatic crinkle.", assetKey: "item-emergency-blanket" },
   { id: "seashell", displayName: "Large seashell", category: "keepsake", flavorText: "A memento that may also serve as a cup.", assetKey: "item-seashell" },
+  {"id": "popcorn-basket", "displayName": "Popcorn basket", "category": "food", "flavorText": "Dinner and a front-row seat to everyone else's decisions.", "assetKey": null},
+  {"id": "polo-shirt", "displayName": "Polo shirt", "category": "keepsake", "flavorText": "Business casual has survived the crash.", "assetKey": null},
+  {"id": "golf-club", "displayName": "Golf club", "category": "improvised", "flavorText": "The island has hazards, but no scorecard.", "assetKey": null},
+  {"id": "rubber-duck", "displayName": "Rubber duck", "category": "keepsake", "flavorText": "An experienced debugger with no survival advice.", "assetKey": null},
+  {"id": "frying-pan", "displayName": "Frying pan", "category": "tool", "flavorText": "Suitable for dinner, provided dinner cooperates.", "assetKey": null},
+  {"id": "office-stapler", "displayName": "Office stapler", "category": "improvised", "flavorText": "The last surviving member of office administration.", "assetKey": null},
+  {"id": "beach-umbrella", "displayName": "Beach umbrella", "category": "survival", "flavorText": "Shade with a dangerously optimistic weather rating.", "assetKey": null},
+  {"id": "novelty-mug", "displayName": "Novelty mug", "category": "keepsake", "flavorText": "World's Best Survivor remains an unverified claim.", "assetKey": null},
 ];
 
 export function validateItemCatalog(items: readonly SurvivalItemDefinition[]): void {

@@ -153,6 +153,19 @@ describe("persisted assignment lifecycle", () => {
     expect(normalized.resolutionSequence).toBe(0);
   });
 
+  it("preserves saved crew dialogue when a room is loaded again", () => {
+    const room = decisionRoom();
+    room.eventHistory = [{ id: "event-dialogue", text: "The repair failed.", createdAt: 1, outcomeId: "radio-repair-failed", socialCue: "setback", crewDialogue: {
+      id: "event-dialogue:crew:repair-failed-debug-v1", templateId: "repair-failed-debug-v1", motifIds: ["drupal-debug"],
+      lines: [
+        { characterId: "cast-daniel", text: "Let's check the next cause.", emotion: "neutral", animation: "agree" },
+        { characterId: "cast-samantha", text: "We'll work out another plan.", emotion: "neutral", animation: "agree" },
+      ],
+    } }];
+    const normalized = normalizeLoadedRoom(room);
+    expect(normalized.eventHistory[0]?.crewDialogue).toEqual(room.eventHistory[0]?.crewDialogue);
+  });
+
   it("migrates a legacy ending without declaring living characters dead", () => {
     const legacy = decisionRoom();
     legacy.phase = "ending";

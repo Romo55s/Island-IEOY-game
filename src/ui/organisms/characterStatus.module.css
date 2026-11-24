@@ -17,5 +17,5 @@
 .shared { display: grid; grid-template-columns: 1fr auto; gap: 5px 8px; flex: 0 0 auto; padding: 9px 11px 11px; background: #e8e0ca; font: 9px var(--font-display); }
 .shared b { font: 10px var(--font-mono); }
 .track { grid-column: 1 / -1; height: 8px; background: #b6ad98; border: 1px solid var(--ink); }
-.track i { display: block; height: 100%; background: var(--sea-glass); }
+.track i { display: block; height: 100%; background: var(--vest-yellow); }
 @media (max-width: 650px) { .panel { top: auto; right: 12px; bottom: 100px; width: min(210px, calc(100vw - 24px)); max-height: 43svh; } .heading { padding: 7px 9px; } .person { padding: 6px 8px; } .portrait { width: 24px; height: 24px; flex-basis: 24px; } .shared { padding: 7px 9px; } }
