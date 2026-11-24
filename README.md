@@ -1,5 +1,7 @@
 # Island of Extremely Questionable Judgment
 
+Game for the best team WebCMS.
+
 A private multiplayer decision-making game: friends stranded on an island choose what to do, then watch their characters live with the consequences.
 
 **Current stage:** working multiplayer prototype; gameplay coherence and visual consequence presentation need refinement. Passing tests do not mean the game is finished or fun.
