@@ -31,7 +31,7 @@ export default function DevToolsScreen() {
       <div className={styles.heading}>
         <p>FLIGHT 404 · OPERATOR CONSOLE</p>
         <h1>Development tools</h1>
-        <span>DEV BUILD · INTERNAL TEST DIRECTORY</span>
+        <span>PARTNER ACCESS · GAME TEST DIRECTORY</span>
       </div>
       <div className={styles.counter} aria-label={`${tools.reduce((n, group) => n + group.entries.length, 0)} tools available`}>
         <strong>{String(tools.reduce((n, group) => n + group.entries.length, 0)).padStart(2, "0")}</strong>
@@ -65,7 +65,7 @@ export default function DevToolsScreen() {
         </div>
       </section>)}
 
-      <footer className={styles.footer}>BLACK BOX 01 <span>·</span> DEVELOPMENT ACCESS</footer>
+      <footer className={styles.footer}>BLACK BOX 01 <span>·</span> PARTNER PLAYGROUND</footer>
     </div>
   </main>;
 }

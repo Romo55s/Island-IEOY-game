@@ -239,7 +239,7 @@ export function GameSessionScreen() {
         { id: "join", label: "Join game", onSelect: () => navigateTo("/join-crew") },
         { id: "settings", label: "Settings", onSelect: () => setMenuSettingsOpen(true) },
         { id: "credits", label: "Credits", onSelect: () => navigateTo("/credits") },
-        ...(import.meta.env.DEV ? [{ id: "dev-tools", label: "Dev Tools", onSelect: () => navigateTo("/dev-tools") }] : []),
+        { id: "dev-tools", label: "Dev Tools", onSelect: () => navigateTo("/dev-tools") },
       ]} />
       <p className={styles.titleBlurb}>A damaged safety card, an unreliable crew, and the controls needed to make one more terrible group decision.</p>
       {menuSettingsOpen && <div className={styles.titleSettingsOverlay} onMouseDown={(event) => { if (event.target === event.currentTarget) setMenuSettingsOpen(false); }}>
