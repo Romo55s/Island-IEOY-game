@@ -81,6 +81,7 @@ export function DecisionConsole({ decision, deadline, votingOpensAt, serverClock
           {!hasEligibleActor && <small>No living character can perform this task.</small>}
           {nominationOptionId === option.id && <CharacterNominationModal
             selectionKind={option.targetSelection ? "target" : "assignment"}
+            confirmLabel="Confirm & vote"
             roleLabel={selection.roleLabel}
             players={players}
             characterCatalog={mergedCharacterCatalog}
@@ -95,6 +96,8 @@ export function DecisionConsole({ decision, deadline, votingOpensAt, serverClock
               if (!selection?.eligibleCharacterIds.includes(pendingNomineeId)) return;
               setNominations((current) => ({ ...current, [option.id]: pendingNomineeId }));
               setNominationOptionId(null);
+              if (option.targetSelection) onVote(option.id, undefined, pendingNomineeId);
+              else onVote(option.id, pendingNomineeId);
               window.requestAnimationFrame(() => nominationTriggerRef.current?.focus());
             }}
           />}

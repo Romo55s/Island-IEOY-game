@@ -57,6 +57,7 @@ export function startGame(state: PrivateRoomState, now: number, deck: readonly D
   return {
     ...state,
     revision: state.revision + 1,
+    startedAt: now,
     phase: "intro",
     phaseStartedAt: now,
     phaseDeadlineAt: now + INTRO_DURATION_MS,
@@ -147,7 +148,7 @@ export function resolveCrashChoices(state: PrivateRoomState, now: number, random
     for (const [playerId, player] of Object.entries(players)) if (player.characterId === characterId) players[playerId] = { ...player, status: "ghost" };
   }
   const crashEvent = attachCrewDialogue({ ...state, characters, players }, { id: `crash-rescue-${now}`, text: crashResolution.summary, createdAt: now, deathCharacterIds: [...crashResolution.eliminatedCharacterIds], socialCue: crashResolution.eliminatedCharacterIds.length ? "danger" : "success" });
-  const eventHistory = [...state.eventHistory, crashEvent].slice(-20);
+  const eventHistory = [...state.eventHistory, crashEvent];
   return {
     ...state,
     revision: state.revision + 1,
@@ -458,7 +459,7 @@ function finalizeDecisionOutcome(
     resolution,
   };
   const eventWithDialogue = attachCrewDialogue(routed.state, { ...resolvedEvent, deathCharacterIds });
-  const eventHistory = [...routed.state.eventHistory, eventWithDialogue].slice(-20);
+  const eventHistory = [...routed.state.eventHistory, eventWithDialogue];
   const revealed: PrivateRoomState = {
     ...routed.state,
     revision: routed.state.revision,
@@ -562,25 +563,37 @@ export function resolvePendingPrivateChoice(state: PrivateRoomState, now: number
     if (optionId === "transfer" && choice.response?.targetCharacterId && state.characters[choice.response.targetCharacterId]?.status === "alive") fuelOwnerCharacterId=choice.response.targetCharacterId;
     const sequence=(state.resolutionSequence??0)+1;
     const event=attachCrewDialogue(state,{id:`event-${state.code}-${sequence}`,text:optionId==="share"?"The fuel finder reveals the sealed can and adds it to the shared supplies.":"Someone quietly keeps the sealed fuel under private control.",createdAt:now,socialCue:optionId==="share"?"success":"neutral",motorboat:{node:"fuel-choice",boatChange:optionId==="share"?"fuel-shared":"fuel-kept-private",...(optionId==="share"?{actorCharacterId:choice.actorCharacterId}:{})}});
-    const next={...state,revision:state.revision+1,pendingPrivateChoice:undefined,motorboat:{...route,node:"repair" as const,fuelVisibility,fuelOwnerCharacterId},resolutionSequence:sequence,eventHistory:[...state.eventHistory,event].slice(-20)};
+    const next={...state,revision:state.revision+1,pendingPrivateChoice:undefined,motorboat:{...route,node:"repair" as const,fuelVisibility,fuelOwnerCharacterId},resolutionSequence:sequence,eventHistory:[...state.eventHistory,event]};
     return beginNextMotorboatStep(next,now,random);
   }
   if (optionId === "wake") {
     const sequence=(state.resolutionSequence??0)+1;
-    const next={...state,pendingPrivateChoice:undefined,resolutionSequence:sequence,eventHistory:[...state.eventHistory,attachCrewDialogue(state,{id:`event-${state.code}-${sequence}`,text:"The night-watch custodian wakes the crew for a launch vote.",createdAt:now,socialCue:"neutral",motorboat:{node:"launch",boatChange:"custodian-woke-group",opportunityId:route.activeOpportunityId}})].slice(-20),motorboat:{...route,node:"launch" as const,activeOpportunityId:route.activeOpportunityId}};
+    const next={...state,pendingPrivateChoice:undefined,resolutionSequence:sequence,eventHistory:[...state.eventHistory,attachCrewDialogue(state,{id:`event-${state.code}-${sequence}`,text:"The night-watch custodian wakes the crew for a launch vote.",createdAt:now,socialCue:"neutral",motorboat:{node:"launch",boatChange:"custodian-woke-group",opportunityId:route.activeOpportunityId}})],motorboat:{...route,node:"launch" as const,activeOpportunityId:route.activeOpportunityId}};
     return beginAuthoredDecision(next,createMotorboatGroupLaunchCard(route),now);
   }
   if (optionId === "solo") {
     const fuelCharges=Math.max(0,route.fuelCharges-1) as 0|1|2|3;
     const success=launchSucceeds(route.engine as "sturdy"|"fragile","solo",route.missedOpportunityIds.length,random);
     const sequence=(state.resolutionSequence??0)+1;
-    if (success) { const escapeResult=createEscapeResult(state,"solo-escape",[choice.actorCharacterId]); const event=attachCrewDialogue(state,{id:`event-${state.code}-${sequence}`,text:"The custodian launches alone and escapes, leaving the crew behind.",createdAt:now,socialCue:"danger",motorboat:{node:"complete",boatChange:"escaped",opportunityId:route.activeOpportunityId,passengerCharacterIds:[choice.actorCharacterId],endingCause:"solo-launch",fuelConsumed:true}}); return {...state,revision:state.revision+1,phase:"ending",phaseStartedAt:now,phaseDeadlineAt:null,phaseEndsAt:null,votingOpensAt:null,earliestResolveAt:null,currentDecisionId:null,pendingPrivateChoice:undefined,pendingAssignment:undefined,desperation:state.desperation?{...state.desperation,active:undefined,nightCheckDue:false}:undefined,endingId:"solo-escape",escapeResult,campaign:state.campaign?{...state.campaign,node:"complete"}:undefined,eventHistory:[...state.eventHistory,event].slice(-20),resolutionSequence:sequence,motorboat:{...route,node:"complete",completion:"solo-escape",fuelCharges,activeOpportunityId:undefined}}; }
+    if (success) {
+      const escapeResult=createEscapeResult(state,"solo-escape",[choice.actorCharacterId]);
+      const motorboatFacts: MotorboatEventFacts={node:"complete",boatChange:"escaped",opportunityId:route.activeOpportunityId,passengerCharacterIds:[choice.actorCharacterId],endingCause:"solo-launch",fuelConsumed:true};
+      const event=attachCrewDialogue(state,{id:`event-${state.code}-${sequence}`,text:"The custodian launches alone and escapes, leaving the crew behind.",createdAt:now,socialCue:"danger",motorboat:motorboatFacts,resolution:{decisionId:"motorboat-last-good-tide",prompt:"The last good tide is here. Launch alone or wake the group?",winningOptionId:"solo",winningOptionLabel:"Leave alone now",outcomeId:"solo-launch-succeeded",outcomeText:"The fragile motorboat clears the surf with one passenger. The custodian escapes; everyone else is left on the island.",optionResults:[],resourceChanges:[],statusChanges:[],affectedCharacterIds:[choice.actorCharacterId],presentationCue:"danger",motorboat:motorboatFacts}});
+      return {...state,revision:state.revision+1,phase:"ending",phaseStartedAt:now,phaseDeadlineAt:null,phaseEndsAt:null,votingOpensAt:null,earliestResolveAt:null,currentDecisionId:null,pendingPrivateChoice:undefined,pendingAssignment:undefined,desperation:state.desperation?{...state.desperation,active:undefined,nightCheckDue:false}:undefined,endingId:"solo-escape",escapeResult,campaign:state.campaign?{...state.campaign,node:"complete"}:undefined,eventHistory:[...state.eventHistory,event],resolutionSequence:sequence,motorboat:{...route,node:"complete",completion:"solo-escape",fuelCharges,activeOpportunityId:undefined}};
+    }
     const characters={...state.characters}; const actor=characters[choice.actorCharacterId]!; const health=Math.max(0,actor.resources.health-15); characters[choice.actorCharacterId]={...actor,status:health===0?"ghost":"alive",resources:{...actor.resources,health}}; const players={...state.players}; if(health===0) players[choice.actorPlayerId]={...players[choice.actorPlayerId]!,status:"ghost"};
-    const missed=recordMiss({...route,fuelCharges},route.activeOpportunityId!); const stormVictims=Object.values(characters).filter(({status})=>status==="alive").map(({characterId})=>characterId); const event=attachCrewDialogue({...state,players,characters},{id:`event-${state.code}-${sequence}`,text:"A selfish solo launch fails in the surf. The would-be escapee limps back injured.",createdAt:now,socialCue:"danger",...(health===0||missed.terminal?{deathCharacterIds:[...new Set([...(health===0?[choice.actorCharacterId]:[]),...(missed.terminal?stormVictims:[])])]}:{}),motorboat:{node:missed.terminal?"terminal":"repair",boatChange:missed.terminal?"storm-destroyed":"solo-launch-failed",opportunityId:route.activeOpportunityId,passengerCharacterIds:[choice.actorCharacterId],missNumber:missed.route.missedOpportunityIds.length,fuelConsumed:true,...(missed.terminal?{endingCause:"storm-surge" as const,statusChanges:stormVictims.map((characterId)=>({characterId,before:"alive" as const,after:"ghost" as const,cause:"storm-surge" as const}))}:{})}}); const next={...state,players,characters,revision:state.revision+1,pendingPrivateChoice:undefined,motorboat:missed.route,eventHistory:[...state.eventHistory,event].slice(-20),resolutionSequence:sequence};
+    const missed=recordMiss({...route,fuelCharges},route.activeOpportunityId!); const stormVictims=Object.values(characters).filter(({status})=>status==="alive").map(({characterId})=>characterId);
+    const motorboatFacts: MotorboatEventFacts={node:missed.terminal?"terminal":"repair",boatChange:missed.terminal?"storm-destroyed":"solo-launch-failed",opportunityId:route.activeOpportunityId,passengerCharacterIds:[choice.actorCharacterId],missNumber:missed.route.missedOpportunityIds.length,fuelConsumed:true,...(missed.terminal?{endingCause:"storm-surge" as const,statusChanges:stormVictims.map((characterId)=>({characterId,before:"alive" as const,after:"ghost" as const,cause:"storm-surge" as const}))}:{})};
+    const statusChanges=[...(health===0?[{characterId:choice.actorCharacterId,before:"alive" as const,after:"ghost" as const,cause:"outcome" as const}]:[]),...(missed.terminal?stormVictims.filter((id)=>id!==choice.actorCharacterId||health>0).map((characterId)=>({characterId,before:"alive" as const,after:"ghost" as const,cause:"storm-surge" as const})):[])];
+    const resourceChanges=health<actor.resources.health?[{scope:"character" as const,characterId:choice.actorCharacterId,resource:"health" as const,before:actor.resources.health,after:health,delta:health-actor.resources.health,cause:"outcome" as const}]:[];
+    const damage=actor.resources.health-health;
+    const outcomeText=missed.terminal?`The failed solo launch slams the custodian into the surf, costing ${damage} health. The last good tide is lost; the storm surge then overwhelms everyone left on the island.`:`The fragile boat bucks in the surf and throws the custodian against the rocks, costing ${damage} health. The engine stalls, the boat washes back ashore, and this tide window is lost.`;
+    const event=attachCrewDialogue({...state,players,characters},{id:`event-${state.code}-${sequence}`,text:outcomeText,createdAt:now,socialCue:"danger",...(statusChanges.length?{deathCharacterIds:statusChanges.map(({characterId})=>characterId)}:{}),motorboat:motorboatFacts,resolution:{decisionId:"motorboat-last-good-tide",prompt:"The last good tide is here. Launch alone or wake the group?",winningOptionId:"solo",winningOptionLabel:"Leave alone now",outcomeId:missed.terminal?"solo-launch-failed-storm-destroyed":"solo-launch-failed",outcomeText,optionResults:[],resourceChanges,statusChanges,affectedCharacterIds:[...new Set([...resourceChanges.map(({characterId})=>characterId),...statusChanges.map(({characterId})=>characterId)])],presentationCue:"danger",motorboat:motorboatFacts}});
+    const next={...state,players,characters,revision:state.revision+1,pendingPrivateChoice:undefined,motorboat:missed.route,eventHistory:[...state.eventHistory,event],resolutionSequence:sequence};
     if (missed.terminal) return stormEnding(next);
-    return beginNextMotorboatStep(next,now,random);
+    return {...next,phase:"reveal",phaseStartedAt:now,phaseDeadlineAt:now+REVEAL_DURATION_MS,phaseEndsAt:now+REVEAL_DURATION_MS,votingOpensAt:null,earliestResolveAt:null,currentDecisionId:null,winningOptionId:"solo",resolvedOptionCounts:{solo:1}};
   }
-  const missed=recordMiss(route,route.activeOpportunityId!); const sequence=(state.resolutionSequence??0)+1; const stormVictims=livingCharacterIds(state); const event=attachCrewDialogue(state,{id:`event-${state.code}-${sequence}`,text:"The custodian keeps quiet. The launch window closes while everyone else sleeps.",createdAt:now,socialCue:"setback",...(missed.terminal?{deathCharacterIds:stormVictims}:{}),motorboat:{node:missed.terminal?"terminal":"repair",boatChange:missed.terminal?"storm-destroyed":"quiet-miss",opportunityId:route.activeOpportunityId,missNumber:missed.route.missedOpportunityIds.length,...(missed.terminal?{endingCause:"storm-surge" as const,statusChanges:stormVictims.map((characterId)=>({characterId,before:"alive" as const,after:"ghost" as const,cause:"storm-surge" as const}))}:{})}}); const next={...state,revision:state.revision+1,pendingPrivateChoice:undefined,motorboat:missed.route,eventHistory:[...state.eventHistory,event].slice(-20),resolutionSequence:sequence};
+  const missed=recordMiss(route,route.activeOpportunityId!); const sequence=(state.resolutionSequence??0)+1; const stormVictims=livingCharacterIds(state); const event=attachCrewDialogue(state,{id:`event-${state.code}-${sequence}`,text:"The custodian keeps quiet. The launch window closes while everyone else sleeps.",createdAt:now,socialCue:"setback",...(missed.terminal?{deathCharacterIds:stormVictims}:{}),motorboat:{node:missed.terminal?"terminal":"repair",boatChange:missed.terminal?"storm-destroyed":"quiet-miss",opportunityId:route.activeOpportunityId,missNumber:missed.route.missedOpportunityIds.length,...(missed.terminal?{endingCause:"storm-surge" as const,statusChanges:stormVictims.map((characterId)=>({characterId,before:"alive" as const,after:"ghost" as const,cause:"storm-surge" as const}))}:{})}}); const next={...state,revision:state.revision+1,pendingPrivateChoice:undefined,motorboat:missed.route,eventHistory:[...state.eventHistory,event],resolutionSequence:sequence};
   if (missed.terminal) return stormEnding(next);
   return beginNextMotorboatStep(next,now,random);
 }
@@ -605,7 +618,7 @@ function revealDesperation(state: PrivateRoomState, now: number, random: RandomS
   const revealed: PrivateRoomState = { ...next, revision: state.revision + 1, phase: "reveal", phaseStartedAt: now, phaseDeadlineAt: now + REVEAL_DURATION_MS, phaseEndsAt: now + REVEAL_DURATION_MS, votingOpensAt: null, earliestResolveAt: null,
     resolvedOptionCounts: counts, winningOptionId: option?.id ?? "attempt-eat", currentDecisionId: card?.id ?? null, resolutionSequence: sequence,
     pendingPrivateChoice: undefined, pendingAssignment: undefined, activeCrewDialogue: undefined, targetNominationsByPlayer: {},
-    eventHistory: [...next.eventHistory, attachCrewDialogue(next, event)].slice(-20) };
+    eventHistory: [...next.eventHistory, attachCrewDialogue(next, event)] };
   return livingCharacterIds(revealed).length ? revealed : enterNoSurvivors(revealed, now, "all-dead");
 }
 

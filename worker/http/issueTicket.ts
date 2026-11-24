@@ -18,13 +18,14 @@ export async function handleIssueTicket(request: Request, env: Env, code: string
   if (typeof body !== "object" || body === null || !("mode" in body)) return apiError(400, "BAD_REQUEST", "A ticket mode is required.");
   const bodyRecord = body as Record<string, unknown>;
   let normalized: unknown = bodyRecord;
-  if (body.mode === "join" && "displayName" in body && "password" in body && typeof body.displayName === "string" && typeof body.password === "string") {
-    const displayName = normalizeDisplayName(body.displayName);
-    const password = normalizePassword(body.password);
-    if (!isBoundedVisibleString(displayName, 1, 24) || !isBoundedVisibleString(password, 4, 64)) {
-      return apiError(400, "BAD_REQUEST", "The display name or password is invalid.");
+  if (bodyRecord.mode === "join" && typeof bodyRecord.displayName === "string"
+    && (!("password" in bodyRecord) || typeof bodyRecord.password === "string")) {
+    const displayName = normalizeDisplayName(bodyRecord.displayName);
+    const password = typeof bodyRecord.password === "string" ? normalizePassword(bodyRecord.password) : undefined;
+    if (!isBoundedVisibleString(displayName, 1, 24) || (password !== undefined && !isBoundedVisibleString(password, 4, 64))) {
+      return apiError(400, "BAD_REQUEST", "The display name or optional password is invalid.");
     }
-    normalized = { ...bodyRecord, displayName, password };
+    normalized = { ...bodyRecord, displayName, ...(password !== undefined ? { password } : {}) };
   }
   const parsed = TicketRequestSchema.safeParse(normalized);
   if (!parsed.success) return apiError(400, "BAD_REQUEST", "The ticket request is invalid.");

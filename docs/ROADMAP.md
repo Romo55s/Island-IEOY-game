@@ -46,7 +46,7 @@ Updated 2026-10-23. This is the active backlog. It replaces the overlapping hist
 
 ## Existing foundation to keep
 
-- [x] Room creation/join, password/ticket admission, unique character selection, readiness.
+- [x] Room creation/join by boarding code, one-time ticket admission, unique character selection, readiness.
 - [x] Server-owned phases, deadlines, votes, public/private snapshot boundaries, outcomes, deaths, persistence/reconnection machinery.
 - [x] Starting-item offers and simultaneous rescue plumbing.
 - [x] Ten authored decisions, resource updates, hunger/health/death rules, ghost voting.

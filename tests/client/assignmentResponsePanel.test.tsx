@@ -5,7 +5,7 @@ import { DecisionConsole } from "../../src/ui/organisms/DecisionConsole";
 
 
 vi.mock("../../src/ui/organisms/CharacterNominationModal", () => ({
-  CharacterNominationModal: ({ eligibleCharacterIds, onSelect, onConfirm }: { eligibleCharacterIds: string[]; onSelect(id: string): void; onConfirm(): void }) => <div role="dialog">{eligibleCharacterIds.map(id => <button key={id} onClick={() => onSelect(id)}>{id}</button>)}<button onClick={onConfirm}>Confirm nominee</button></div>,
+  CharacterNominationModal: ({ eligibleCharacterIds, onSelect, onConfirm, confirmLabel = "Confirm nominee" }: { eligibleCharacterIds: string[]; onSelect(id: string): void; onConfirm(): void; confirmLabel?: string }) => <div role="dialog">{eligibleCharacterIds.map(id => <button key={id} onClick={() => onSelect(id)}>{id}</button>)}<button onClick={onConfirm}>{confirmLabel}</button></div>,
 }));
 afterEach(() => {
   cleanup();
@@ -66,7 +66,7 @@ describe("assignment response panel", () => {
 });
 
 describe("assignment nomination", () => {
-  it("requires an eligible living-character nomination before submitting an assigned option", () => {
+  it("casts the assigned vote when the player confirms an eligible living-character nomination", () => {
     const onVote = vi.fn();
     render(<DecisionConsole
       decision={{
@@ -86,9 +86,8 @@ describe("assignment nomination", () => {
     expect(assignedOption).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "Nominate survivor for Send one volunteer" }));
     fireEvent.click(screen.getByRole("button", { name: "cast-samantha" }));
-    fireEvent.click(screen.getByRole("button", { name: "Confirm nominee" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm & vote" }));
     expect(assignedOption).toBeEnabled();
-    fireEvent.click(assignedOption);
     expect(onVote).toHaveBeenCalledWith("send", "cast-samantha");
   });
 });

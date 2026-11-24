@@ -28,7 +28,7 @@ export class SessionApiError extends Error {
 
 export interface CreateSessionInput {
   displayName: string;
-  password: string;
+  password?: string;
 }
 
 export interface JoinSessionInput extends CreateSessionInput {
@@ -124,7 +124,7 @@ function rememberAdmission(admission: AdmissionResponse): AdmissionResponse {
 export async function createSession(input: CreateSessionInput, options: SessionApiOptions = {}): Promise<AdmissionResponse> {
   const request = parseRequest(CreateSessionRequestSchema, {
     displayName: normalizeDisplayName(input.displayName),
-    password: normalizePassword(input.password),
+    ...(input.password !== undefined ? { password: normalizePassword(input.password) } : {}),
   });
   return rememberAdmission(await postAdmission("/api/sessions", request, options));
 }
@@ -134,7 +134,7 @@ export async function joinSession(input: JoinSessionInput, options: SessionApiOp
   const request = parseRequest(TicketRequestSchema, {
     mode: "join",
     displayName: normalizeDisplayName(input.displayName),
-    password: normalizePassword(input.password),
+    ...(input.password !== undefined ? { password: normalizePassword(input.password) } : {}),
   });
   return rememberAdmission(await postAdmission(`/api/sessions/${encodeURIComponent(code)}/tickets`, request, options));
 }

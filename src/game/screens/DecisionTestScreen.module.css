@@ -11,6 +11,12 @@
 .scenario select, .sceneArt select, .crewSize select, .castGroup select { width: 100%; min-width: 0; min-height: 42px; padding: 6px 28px 6px 8px; color: var(--paper-bone); background: var(--metal-inset); border: 1px solid var(--metal-edge); font: .64rem var(--font-body); }
 .scenario select:focus-visible, .sceneArt select:focus-visible, .crewSize select:focus-visible, .castGroup select:focus-visible { outline: 3px solid var(--vest-yellow); outline-offset: 2px; }
 .toolbarActions { grid-area: actions; display: flex; align-items: center; justify-content: end; gap: 9px; }
+.settingsModalOverlay { position: fixed; z-index: var(--layer-modal); inset: 0; display: grid; place-items: center; padding: 18px; background: rgb(3 5 6 / 80%); }
+.settingsModalDialog { display: grid; gap: 12px; width: min(390px, 100%); max-height: min(90dvh, 720px); overflow-y: auto; outline: none; }
+.settingsModalDialog > aside { gap: 9px; padding: 10px; }
+.settingsModalDialog :global(h2) { margin: 0; }
+.settingsModalDialog input[type="range"] { width: 100%; }
+.settingsModalDialog:focus { outline: 3px solid var(--vest-yellow); outline-offset: 4px; }
 .portraitToggle { display: flex; align-items: center; gap: 6px; color: var(--paper-bone); font: .43rem var(--font-display); white-space: nowrap; }
 .portraitToggle input { width: 16px; height: 16px; accent-color: var(--vest-yellow); }
 .portraitToggle:focus-within { outline: 2px solid var(--vest-yellow); outline-offset: 3px; }

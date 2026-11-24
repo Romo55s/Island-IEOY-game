@@ -6,6 +6,19 @@ export default defineConfig({
     name: "ieoy-game",
     compatibilityDate: "2026-10-15",
     entrypoint,
+    observability: {
+      enabled: true,
+      redactQueryString: true,
+      logs: {
+        enabled: true,
+        invocationLogs: true,
+        headSamplingRate: 1,
+        persist: true,
+      },
+      issues: {
+        enabled: true,
+      },
+    },
     assets: {
       notFoundHandling: "single-page-application",
       runWorkerFirst: ["/api/*", "/parties/*"],

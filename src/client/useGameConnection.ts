@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PartySocket, { type PartySocketOptions } from "partysocket";
 
 import { PROTOCOL_VERSION, type PrivateChoiceOptionId, type PublicGameSnapshot } from "../shared/domain";
@@ -199,9 +199,10 @@ export function connectToSession(initialCredentials: ConnectionCredentials, opti
         useGameStore.getState().addClockSample(serverEvent.payload.serverNow, connectionAttemptStartedAt, receivedAt);
         break;
       case "state.snapshot":
-        useGameStore.getState().acceptSnapshot(serverEvent.payload);
-        useGameStore.getState().clearPendingCommands();
-        if (isExpiredSnapshot(serverEvent.payload)) markExpired();
+        if (useGameStore.getState().acceptSnapshot(serverEvent.payload)) {
+          useGameStore.getState().clearPendingCommands();
+          if (isExpiredSnapshot(serverEvent.payload)) markExpired();
+        }
         break;
       case "command.rejected":
         useGameStore.getState().settleCommand(serverEvent.payload.commandId, {
@@ -248,16 +249,22 @@ export function connectToSession(initialCredentials: ConnectionCredentials, opti
 
 export function useGameConnection(credentials: ConnectionCredentials | null) {
   const connectionRef = useRef<GameConnection | null>(null);
+  const [retryVersion, setRetryVersion] = useState(0);
 
   useEffect(() => {
     if (!credentials) return;
-    const connection = connectToSession(credentials);
+    // A ticket is single-use. After a manual retry, request a fresh one through
+    // resumeSession instead of trying to reconnect with the admission ticket.
+    const retryCredentials = retryVersion === 0
+      ? credentials
+      : { code: credentials.code, playerId: credentials.playerId, resumeToken: credentials.resumeToken };
+    const connection = connectToSession(retryCredentials);
     connectionRef.current = connection;
     return () => {
       connection.disconnect();
       connectionRef.current = null;
     };
-  }, [credentials?.code, credentials?.playerId, credentials?.resumeToken, credentials?.ticket, credentials?.ticketExpiresAt]);
+  }, [credentials?.code, credentials?.playerId, credentials?.resumeToken, credentials?.ticket, credentials?.ticketExpiresAt, retryVersion]);
 
   const sendCommand = useCallback((command: CommandInput) => {
     if (!connectionRef.current) throw new Error("There is no active game connection.");
@@ -269,6 +276,8 @@ export function useGameConnection(credentials: ConnectionCredentials | null) {
     connectionRef.current = null;
   }, []);
 
-  return { sendCommand, leave };
+  const retry = useCallback(() => setRetryVersion((version) => version + 1), []);
+
+  return { sendCommand, leave, retry };
 }
 

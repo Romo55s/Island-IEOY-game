@@ -145,7 +145,9 @@ export function toSessionScenePresentation(snapshot: PublicGameSnapshot): Sessio
     const calmLookAround = character.status === "alive" && !crashReaction && !motorboatClip && !socialClip
       && LOOK_AROUND_CHARACTERS.has(character.characterId)
       && stableHash(`calm-look:${character.characterId}`) % 3 !== 0;
-    const dialogue = dialogueByCharacter.get(character.characterId);
+    // Historical/event data can still mention a casualty, but the body never
+    // speaks as part of the living crew exchange.
+    const dialogue = character.status === "alive" ? dialogueByCharacter.get(character.characterId) : undefined;
     const animationName = eventClip ?? crashReaction ?? (character.status === "ghost" ? "idle" : dialogue?.animation === "concern" ? "afraid" : dialogue?.animation === "celebrate" ? "cheer" : dialogue?.animation === "sad" ? "cry" : dialogue?.animation ?? motorboatClip?.name ?? socialClip ?? (calmLookAround ? "look_around" : "idle"));
     const profile = CHARACTER_PROFILES.find(({ characterId }) => characterId === character.characterId);
     const reactionKind = character.status === "alive" && crewBeat.kind === "hunger-talk" ? "hunger"
@@ -175,7 +177,7 @@ export function toSessionScenePresentation(snapshot: PublicGameSnapshot): Sessio
       animationEventId: `${snapshot.phase}:${snapshot.phaseStartedAt}:${snapshot.decisionNumber}:${motorboat?.eventId ?? snapshot.eventHistory.at(-1)?.id ?? "opening"}:${character.characterId}`,
       animationStartedAt: snapshot.phaseStartedAt ?? undefined,
       reactionLine,
-      ...(dialogue ? { thoughtLine: dialogue.text } : crewBeat.behaviorByCharacterId[character.characterId]
+      ...(character.status === "alive" && dialogue ? { thoughtLine: dialogue.text } : character.status === "alive" && crewBeat.behaviorByCharacterId[character.characterId]
         ? { thoughtLine: thoughtByBehavior[crewBeat.behaviorByCharacterId[character.characterId]!] ?? reactionLine }
         : {}),
       ...(snapshot.phase === "reveal" && crewBeat.behaviorByCharacterId[character.characterId]

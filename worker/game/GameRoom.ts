@@ -33,7 +33,7 @@ type ConnectionMetadata = { playerId: string; nonce: string };
 export interface InitializeRoomInput {
   code: string;
   displayName: string;
-  password: string;
+  password?: string;
   now: number;
 }
 
@@ -53,10 +53,14 @@ export class GameRoom extends Server<Env> {
 
   async initialize(input: InitializeRoomInput): Promise<InitializeResult> {
     if (await loadRoom(this.ctx.storage)) return { created: false };
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const passwordDigest = await derivePasswordDigest(input.password, salt);
     const playerId = randomPlayerId();
-    let room = newPrivateRoom({ code: input.code, playerId, now: input.now, passwordSalt: salt, passwordDigest });
+    let passwordSalt: Uint8Array | undefined;
+    let passwordDigest: Uint8Array | undefined;
+    if (input.password !== undefined) {
+      passwordSalt = crypto.getRandomValues(new Uint8Array(16));
+      passwordDigest = await derivePasswordDigest(input.password, passwordSalt);
+    }
+    let room = newPrivateRoom({ code: input.code, playerId, now: input.now, ...(passwordSalt && passwordDigest ? { passwordSalt, passwordDigest } : {}) });
     const issued = await this.addTicket(room, { playerId, displayName: input.displayName, mode: "join", now: input.now });
     room = issued.room;
     await saveRoom(this.ctx.storage, room);
@@ -76,14 +80,16 @@ export class GameRoom extends Server<Env> {
     if (input.mode === "join") {
       if (room.phase !== "lobby") return { ok: false, status: 409, code: "GAME_ALREADY_STARTED", message: "The game has already started." };
       if (Object.keys(room.players).length >= MAX_PLAYER_COUNT) return { ok: false, status: 409, code: "ROOM_FULL", message: `The session already has ${MAX_PLAYER_COUNT} players.` };
-      if (isRateLimited(room.failedAttemptsByAddress[input.address], input.now)) {
-        return { ok: false, status: 429, code: "RATE_LIMITED", message: "Too many password attempts. Try again shortly." };
-      }
-      const passwordMatches = await verifyPassword(input.password ?? "", room.passwordSalt, room.passwordDigest);
-      if (!passwordMatches) {
-        room.failedAttemptsByAddress[input.address] = recordFailure(room.failedAttemptsByAddress[input.address], input.now);
-        await saveRoom(this.ctx.storage, room);
-        return { ok: false, status: 401, code: "INVALID_PASSWORD", message: "The session password is incorrect." };
+      if (room.passwordSalt && room.passwordDigest) {
+        if (isRateLimited(room.failedAttemptsByAddress[input.address], input.now)) {
+          return { ok: false, status: 429, code: "RATE_LIMITED", message: "Too many password attempts. Try again shortly." };
+        }
+        const passwordMatches = await verifyPassword(input.password ?? "", room.passwordSalt, room.passwordDigest);
+        if (!passwordMatches) {
+          room.failedAttemptsByAddress[input.address] = recordFailure(room.failedAttemptsByAddress[input.address], input.now);
+          await saveRoom(this.ctx.storage, room);
+          return { ok: false, status: 401, code: "INVALID_PASSWORD", message: "The session password is incorrect." };
+        }
       }
       playerId = randomPlayerId();
       displayName = input.displayName!;

@@ -67,8 +67,7 @@ test("two connected players follow the campaign to a terminal ending", async ({ 
     await host.goto("/");
     await host.getByRole("button", { name: "Start game" }).click();
     await host.getByLabel("Your name").fill("Demo Host");
-    await host.getByLabel("Room password").fill("full-demo-pass");
-    await host.getByRole("button", { name: "Create private session" }).click();
+    await host.getByRole("button", { name: "Create crew session" }).click();
     await host.getByRole("button", { name: /Daniel/ }).click();
     await host.getByRole("button", { name: "Ready up" }).click();
     const code = await host.getByLabel("Session code").locator("strong").innerText();
@@ -77,7 +76,6 @@ test("two connected players follow the campaign to a terminal ending", async ({ 
     await friend.getByRole("button", { name: "Join game" }).click();
     await friend.getByLabel("Room code").fill(code);
     await friend.getByLabel("Joining name").fill("Demo Friend");
-    await friend.getByLabel("Joining password").fill("full-demo-pass");
     await friend.getByRole("button", { name: "Join session" }).click();
     await friend.getByRole("button", { name: /Samantha/ }).click();
     await friend.getByRole("button", { name: "Ready up" }).click();

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
@@ -8,6 +8,8 @@ import {
   type CampaignState,
   type DecisionCard,
   type EventEntry,
+  type EscapeResult,
+  type MotorboatEventFacts,
   type MotorboatRouteState,
   type Player,
   type PrivateRoomState,
@@ -31,8 +33,10 @@ import { cryptoRandom } from "../../shared/rules/random";
 import { DecisionConsole } from "../../ui/organisms/DecisionConsole";
 import { ConsequencePanel } from "../../ui/organisms/ConsequencePanel";
 import { BackButton, RetroButton } from "../../ui/atoms/RetroButton";
+import { SettingsDrawer } from "../../ui/organisms/SettingsDrawer";
 import { playSound, requestDecisionMusic, unlockAudio } from "../../audio/audioSystem";
 import { StoryIncidentRoom } from "./StoryIncidentRoom";
+import { SessionDebrief } from "./SessionDebrief";
 import { toSessionScenePresentation } from "../../scene/sessionPresentation";
 import type { IncidentPresentation } from "../story/incidentPresentation";
 import styles from "./DecisionTestScreen.module.css";
@@ -152,6 +156,42 @@ function makeFixtureState(card: DecisionCard, players: Player[], now: number, ca
   };
 }
 
+function createDebriefPreview(base: PublicGameSnapshot): PublicGameSnapshot {
+  const startedAt = Date.now() - 35 * 60_000;
+  const members = base.players.filter(({ characterId }) => Boolean(characterId));
+  const lostId = members.at(-1)?.characterId;
+  const survivorId = members[0]?.characterId;
+  const finalPlayers = base.players.map((player) => ({ ...player, status: player.characterId === lostId ? "ghost" as const : "alive" as const }));
+  const finalCharacters = base.characters.map((character) => ({
+    ...character,
+    status: character.characterId === lostId ? "ghost" as const : "alive" as const,
+    resources: character.characterId === lostId ? { health: 0, food: 0, water: 0, morale: 0 } : { health: 71, food: 28, water: 54, morale: 62 },
+  }));
+  const makeChanges = (resource: "health" | "food" | "water" | "morale", delta: number): ResolvedResourceChange[] => members.flatMap(({ characterId }) => {
+    if (!characterId) return [];
+    const before = resource === "health" ? 90 : resource === "food" ? 38 : resource === "water" ? 42 : 58;
+    const after = Math.max(0, Math.min(100, before + delta));
+    return [{ scope: "character", characterId, resource, before, after, delta: after - before, cause: "outcome" }];
+  });
+  const event = (id: string, minute: number, decisionId: string, prompt: string, label: string, text: string, resourceChanges: ResolvedResourceChange[], options: Array<{ optionId: string; label: string; votes: number }>, motorboat?: MotorboatEventFacts, statusChanges: ResolvedStatusChange[] = []): EventEntry => {
+    const resolution: ResolvedDecision = { decisionId, prompt, winningOptionId: options[0]?.optionId ?? "preview-choice", winningOptionLabel: label, outcomeId: `${id}-result`, outcomeText: text, optionResults: options, resourceChanges, statusChanges, affectedCharacterIds: [...new Set([...resourceChanges.flatMap((change) => change.scope === "character" ? [change.characterId] : []), ...statusChanges.map(({ characterId }) => characterId)])], presentationCue: resourceChanges.some(({ delta }) => delta < 0) || statusChanges.length ? "danger" : "success", ...(motorboat ? { motorboat } : {}) };
+    return { id, createdAt: startedAt + minute * 60_000, decisionId, winningOptionId: resolution.winningOptionId, outcomeId: resolution.outcomeId, text, resolution, ...(motorboat ? { motorboat } : {}), ...(statusChanges.length ? { deathCharacterIds: statusChanges.map(({ characterId }) => characterId) } : {}) };
+  };
+  const lastMotorboatFacts: MotorboatEventFacts = { node: "complete", boatChange: "escaped", opportunityId: "last-good-tide", passengerCharacterIds: survivorId ? [survivorId] : [], endingCause: "solo-launch", fuelConsumed: true };
+  const history = [
+    event("debrief-preview-radio", 7, "campaign-shoreline-priority", "The tide is rising around the wreck. What should the crew secure first?", "Pull radio parts from the fuselage", "The battery and aerial survive. The crew scrapes up their hands hauling them free.", makeChanges("health", -4), [{ optionId: "recover-radio", label: "Pull radio parts from the fuselage", votes: Math.max(1, members.length - 1) }, { optionId: "move-to-cover", label: "Get everyone under cover", votes: 1 }]),
+    event("debrief-preview-water", 15, "campaign-freshwater-run", "The crew is thirsty. How should they get water?", "Follow the stream to its source", "A thorny climb leaves the crew with small scrapes, but they find a clear spring and mark the route.", [...makeChanges("health", -2), ...makeChanges("water", 15)], [{ optionId: "follow-stream", label: "Follow the stream to its source", votes: members.length }, { optionId: "collect-rain", label: "Set up a rain catch", votes: 0 }]),
+    event("debrief-preview-boar", 23, "campaign-wildlife-encounter", "A wild boar has reached the food pile. What should the crew do?", "Toss food away from camp", "Each survivor sacrifices eight food units as bait. The boar leaves camp alone, and the plan lifts morale.", [...makeChanges("food", -8), ...makeChanges("morale", 4)], [{ optionId: "throw-rations", label: "Toss food away from camp", votes: members.length - 1 }, { optionId: "make-noise", label: "Clatter pans and drive it away", votes: 1 }, { optionId: "retreat", label: "Give it space", votes: 0 }]),
+    event("debrief-preview-bear", 29, "bear-encounter", "A bear is close to the shelter. What should the crew do?", "Drive it off together", "The bear breaks through the perimeter. One survivor is killed while the rest escape with bruises.", makeChanges("health", -12), [{ optionId: "drive-off", label: "Drive it off together", votes: members.length }, { optionId: "leave-food", label: "Leave food and retreat", votes: 0 }], undefined, lostId ? [{ characterId: lostId, before: "alive", after: "ghost", cause: "outcome" }] : []),
+    event("debrief-preview-solo", 35, "motorboat-last-good-tide", "The last good tide is here. Launch alone or wake the group?", "Leave alone now", "The custodian takes the last good tide alone, escaping in the fragile boat and leaving the crew behind.", [], [{ optionId: "solo", label: "Leave alone now", votes: 2 }, { optionId: "wake", label: "Wake the group", votes: Math.max(0, members.length - 2) }], lastMotorboatFacts),
+  ];
+  const escaped: string[] = survivorId ? [survivorId] : [];
+  const stranded = members.flatMap(({ characterId }) => characterId && characterId !== lostId && characterId !== survivorId ? [characterId] : []);
+  const dead: string[] = lostId ? [lostId] : [];
+  const escapeResult: EscapeResult = { type: "solo-escape", escapedCharacterIds: escaped, strandedCharacterIds: stranded, deadCharacterIds: dead, cause: "solo-launch", epilogueId: "motorboat-selfish-aftermath-v1" };
+  return { ...base, code: "LOG42", createdAt: startedAt, startedAt, phase: "ending", eventHistory: history, players: finalPlayers, characters: finalCharacters, endingId: "solo-escape", escapeResult };
+}
+
 function cueFor(outcome: DecisionCard["options"][number]["outcomes"][number]): ResolvedDecision["presentationCue"] {
   if (outcome.eliminateRandomLiving || outcome.eliminateCharacterId || (outcome.resourceDeltas?.health ?? 0) < 0) return "danger";
   const deltas = Object.values(outcome.resourceDeltas ?? {});
@@ -165,6 +205,9 @@ export default function DecisionTestScreen() {
   const [crewSize, setCrewSize] = useState(4);
   const [castGroup, setCastGroup] = useState<"core" | "additional" | "full">("core");
   const [showModelGallery, setShowModelGallery] = useState(false);
+  const [debriefOpen, setDebriefOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(true);
+  const audioSettingsDialogRef = useRef<HTMLElement>(null);
   const [previewCharacterId, setPreviewCharacterId] = useState(CHARACTER_CATALOG[0]!.id);
   const [previewAnimation, setPreviewAnimation] = useState("idle");
   const [selectedOptionId, setSelectedOptionId] = useState<string>();
@@ -178,6 +221,25 @@ export default function DecisionTestScreen() {
   const [liveVotes, setLiveVotes] = useState<PublicLiveVote[]>([]);
   const [event, setEvent] = useState<EventEntry>();
   const [previewClockStart, setPreviewClockStart] = useState(() => Date.now());
+  useEffect(() => {
+    if (!settingsOpen) {
+      requestAnimationFrame(() => document.getElementById("decision-test-settings-toggle")?.focus());
+      return;
+    }
+    audioSettingsDialogRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setSettingsOpen(false); return; }
+      if (event.key !== "Tab" || !audioSettingsDialogRef.current) return;
+      const focusable = [...audioSettingsDialogRef.current.querySelectorAll<HTMLElement>("button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], [tabindex]:not([tabindex='-1'])")];
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (!first || !last) return;
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === audioSettingsDialogRef.current)) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [settingsOpen]);
   const previewDeadline = previewClockStart + 120_000;
   const card = decisionCards.find(({ id }) => id === cardId) ?? decisionCards[0]!;
 
@@ -334,11 +396,12 @@ export default function DecisionTestScreen() {
       ...(phase === "decision" ? { liveVotes } : {}), ...(campaign ? { campaign } : {}),
     };
   }, [card, dialogueSeed, renderedEvent, livePlayers, liveVotes, players, previewDeadCrewMember, publicDecision, selectedOptionId]);
+  const debriefPreview = useMemo(() => createDebriefPreview(snapshot), [snapshot]);
   const scenePresentation = toSessionScenePresentation(snapshot);
   const previewDialogue = (renderedEvent?.crewDialogue?.lines.flatMap(({ characterId }) => {
     const member = scenePresentation.members.find((candidate) => candidate.characterId === characterId);
-    return member ? [{ characterId, name: member.name.replace(" · GHOST", ""), tint: member.tint, status: member.status, line: member.thoughtLine ?? member.reactionLine, animationName: member.animationName, animationOnce: member.animationOnce, animationHoldAtEnd: member.animationHoldAtEnd, animationEventId: member.animationEventId }] : [];
-  }) ?? scenePresentation.members.slice(0, 2).map(({ characterId, name, tint, status, thoughtLine, reactionLine, animationName, animationOnce, animationHoldAtEnd, animationEventId }) => ({ characterId, name: name.replace(" · GHOST", ""), tint, status, line: thoughtLine ?? reactionLine, animationName, animationOnce, animationHoldAtEnd, animationEventId })));
+    return member?.status === "alive" ? [{ characterId, name: member.name.replace(" · GHOST", ""), tint: member.tint, status: member.status, line: member.thoughtLine ?? member.reactionLine, animationName: member.animationName, animationOnce: member.animationOnce, animationHoldAtEnd: member.animationHoldAtEnd, animationEventId: member.animationEventId }] : [];
+  }) ?? scenePresentation.members.filter(({ status }) => status === "alive").slice(0, 2).map(({ characterId, name, tint, status, thoughtLine, reactionLine, animationName, animationOnce, animationHoldAtEnd, animationEventId }) => ({ characterId, name: name.replace(" · GHOST", ""), tint, status, line: thoughtLine ?? reactionLine, animationName, animationOnce, animationHoldAtEnd, animationEventId })));
   const sceneArtOverride = sceneArtChoices.find(({ id }) => id === selectedSceneArtId)?.scene;
 
   const phaseContent = renderedEvent ? <div className={styles.reportState}>
@@ -381,12 +444,20 @@ export default function DecisionTestScreen() {
       <BackButton href="/" className={styles.backLink} aria-label="Back to title menu" title="Back to title menu" />
       <div className={styles.heading}><p>DEVELOPMENT TOOL · LOCAL ONLY</p><h1>Decision test bench</h1></div>
       <div className={styles.toolbarActions}>
+        <RetroButton id="decision-test-settings-toggle" type="button" aria-expanded={settingsOpen} aria-controls="decision-test-audio-settings" onClick={() => setSettingsOpen((open) => !open)}>{settingsOpen ? "Close audio settings" : "Audio settings"}</RetroButton>
         <label className={styles.portraitToggle}><input type="checkbox" checked={animatedPortraits} onChange={(event) => setAnimatedPortraits(event.target.checked)} /><span>3D portraits</span></label>
         <label className={styles.portraitToggle} title="Marks the last test survivor as dead to preview the red skull"><input type="checkbox" checked={previewDeadCrewMember} onChange={(event) => { unlockAudio(); setPreviewDeadCrewMember(event.target.checked); if (event.target.checked) playSound("ghost-arrival"); }} /><span>Ghost preview</span></label>
         <RetroButton type="button" onClick={() => setShowModelGallery(true)}>Model gallery</RetroButton>
+        <RetroButton type="button" onClick={() => setDebriefOpen(true)}>Preview session log</RetroButton>
         <RetroButton type="button" onClick={() => setDialogueSeed((seed) => seed + 1)}>Reroll dialogue · {dialogueSeed}</RetroButton>
         <RetroButton type="button" onClick={clearPreview}>Reset</RetroButton>
       </div>
+      {settingsOpen && <div className={styles.settingsModalOverlay} onMouseDown={(event) => { if (event.target === event.currentTarget) setSettingsOpen(false); }}>
+        <section ref={audioSettingsDialogRef} tabIndex={-1} className={styles.settingsModalDialog} id="decision-test-audio-settings" role="dialog" aria-modal="true" aria-label="Decision test audio settings">
+          <SettingsDrawer />
+          <RetroButton type="button" onClick={() => setSettingsOpen(false)}>Close audio settings</RetroButton>
+        </section>
+      </div>}
       <div className={styles.previewControls} aria-label="Decision preview controls">
         <label className={styles.scenario}><span>Story decision</span><select aria-label="Story decision" value={card.id} onChange={(e) => changeCard(e.target.value)}>
           {decisionCards.map((decision) => <option key={decision.id} value={decision.id}>{decisionLabels[decision.id] ?? decision.prompt}</option>)}
@@ -404,7 +475,7 @@ export default function DecisionTestScreen() {
       </div>
     </header>
     <section className={styles.room} aria-label="Decision preview">
-      <StoryIncidentRoom snapshot={snapshot} phaseContent={phaseContent} incidentOverride={sceneArtOverride} animatedPortraits={animatedPortraits && !showModelGallery} />
+      {!debriefOpen && <StoryIncidentRoom snapshot={snapshot} phaseContent={phaseContent} incidentOverride={sceneArtOverride} animatedPortraits={animatedPortraits && !showModelGallery} />}
     </section>
     {showModelGallery && <div className={styles.galleryBackdrop}>
       <section className={styles.gallery} role="dialog" aria-modal="true" aria-labelledby="model-gallery-title">
@@ -432,5 +503,6 @@ export default function DecisionTestScreen() {
         </div>
       </section>
     </div>}
+    {debriefOpen && <SessionDebrief snapshot={debriefPreview} startedAt={debriefPreview.startedAt ?? debriefPreview.createdAt ?? Date.now()} endingId={debriefPreview.endingId} onClose={() => setDebriefOpen(false)} />}
   </main>;
 }

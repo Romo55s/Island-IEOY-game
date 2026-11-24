@@ -26,9 +26,9 @@ describe("decision consequence report", () => {
     expect(screen.getByText("The roof holds. Daniel does not.")).toBeInTheDocument();
     const voteList = screen.getByRole("heading", { name: "Vote results" }).parentElement!;
     expect(within(voteList).getByText("3")).toBeInTheDocument();
-    expect(screen.getByText("Crew · Shelter 95 → 100 (+5, consequence)")).toBeInTheDocument();
-    expect(screen.getByText("Daniel · Health 5 → 0 (-5, starvation)")).toBeInTheDocument();
-    expect(screen.getByText("Daniel became a ghost (starvation).")).toBeInTheDocument();
+    expect(screen.getByText("Crew · Shelter 95 → 100 (+5, decision outcome)")).toBeInTheDocument();
+    expect(screen.getByText("Daniel · Health 5 → 0 (-5, hunger)")).toBeInTheDocument();
+    expect(screen.getByText("Daniel became a ghost (hunger).")).toBeInTheDocument();
   });
 
   it("keeps old prose-only history readable", () => {

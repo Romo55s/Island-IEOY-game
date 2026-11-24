@@ -15,8 +15,8 @@ async function request(path: string, body: unknown): Promise<Response> {
   );
 }
 
-async function createSession(displayName = "Ana", password = "isla") {
-  const response = await request("/api/sessions", { displayName, password });
+async function createSession(displayName = "Ana", password?: string) {
+  const response = await request("/api/sessions", { displayName, ...(password !== undefined ? { password } : {}) });
   const body = await response.json<{
     code: string;
     playerId: string;
@@ -33,8 +33,8 @@ afterEach(() => {
 });
 
 describe("session admission", () => {
-  it("creates a password-protected room with bounded opaque credentials", async () => {
-    const { response, body } = await createSession("  Ana  ", "isla");
+  it("creates a code-only room with bounded opaque credentials", async () => {
+    const { response, body } = await createSession("  Ana  ");
     expect(response.status).toBe(201);
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
@@ -45,8 +45,10 @@ describe("session admission", () => {
     expect(body.ticketExpiresAt).toBeGreaterThan(Date.now());
   });
 
-  it("rejects an incorrect password without exposing private state", async () => {
-    const { body } = await createSession();
+  it("keeps existing password-protected rooms compatible", async () => {
+    const { body } = await createSession("Ana", "isla");
+    const missingPassword = await request(`/api/sessions/${body.code}/tickets`, { mode: "join", displayName: "Bo" });
+    expect(missingPassword.status).toBe(401);
     const response = await request(`/api/sessions/${body.code}/tickets`, {
       mode: "join",
       displayName: "Bo",
@@ -67,8 +69,8 @@ describe("session admission", () => {
     expect(extra.status).toBe(400);
   });
 
-  it("rate limits repeated password failures per room and address", async () => {
-    const { body } = await createSession();
+  it("rate limits repeated password failures in legacy password-protected rooms", async () => {
+    const { body } = await createSession("Ana", "isla");
     for (let attempt = 0; attempt < 5; attempt += 1) {
       const failed = await request(`/api/sessions/${body.code}/tickets`, {
         mode: "join",
@@ -86,12 +88,11 @@ describe("session admission", () => {
     expect(await limited.json()).toMatchObject({ error: { code: "RATE_LIMITED" } });
   });
 
-  it("issues a fresh join ticket without putting secrets in the URL", async () => {
+  it("issues a fresh join ticket by boarding code without a password", async () => {
     const { body } = await createSession();
     const response = await request(`/api/sessions/${body.code}/tickets`, {
       mode: "join",
       displayName: "Bo",
-      password: "isla",
     });
     expect(response.status).toBe(200);
     const admission = await response.json<{ code: string; playerId: string; ticket: string; resumeToken: string }>();
@@ -130,7 +131,7 @@ describe("session admission", () => {
     const makeRequest = () => new Request("https://local.test/api/sessions", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ displayName: "Collision", password: "isla" }),
+      body: JSON.stringify({ displayName: "Collision" }),
     });
     const fixedCode = "ZZZ999";
     const collisionNow = Date.now();

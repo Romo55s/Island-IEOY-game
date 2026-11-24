@@ -13,20 +13,20 @@ type CrewAdmissionScreenProps = {
 
 const copy = {
   create: {
-    eyebrow: "FLIGHT 404 · PRIVATE CREW SESSION",
+    eyebrow: "FLIGHT 404 · CREW SESSION",
     title: "Start a crew",
-    description: "Choose a callsign and secure the flight manifest. You will receive a boarding code to share with the crew.",
-    panelTitle: "Crew credentials",
-    help: "Use at least four characters. The boarding code appears after the session is created.",
-    submit: "Create private session",
+    description: "Choose a callsign and create a lobby. Share its boarding code so the crew can join.",
+    panelTitle: "Crew manifest",
+    help: "Anyone with the code can join while the lobby is open.",
+    submit: "Create crew session",
     submitting: "Creating session…",
   },
   join: {
     eyebrow: "FLIGHT 404 · BOARDING ACCESS",
     title: "Join a crew",
-    description: "Enter the host’s boarding code and private password, then choose a survivor in the lobby.",
-    panelTitle: "Boarding credentials",
-    help: "The boarding code and password must match the host’s private session.",
+    description: "Enter the crew’s boarding code and choose a callsign to board.",
+    panelTitle: "Boarding details",
+    help: "You can join while the host’s lobby is open.",
     submit: "Join session",
     submitting: "Joining session…",
   },
@@ -35,7 +35,6 @@ const copy = {
 /** A route-level admission screen shared by /start-crew and /join-crew. */
 export function CrewAdmissionScreen({ mode }: CrewAdmissionScreenProps) {
   const [displayName, setDisplayName] = useState("");
-  const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,8 +48,8 @@ export function CrewAdmissionScreen({ mode }: CrewAdmissionScreenProps) {
 
     try {
       const admission = mode === "create"
-        ? await createSession({ displayName, password })
-        : await joinSession({ code, displayName, password });
+        ? await createSession({ displayName })
+        : await joinSession({ code, displayName });
       savePendingAdmission(admission);
       navigateTo("/");
     } catch (caught) {
@@ -82,10 +81,6 @@ export function CrewAdmissionScreen({ mode }: CrewAdmissionScreenProps) {
             Callsign
             <input aria-label={mode === "create" ? "Your name" : "Joining name"} aria-describedby={error ? errorId : undefined} autoComplete="nickname" autoFocus={mode === "create"} value={displayName} onChange={(event) => setDisplayName(event.target.value)} disabled={isSubmitting} required maxLength={24} />
           </label>
-          <label>
-            Room password
-            <input aria-label={mode === "create" ? "Room password" : "Joining password"} aria-describedby={error ? errorId : undefined} autoComplete={mode === "create" ? "new-password" : "current-password"} type="password" value={password} onChange={(event) => setPassword(event.target.value)} disabled={isSubmitting} required minLength={4} maxLength={64} />
-          </label>
           <p className={styles.fieldHint}>{text.help}</p>
           {error && <p className={styles.validationMessage} id={errorId} role="alert">{error}</p>}
           <RetroButton className={styles.submitButton} type="submit" tone="primary" disabled={isSubmitting}>
@@ -97,7 +92,6 @@ export function CrewAdmissionScreen({ mode }: CrewAdmissionScreenProps) {
 
       <footer className={styles.footer}>
         <BackButton className={styles.backButton} href="/">Back</BackButton>
-        <a className={styles.devLink} href="/sandbox">Open island sandbox <span>DEV</span></a>
       </footer>
     </section>
   </main>;

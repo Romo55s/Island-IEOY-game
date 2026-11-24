@@ -25,7 +25,7 @@ export const MOTORBOAT_DISCOVERY_CARD: DecisionCard = {
   id: MOTORBOAT_DECISION_IDS.discovery,
   prompt: "A battered motorboat is wedged in the mangroves. What does the crew do first?",
   options: [
-    { id: "haul-clear", label: "Haul it above the tide", outcomes: [{ id: "hull-saved", text: "The hull survives the enthusiastic dragging. A sealed fuel can rolls free.", weight: 1, resourceDeltas: { health: -5 }, motorboatEffect: { type: "discovery", hull: "sound", repairParts: false, engineDiagnosed: false } }] },
+    { id: "haul-clear", label: "Haul it above the tide", outcomes: [{ id: "hull-saved", text: "The hull survives the enthusiastic dragging. The crew scrapes up bruises hauling it above the tide, and a sealed fuel can rolls free.", weight: 1, resourceDeltas: { health: -5 }, motorboatEffect: { type: "discovery", hull: "sound", repairParts: false, engineDiagnosed: false } }] },
     { id: "inspect-first", label: "Inspect it where it lies", outcomes: [{ id: "engine-diagnosed", text: "The engine is broken, but the careful inspection reveals exactly how.", weight: 1, motorboatEffect: { type: "discovery", hull: "sound", repairParts: false, engineDiagnosed: true } }] },
     { id: "strip-wreck", label: "Strip the nearby wreck for parts", outcomes: [{ id: "parts-salvaged", text: "Useful repair parts are found. The tide has time to chew a leak in the hull.", weight: 1, motorboatEffect: { type: "discovery", hull: "leaking", repairParts: true, engineDiagnosed: false } }] },
   ],
@@ -65,7 +65,7 @@ export function createMotorboatGroupLaunchCard(state: MotorboatRouteState): Deci
   return { id: MOTORBOAT_DECISION_IDS.groupLaunch, prompt: "The motorboat can launch now. Leave together or risk waiting?", options: [
     { id: "launch-together", label: "Launch together", outcomes: [
       { id: "group-launch-success", text: "Against probability and several safety recommendations, the motorboat clears the reef.", weight: chance, motorboatEffect: { type: "launch", mode: "group", result: "success" } },
-      { id: "group-launch-failure", text: "The engine dies in the surf and the storm takes notes.", weight: 100 - chance, resourceDeltas: { health: -8 }, motorboatEffect: { type: "launch", mode: "group", result: "failure" } },
+      { id: "group-launch-failure", text: "The engine dies and the boat slams into the reef. The crew is thrown against the hull and bruised before the surf pushes them back to shore.", weight: 100 - chance, resourceDeltas: { health: -8 }, motorboatEffect: { type: "launch", mode: "group", result: "failure" } },
     ] },
     { id: "wait", label: "Wait for a better moment", outcomes: [{ id: "group-waited", text: "The crew waits. The storm does not.", weight: 1, motorboatEffect: { type: "miss", reason: "group-wait" } }] },
   ] };

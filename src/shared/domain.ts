@@ -320,6 +320,7 @@ export interface EventEntry {
 
 export interface PrivateRoomState {
   desperation?: DesperationState;
+  startedAt?: number;
   targetNominationsByPlayer?: Record<string, string>;
   code: string;
   revision: number;
@@ -375,6 +376,8 @@ export interface PublicLiveVote {
 
 export interface PublicGameSnapshot {
   code: string;
+  createdAt?: number;
+  startedAt?: number;
   revision: number;
   phase: GamePhase;
   hostPlayerId: string;

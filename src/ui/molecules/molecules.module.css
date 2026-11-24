@@ -28,5 +28,7 @@
 .banner[data-state="connected"] > span { color: var(--bright-amber); }
 .banner[data-state="reconnecting"], .banner[data-state="failed"] { background: var(--vest-yellow); }
 .banner[data-state="expired"] { background: var(--flare-orange); }
+.retryButton { margin-left: auto; padding: 5px 8px; color: var(--paper-bone); background: var(--metal-inset); border: 1px solid var(--paper-bone); font: .55rem var(--font-display); cursor: pointer; }
+.retryButton:focus-visible { outline: 2px solid var(--paper-bone); outline-offset: 2px; }
 .countdown { display: grid; min-width: 94px; gap: 2px; padding: 8px 10px; color: var(--vest-yellow); text-align: center; background: var(--night-canopy); border: 2px solid var(--vest-yellow); }
 .time { font: 1.4rem var(--font-display); }

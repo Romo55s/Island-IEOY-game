@@ -1,7 +1,7 @@
 import { APP_NAME } from "../shared/domain";
 import { UiLabScreen } from "../game/screens/UiLabScreen";
 import { CrashChoicePreview } from "../ui/organisms/CrashChoicePanel";
-import { GameSessionScreen } from "../game/screens/GameSessionScreen";
+import { GameCreditsScreen, GameSessionScreen } from "../game/screens/GameSessionScreen";
 import { CrewAdmissionScreen } from "../game/screens/CrewAdmissionScreen";
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { MusicMuteButton } from "../ui/atoms/MusicMuteButton";
@@ -14,6 +14,7 @@ const DecisionTestScreen = import.meta.env.DEV ? lazy(() => import("../game/scre
 const SoundTestScreen = lazy(() => import("../game/screens/SoundTestScreen").then(({ SoundTestScreen: Screen }) => ({ default: Screen })));
 const StoryMapScreen = import.meta.env.DEV ? lazy(() => import("../game/screens/StoryMapScreen")) : null;
 const MotorboatRoutePreviewScreen = import.meta.env.DEV ? lazy(() => import("../game/screens/MotorboatRoutePreviewScreen")) : null;
+const DevToolsScreen = import.meta.env.DEV ? lazy(() => import("../game/screens/DevToolsScreen")) : null;
 const IslandSandboxScreen = lazy(() => import("../game/screens/IslandSandboxScreen").then(({ IslandSandboxScreen: Screen }) => ({ default: Screen })));
 
 export function App() {
@@ -42,12 +43,14 @@ export function App() {
     };
   }, []);
   let page: ReactNode = <GameSessionScreen />;
-  if (DecisionTestScreen && path === "/decision-test") page = <Suspense fallback={<p>Loading decision test bench…</p>}><DecisionTestScreen /></Suspense>;
+  if (path === "/credits") page = <GameCreditsScreen />;
+  else if (DecisionTestScreen && path === "/decision-test") page = <Suspense fallback={<p>Loading decision test bench…</p>}><DecisionTestScreen /></Suspense>;
   else if (TeamFeedbackPreviewScreen && path === "/team-feedback") page = <Suspense fallback={<p>Loading feedback preview…</p>}><TeamFeedbackPreviewScreen /></Suspense>;
   else if (path === "/sound-test") page = <Suspense fallback={<p>Loading sound test bench…</p>}><SoundTestScreen /></Suspense>;
   else if (StoryMapScreen && path === "/story-map") page = <Suspense fallback={<p>Loading story map…</p>}><StoryMapScreen /></Suspense>;
   else if (EncounterPreviewScreen && path === "/encounter-preview") page = <Suspense fallback={<p>Loading presentation preview…</p>}><EncounterPreviewScreen /></Suspense>;
   else if (MotorboatRoutePreviewScreen && path === "/motorboat-route-preview") page = <Suspense fallback={<p>Loading motorboat route preview…</p>}><MotorboatRoutePreviewScreen /></Suspense>;
+  else if (DevToolsScreen && path === "/dev-tools") page = <Suspense fallback={<p>Loading development tools…</p>}><DevToolsScreen /></Suspense>;
   else if (path === "/ui-lab") page = <UiLabScreen />;
   else if (path === "/crash-choice-preview") page = <CrashChoicePreview />;
   else if (path === "/sandbox") page = <Suspense fallback={<p>Loading island sandbox…</p>}><IslandSandboxScreen title={APP_NAME} /></Suspense>;

@@ -17,8 +17,8 @@ export interface AdmissionTicketRecord {
 }
 
 export interface PersistedRoomState extends PrivateRoomState {
-  passwordSalt: Uint8Array;
-  passwordDigest: Uint8Array;
+  passwordSalt?: Uint8Array;
+  passwordDigest?: Uint8Array;
   tickets: Record<string, AdmissionTicketRecord>;
   resumeDigestsByPlayer: Record<string, string>;
   failedAttemptsByAddress: Record<string, number[]>;
@@ -116,8 +116,8 @@ export function newPrivateRoom(input: {
   code: string;
   playerId: string;
   now: number;
-  passwordSalt: Uint8Array;
-  passwordDigest: Uint8Array;
+  passwordSalt?: Uint8Array;
+  passwordDigest?: Uint8Array;
 }): PersistedRoomState {
   return {
     code: input.code,
@@ -142,8 +142,7 @@ export function newPrivateRoom(input: {
     eventHistory: [],
     assignmentNominationsByPlayer: {},
     resolutionSequence: 0,
-    passwordSalt: input.passwordSalt,
-    passwordDigest: input.passwordDigest,
+    ...(input.passwordSalt && input.passwordDigest ? { passwordSalt: input.passwordSalt, passwordDigest: input.passwordDigest } : {}),
     tickets: {},
     resumeDigestsByPlayer: {},
     failedAttemptsByAddress: {},

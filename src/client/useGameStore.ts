@@ -19,7 +19,7 @@ export interface GameStoreState {
   protocolWarning: string | null;
   serverClockOffsetMs: number | null;
   setConnectionStatus: (status: ConnectionStatus) => void;
-  acceptSnapshot: (snapshot: PublicGameSnapshot) => void;
+  acceptSnapshot: (snapshot: PublicGameSnapshot) => boolean;
   addPendingCommand: (commandId: string) => void;
   settleCommand: (commandId: string, rejection?: Omit<CommandRejection, "commandId">) => void;
   clearPendingCommands: () => void;
@@ -37,14 +37,15 @@ const initialState = {
   serverClockOffsetMs: null,
 };
 
-export const useGameStore = create<GameStoreState>((set) => ({
+export const useGameStore = create<GameStoreState>((set, get) => ({
   ...initialState,
   setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
-  acceptSnapshot: (snapshot) =>
-    set((state) => {
-      if (state.snapshot && snapshot.revision < state.snapshot.revision) return state;
-      return { snapshot };
-    }),
+  acceptSnapshot: (snapshot) => {
+    const currentSnapshot = get().snapshot;
+    if (currentSnapshot?.code === snapshot.code && snapshot.revision < currentSnapshot.revision) return false;
+    set({ snapshot });
+    return true;
+  },
   addPendingCommand: (commandId) =>
     set((state) => ({ pendingCommandIds: new Set([...state.pendingCommandIds, commandId]) })),
   settleCommand: (commandId, rejection) =>

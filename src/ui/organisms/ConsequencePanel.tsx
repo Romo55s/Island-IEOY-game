@@ -5,7 +5,7 @@ import { CHARACTER_CATALOG } from "../../shared/domain";
 import styles from "./organisms.module.css";
 
 const RESOURCE_LABELS = { food: "Food", health: "Health", morale: "Morale", water: "Water", shelter: "Shelter" } as const;
-const CAUSE_LABELS = { outcome: "consequence", "daily-consumption": "daily use", starvation: "starvation", "storm-surge": "storm surge" } as const;
+const CAUSE_LABELS = { outcome: "decision outcome", "daily-consumption": "daily survival", starvation: "hunger", "storm-surge": "storm surge" } as const;
 
 interface GroupedResourceChange {
   change: ResolvedResourceChange;
@@ -81,7 +81,7 @@ export function ConsequencePanel({ event, characterNames = {}, crewDialogue = []
   const boatFacts = motorboatFacts(event, characterNames);
   return <section className={styles.reportFrame} aria-labelledby={headingId}><article className={`${styles.paper} ${styles.report}`}>
     <span className={styles.stamp}>Incident report</span>
-    <h2 className={styles.heading} id={headingId}>{resolution?.desperation?.kind === "night" ? "What happened while camp slept" : resolution ? `The crew chose “${resolution.winningOptionLabel}.”` : "The island responded."}</h2>
+    <h2 className={styles.heading} id={headingId}>{resolution?.desperation?.kind === "night" ? "What happened while camp slept" : resolution?.decisionId === "motorboat-last-good-tide" ? `${characterNames[event.motorboat?.passengerCharacterIds?.[0] ?? ""] ?? "The custodian"} chose “${resolution.winningOptionLabel}.”` : resolution ? `The crew chose “${resolution.winningOptionLabel}.”` : "The island responded."}</h2>
     <p className={styles.outcome}>{resolution?.outcomeText ?? event.text}</p>
     {boatFacts.length > 0 && <section className={styles.reportSection} aria-labelledby={`${headingId}-motorboat`}>
       <h3 id={`${headingId}-motorboat`}>Motorboat route</h3>

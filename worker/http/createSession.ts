@@ -32,17 +32,20 @@ export async function handleCreateSession(
   } catch {
     return apiError(400, "BAD_REQUEST", "The request body must be valid JSON no larger than 2 KiB.");
   }
-  if (typeof body !== "object" || body === null || !("displayName" in body) || !("password" in body)
-    || typeof body.displayName !== "string" || typeof body.password !== "string") {
-    return apiError(400, "BAD_REQUEST", "A display name and password are required.");
+  if (typeof body !== "object" || body === null) {
+    return apiError(400, "BAD_REQUEST", "A display name is required.");
   }
-  const displayName = normalizeDisplayName(body.displayName);
-  const password = normalizePassword(body.password);
-  if (!isBoundedVisibleString(displayName, 1, 24) || !isBoundedVisibleString(password, 4, 64)) {
-    return apiError(400, "BAD_REQUEST", "Display names must be 1–24 characters and passwords 4–64 characters, without control characters.");
+  const bodyRecord = body as Record<string, unknown>;
+  if (typeof bodyRecord.displayName !== "string" || ("password" in bodyRecord && typeof bodyRecord.password !== "string")) {
+    return apiError(400, "BAD_REQUEST", "A display name is required.");
   }
-  const parsed = CreateSessionRequestSchema.safeParse({ displayName, password });
-  if (!parsed.success || Object.keys(body).some((key) => key !== "displayName" && key !== "password")) {
+  const displayName = normalizeDisplayName(bodyRecord.displayName);
+  const password = typeof bodyRecord.password === "string" ? normalizePassword(bodyRecord.password) : undefined;
+  if (!isBoundedVisibleString(displayName, 1, 24) || (password !== undefined && !isBoundedVisibleString(password, 4, 64))) {
+    return apiError(400, "BAD_REQUEST", "Display names must be 1–24 characters and optional passwords 4–64 characters, without control characters.");
+  }
+  const parsed = CreateSessionRequestSchema.safeParse({ displayName, ...(password !== undefined ? { password } : {}) });
+  if (!parsed.success || Object.keys(bodyRecord).some((key) => key !== "displayName" && key !== "password")) {
     return apiError(400, "BAD_REQUEST", "The session request is invalid.");
   }
 

@@ -42,8 +42,7 @@ export function SessionIslandView({ snapshot, freeCamera = false, sceneLabel, im
         ?? scene.members.find(({ status }) => status === "alive")
         ?? scene.members[stableHash(`${eventSeed}:radio`) % scene.members.length]!;
       const dialogue = speakers.length > 0 ? speakers : [primarySpeaker];
-      const speaker = dialogue[0]!;
-      return <p className={styles.radioLine} aria-live="polite"><span>Radio:</span> {speaker.playerName}: “{speaker.thoughtLine ?? speaker.reactionLine}”</p>;
+      return <div className={styles.radioLine} aria-label="Crew dialogue" aria-live="polite">{dialogue.map((speaker) => <p key={speaker.characterId}><span>Radio:</span> {speaker.playerName}: “{speaker.thoughtLine ?? speaker.reactionLine}”</p>)}</div>;
     })()}
     {!immersive && reportOpen && <aside className={styles.report} id="island-crew-report" aria-label="Crew condition report">
       <p className={styles.reportTitle}>Crew condition</p>

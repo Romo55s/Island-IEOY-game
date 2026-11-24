@@ -16,7 +16,6 @@ async function joinCrew(page: Page, code: string, name: string, character: strin
   await page.getByRole("button", { name: "Join game" }).click();
   await page.getByLabel("Room code").fill(code);
   await page.getByLabel("Joining name").fill(name);
-  await page.getByLabel("Joining password").fill("eight-player-test");
   await page.getByRole("button", { name: "Join session" }).click();
   await page.getByRole("button", { name: `${character}: Available` }).click();
   await page.getByRole("button", { name: "Ready up" }).click();
@@ -31,7 +30,8 @@ async function voteFirstOption(page: Page): Promise<void> {
       await nominate.click();
       const dialog = page.getByRole("dialog");
       await dialog.getByRole("button", { name: /living and eligible/ }).first().click();
-      await dialog.getByRole("button", { name: "Confirm nominee" }).click();
+      await dialog.getByRole("button", { name: "Confirm & vote" }).click();
+      return;
     }
   }
   await firstOption.click();
@@ -52,8 +52,7 @@ test("eight browser agents join, play the crash choices, and resolve a shared vo
     await host.goto("/");
     await host.getByRole("button", { name: "Start game" }).click();
     await host.getByLabel("Your name").fill(crew[0]!.name);
-    await host.getByLabel("Room password").fill("eight-player-test");
-    await host.getByRole("button", { name: "Create private session" }).click();
+    await host.getByRole("button", { name: "Create crew session" }).click();
     await host.getByRole("button", { name: "Daniel: Available" }).click();
     await host.getByRole("button", { name: "Ready up" }).click();
     const code = await host.getByLabel("Session code").locator("strong").innerText();

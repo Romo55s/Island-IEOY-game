@@ -245,7 +245,13 @@ export function selectResolvedCrewDialogue(
   // Daily consumption/starvation changes are not fresh injuries. Keep a mixed
   // outcome's injury cue tied to damage explicitly caused by this outcome.
   const hasInjury = Boolean(event.resolution?.resourceChanges.some((change) => change.scope === "character" && change.resource === "health" && change.delta < 0 && change.cause === "outcome"));
-  const present = new Set(participantIds);
+  const deceased = new Set([
+    ...(event.deathCharacterIds ?? []),
+    ...(event.resolution?.statusChanges.filter(({ after }) => after === "ghost").map(({ characterId }) => characterId) ?? []),
+  ]);
+  // A casualty can still be represented in an event's affected characters,
+  // but must never be selected as a voice for the post-event exchange.
+  const present = new Set(participantIds.filter((characterId) => !deceased.has(characterId)));
   const profiles = CHARACTER_PROFILES.filter(({ characterId }) => present.has(characterId));
   const matchedTemplates = hasDeath ? [templates[0]!]
     : hasInjury ? [injuryTemplate]

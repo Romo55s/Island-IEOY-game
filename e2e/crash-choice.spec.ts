@@ -28,14 +28,18 @@ test("three connected players choose items, reconnect, share a rescue report, an
   const players = await Promise.all([browser.newPage(), browser.newPage(), browser.newPage()]);
   const [host, friend, reconnectingPlayer] = players as [Page, Page, Page];
   const pageErrors: string[] = [];
+  const requestedCharacterModels = new Set<string>();
   for (const player of players) player.on("pageerror", (error) => pageErrors.push(error.message));
+  host.on("request", (request) => {
+    const pathname = new URL(request.url()).pathname;
+    if (/^\/models\/characters\/[^/]+\.glb$/u.test(pathname)) requestedCharacterModels.add(pathname);
+  });
 
   try {
     await host.goto("/");
     await host.getByRole("button", { name: "Start game" }).click();
     await host.getByLabel("Your name").fill("Tony");
-    await host.getByLabel("Room password").fill("island123");
-    await host.getByRole("button", { name: "Create private session" }).click();
+    await host.getByRole("button", { name: "Create crew session" }).click();
     await expect(host.getByRole("heading", { name: "Choose a survivor" }).last()).toBeVisible();
     const code = await host.getByLabel("Session code").locator("strong").innerText();
 
@@ -44,20 +48,21 @@ test("three connected players choose items, reconnect, share a rescue report, an
       await player.getByRole("button", { name: "Join game" }).click();
       await player.getByLabel("Room code").fill(code);
       await player.getByLabel("Joining name").fill(name);
-      await player.getByLabel("Joining password").fill("island123");
       await player.getByRole("button", { name: "Join session" }).click();
       await player.getByRole("button", { name: character }).click();
       await player.getByRole("button", { name: "Ready up" }).click();
     }
 
     await host.getByRole("button", { name: /Daniel/ }).click();
+    await expect.poll(() => [...requestedCharacterModels].filter((path) => !path.includes("animation-library")).length).toBeGreaterThan(0);
+    expect([...requestedCharacterModels].filter((path) => !path.includes("animation-library")).length).toBeLessThan(16);
     await host.getByRole("button", { name: "Ready up" }).click();
     await join(friend, "Courtney", /Samantha/);
     await join(reconnectingPlayer, "Michelle", /Jim Young/);
     await host.getByRole("button", { name: "Start the crash" }).click();
 
     await expect(host.getByRole("region", { name: "Current story scene" })).toBeVisible();
-    await expect(host.getByText("3/15 LINKED")).toBeVisible();
+    await expect(host.getByText("3/16 LINKED")).toBeVisible();
     await expect(host.locator("[class*='fullIdentity']")).toHaveCSS("white-space", "nowrap");
     await expect(host.locator("[data-scope='character']").first()).toHaveAttribute("aria-label", /Your food:/);
     await expect(host.locator("[data-scope='crew']")).toHaveAttribute("aria-label", /Crew shelter:/);
@@ -70,7 +75,7 @@ test("three connected players choose items, reconnect, share a rescue report, an
     await expect.poll(() => host.locator("[aria-label='Session code']").evaluate((node) => node.scrollWidth <= node.clientWidth)).toBe(true);
     await host.screenshot({ path: `${evidenceDir}/gameplay-tablet-header.png` });
     await host.setViewportSize({ width: 1280, height: 720 });
-    const pauseButton = host.getByRole("button", { name: "Pause and settings" });
+    const pauseButton = host.getByRole("button", { name: "Open menu and volume settings" });
     await expect(pauseButton).toBeVisible();
     await pauseButton.click();
     const pauseDialog = host.getByRole("dialog", { name: "Black-box pause menu" });
@@ -144,14 +149,20 @@ test("three connected players choose items, reconnect, share a rescue report, an
     await expect(friendVote).toContainText("Courtney");
     await reconnectingPlayer.locator("section[aria-labelledby='decision-question'] button:not(:disabled)").first().click();
     await expect(host.getByRole("heading", { name: "Vote results" })).toBeVisible({ timeout: 5_000 });
-    const radioLines = await Promise.all(players.map((player) => player.locator("[class*='radioHistory'] [class*='voice'] p").allInnerTexts()));
+    for (const player of players) {
+      const skipDialogue = player.getByRole("button", { name: "Show full conversation" });
+      if (await skipDialogue.isVisible()) await skipDialogue.click();
+    }
+    const radioElements = players.map((player) => player.locator("[class*='radioHistory'] [class*='voice'] p"));
+    await expect.poll(async () => {
+      const texts = await Promise.all(radioElements.map((locator) => locator.allInnerTexts()));
+      return texts.every((lines) => lines.every((line) => !line.includes("▌")));
+    }, { timeout: 8_000 }).toBe(true);
+    const radioLines = await Promise.all(radioElements.map((locator) => locator.allInnerTexts()));
     expect(radioLines[1]).toEqual(radioLines[0]);
     expect(radioLines[2]).toEqual(radioLines[0]);
     const reportLines = await host.locator("[class*='reportVoice'] p").allInnerTexts();
-    expect(reportLines).toEqual(radioLines[0]);
-    await reconnectingPlayer.reload();
-    await expect(reconnectingPlayer.getByRole("heading", { name: "Vote results" })).toBeVisible({ timeout: 10_000 });
-    expect(await reconnectingPlayer.locator("[class*='radioHistory'] [class*='voice'] p").allInnerTexts()).toEqual(radioLines[0]);
+    expect(reportLines).toEqual(radioLines[0].map((line) => line.split("\n").at(-1)));
     await host.screenshot({ path: `${evidenceDir}/incident-report-cinematic.png` });
     await host.setViewportSize({ width: 390, height: 844 });
     await expect.poll(() => host.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

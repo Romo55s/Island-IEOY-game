@@ -28,19 +28,18 @@ describe("session admission API", () => {
 
   afterEach(() => vi.restoreAllMocks());
 
-  it("normalizes public identifiers, keeps the password in the body, and accepts responses without cache headers", async () => {
+  it("normalizes public identifiers and joins by boarding code without a password", async () => {
     const fetchMock = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(admission), { status: 200 }));
 
     await joinSession(
-      { code: " abc234 ", displayName: "  Ana  ", password: " secret " },
+      { code: " abc234 ", displayName: "  Ana  " },
       { fetch: fetchMock as typeof fetch },
     );
 
     expect(fetchMock).toHaveBeenCalledOnce();
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe("/api/sessions/ABC234/tickets");
-    expect(url).not.toContain("secret");
-    expect(JSON.parse(String(init?.body))).toEqual({ mode: "join", displayName: "Ana", password: " secret " });
+    expect(JSON.parse(String(init?.body))).toEqual({ mode: "join", displayName: "Ana" });
     expect(init?.cache).toBe("no-store");
   });
 
@@ -56,7 +55,7 @@ describe("session admission API", () => {
 
   it("stores resumable identity only in sessionStorage under the versioned key", async () => {
     const fetchMock = vi.fn<typeof fetch>(async () => new Response(JSON.stringify(admission), { status: 200 }));
-    await createSession({ displayName: "Ana", password: "isla" }, { fetch: fetchMock as typeof fetch });
+    await createSession({ displayName: "Ana" }, { fetch: fetchMock as typeof fetch });
 
     expect(window.sessionStorage.getItem(SESSION_STORAGE_KEY)).not.toBeNull();
     expect(window.localStorage.getItem(SESSION_STORAGE_KEY)).toBeNull();

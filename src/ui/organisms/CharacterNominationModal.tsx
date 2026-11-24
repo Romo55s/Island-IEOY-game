@@ -11,6 +11,7 @@ interface CharacterNominationModalProps {
   roleLabel: string;
   selectionKind?: "assignment" | "target";
   description?: string;
+  confirmLabel?: string;
   players: Player[];
   characterCatalog: CharacterDefinition[];
   eligibleCharacterIds: string[];
@@ -67,7 +68,7 @@ function NomineeScene({ candidates, modelRects, openedAt }: { candidates: Array<
   </>;
 }
 
-export function CharacterNominationModal({ selectionKind = "assignment", description, roleLabel, players, characterCatalog, eligibleCharacterIds, selectedCharacterId, onSelect, onCancel, onConfirm }: CharacterNominationModalProps) {
+export function CharacterNominationModal({ selectionKind = "assignment", description, confirmLabel, roleLabel, players, characterCatalog, eligibleCharacterIds, selectedCharacterId, onSelect, onCancel, onConfirm }: CharacterNominationModalProps) {
   const titleId = useId();
   const dialogRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -148,7 +149,7 @@ export function CharacterNominationModal({ selectionKind = "assignment", descrip
         <div><p>{selectionKind === "target" ? "CHOOSE TARGET" : "CREW ASSIGNMENT"}</p><h2 id={titleId}>{selectionKind === "target" ? roleLabel : `Nominate for ${roleLabel}`}</h2></div>
         <span className={styles.headerSignal} aria-hidden="true">LIVE CREW</span>
       </header>
-      <p className={styles.instructions}>{description ?? (selectionKind === "target" ? "Choose a living target. Your group vote will name this character." : "Choose a living character for this task. The crew will see your nominee with your vote.")}</p>
+      <p className={styles.instructions}>{description ?? (selectionKind === "target" ? "Choose a living target. Confirming casts your group vote for this character." : "Choose a living character for this task. Confirming casts your vote with this nominee.")}</p>
       <div className={styles.rosterStage} ref={stageRef}>
         <Canvas className={styles.modelCanvas} dpr={1} gl={{ alpha: true, antialias: false, powerPreference: "low-power" }} orthographic camera={{ position: [0, 0, 20], zoom: 1 }}>
           <ClearModalCanvas />
@@ -179,7 +180,7 @@ export function CharacterNominationModal({ selectionKind = "assignment", descrip
       </div>
       <footer className={styles.footer}>
         <p role="status">{selected ? `Selected: ${selected.characterName}` : "Select a living crew member to continue."}</p>
-        <div><button type="button" className={styles.cancelButton} onClick={onCancel}>Cancel</button><button type="button" className={styles.confirmButton} disabled={!selected?.canBeNominated} onClick={onConfirm}>{selectionKind === "target" ? "Confirm target" : "Confirm nominee"}</button></div>
+        <div><button type="button" className={styles.cancelButton} onClick={onCancel}>Cancel</button><button type="button" className={styles.confirmButton} disabled={!selected?.canBeNominated} onClick={onConfirm}>{confirmLabel ?? (selectionKind === "target" ? "Confirm target" : "Confirm nominee")}</button></div>
       </footer>
     </section>
   </div>, document.body);

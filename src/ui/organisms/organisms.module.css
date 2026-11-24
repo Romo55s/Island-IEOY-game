@@ -5,8 +5,10 @@
 .panelRibbon h2 { margin: 0; font: .72rem var(--font-display); letter-spacing: .04em; }
 .panelInset { padding: 10px; background: var(--metal-inset); box-shadow: inset 0 0 0 2px #050707, inset 0 0 18px rgb(0 0 0 / 75%); }
 .gameMenu { display: grid; gap: 7px; width: min(310px, 100%); }
-.gameMenu button { min-height: 48px; padding: 10px 16px; color: var(--paper-bone); text-align: left; background: rgb(13 16 16 / 86%); border: 2px solid #716a59; box-shadow: inset 0 0 0 1px #090b0b; font: .78rem var(--font-display); cursor: pointer; }
-.gameMenu button:hover, .gameMenu button[data-active="true"], .gameMenu button:focus-visible { color: var(--bright-amber); border-color: var(--vest-yellow); outline: none; box-shadow: inset 4px 0 0 var(--vest-yellow), 0 0 0 2px var(--amber-veil); }
+.gameMenu button { min-height: 48px; padding: 10px 16px; color: var(--paper-bone); text-align: left; background: var(--metal-inset); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 3px 3px 0 var(--metal-shadow), inset 0 0 0 1px var(--metal-black); clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); font: .78rem var(--font-display); cursor: pointer; transition: color var(--motion-fast) steps(2, end), background-color var(--motion-fast) steps(2, end), border-color var(--motion-fast) steps(2, end), translate var(--motion-fast) steps(2, end), box-shadow var(--motion-fast) steps(2, end); }
+.gameMenu button:hover, .gameMenu button[data-active="true"], .gameMenu button:focus-visible { color: var(--bright-amber); border-color: var(--vest-yellow); outline: none; box-shadow: inset 4px 0 0 var(--vest-yellow), 3px 3px 0 var(--metal-shadow), 0 0 0 2px var(--amber-veil); }
+.gameMenu button:active { translate: 2px 2px; box-shadow: inset 0 0 0 1px var(--metal-black), 1px 1px 0 var(--metal-shadow); }
+@media (prefers-reduced-motion: reduce) { .gameMenu button { transition: none; } }
 .roster { padding: 0; }
 .characterSelector { position: relative; }
 .roster .heading { display: none; }
@@ -37,6 +39,7 @@
 .resourceGlyph[data-resource="health"] > svg { color: var(--flare-orange); }
 .resourceGlyph[data-resource="morale"] > svg { color: #799663; }
 .resourcePips { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; width: 100%; }
+.resourceGlyph[data-resource="health"] .resourcePips { grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 1px; }
 .resourcePips i { display: block; height: 6px; background: #393731; border: 1px solid #746b5d; }
 .resourcePips i[data-filled="true"] { background: var(--bright-amber); border-color: var(--bright-amber); }
 .resourceGlyph[data-resource="health"] .resourcePips i[data-filled="true"] { background: var(--flare-orange); border-color: var(--flare-orange); }
@@ -45,6 +48,24 @@
 .resourceGlyph[data-low="true"] .resourcePips i[data-filled="true"] { background: var(--flare-orange); border-color: var(--flare-orange); }
 .heading { margin: 0 0 12px; color: var(--paper-bone); font: 1rem var(--font-display); }
 .characters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.lobbyCharacterSelector { width: 100%; min-width: 0; }
+.lobbyCharacterSelector .heading { display: none; }
+.lobbyCharacters { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); gap: 8px; align-content: stretch; height: 100%; }
+.lobbySurvivorCard { grid-template-columns: minmax(0, 1fr); align-content: start; gap: 5px; min-width: 0; min-height: 0; padding: 6px; }
+.lobbySurvivorCard > i { top: 9px; right: 9px; left: auto; width: 9px; height: 9px; }
+.lobbySurvivorPortrait { width: 100% !important; height: auto !important; aspect-ratio: 1.28; padding: 0; border-width: 1px; }
+.lobbySurvivorCopy { gap: 2px; }
+.lobbySurvivorCopy strong { font-size: .58rem; }
+.lobbySurvivorCopy small { font-size: .52rem; }
+.lobbySurvivorCard[data-state="selected"] { border-color: var(--bright-amber); background: #29271d; box-shadow: inset 0 0 0 2px var(--metal-inset), 0 0 0 2px var(--vest-yellow), 3px 3px 0 rgb(0 0 0 / 66%); }
+@media (max-width: 760px) {
+  .lobbyCharacters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .survivorCard.lobbySurvivorCard { grid-template-columns: 58px minmax(0, 1fr); grid-template-rows: minmax(68px, auto); min-height: 82px; align-items: center; gap: 8px; }
+  .survivorCard.lobbySurvivorCard .lobbySurvivorPortrait { width: 58px !important; height: 68px !important; min-height: 0; aspect-ratio: auto; padding: 0; border-width: 1px; }
+  .survivorCard.lobbySurvivorCard > i { top: 9px; left: 53px; right: auto; width: 10px; height: 10px; }
+  .survivorCard.lobbySurvivorCard .lobbySurvivorCopy strong { font-size: .68rem; }
+  .survivorCard.lobbySurvivorCard .lobbySurvivorCopy small { font-size: .62rem; }
+}
 .survivorCard { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 9px; min-height: 68px; align-items: center; padding: 6px; color: var(--paper-bone); text-align: left; background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: inset 0 0 0 1px #090b0b, 2px 2px 0 rgb(0 0 0 / 55%); cursor: pointer; transition: border-color var(--motion-fast) linear, background-color var(--motion-fast) linear, box-shadow var(--motion-fast) linear; }
 .survivorCard:hover:not(:disabled) { color: var(--paper-bone); border-color: var(--bright-amber); background-color: #464238; }
 .survivorCard:focus-visible { outline: 3px solid var(--vest-yellow); outline-offset: 2px; }
@@ -56,6 +77,14 @@
 .survivorCopy small { color: var(--subdued-text); font-size: .68rem; }
 .survivorCard[data-state="selected"] .survivorCopy strong, .survivorCard[data-state="selected"] .survivorCopy small { color: var(--bright-amber); }
 .survivorCard[data-state="claimed"] .survivorCopy small { color: var(--metal-rust); }
+/* The lobby uses portrait-first cards; keep this override after shared card rules. */
+.survivorCard.lobbySurvivorCard { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; align-content: stretch; align-items: stretch; gap: 6px; min-height: 0; padding: 7px; }
+.survivorCard.lobbySurvivorCard > i { top: 10px; right: 10px; left: auto; width: 10px; height: 10px; }
+.survivorCard.lobbySurvivorCard .lobbySurvivorPortrait { width: 100% !important; height: 100% !important; min-height: 84px; aspect-ratio: auto; padding: 0; border-width: 1px; }
+.survivorCard.lobbySurvivorCard .lobbySurvivorCopy { gap: 3px; padding: 2px 1px; }
+.survivorCard.lobbySurvivorCard .lobbySurvivorCopy strong { font-size: .62rem; }
+.survivorCard.lobbySurvivorCard .lobbySurvivorCopy small { font-size: .56rem; }
+.survivorCard.lobbySurvivorCard[data-state="selected"] { border-color: var(--bright-amber); background: #29271d; }
 .console, .assignment, .privateChoice, .motorboatStatus { color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border: 2px solid var(--metal-edge); box-shadow: 5px 5px 0 var(--metal-shadow), inset 0 0 0 1px var(--metal-black); }
 .console { position: relative; display: grid; align-content: start; grid-auto-rows: max-content; gap: 10px; width: 100%; margin: 0; padding: 5px; }
 .consoleHeader { position: relative; display: grid; min-height: 56px; align-items: center; padding: 10px 112px 10px 12px; background: var(--metal-inset); border-bottom: 3px solid var(--metal-rust); box-shadow: inset 0 0 0 1px rgb(232 224 201 / 12%); }
@@ -177,3 +206,4 @@
 @media (max-width: 720px) { .options { grid-template-columns: 1fr; max-width: 520px; } .characters { grid-template-columns: 1fr; } .consoleHeader { min-height: 0; padding: 0; gap: 12px; } .consoleHeader > :last-child { position: static; justify-self: center; } .assignmentHeader { grid-template-columns: 1fr; } .assignmentHeader > :last-child { justify-self: start; } .assignmentActions, .privateChoiceActions { grid-template-columns: 1fr; } .motorboatStatus { grid-template-columns: 1fr; } .motorboatStatus dl { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fateList div { grid-template-columns: 1fr; gap: 4px; } }
 @media (max-width: 720px) { .reportDialogue { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 720px) { .cinematicEnding .summary { gap: 8px; padding: 11px; } .cinematicEnding .summary > p { font-size: .76rem; line-height: 1.4; } .cinematicEnding .fateList div { padding: 5px 8px; } }
+@media (max-width: 720px) { .characters.lobbyCharacters { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: minmax(82px, auto); height: auto; } }

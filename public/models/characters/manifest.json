@@ -44,7 +44,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "/models/characters/daniel-animation-library.glb#walk"
       },
@@ -93,7 +93,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -142,7 +142,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "ReactFunny": "Runtime alias to an available dance/cheer clip",
@@ -194,7 +194,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -244,7 +244,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -296,7 +296,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Panic",
@@ -347,7 +347,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -399,7 +399,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -450,7 +450,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -500,7 +500,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -551,7 +551,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -602,7 +602,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -653,7 +653,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -704,7 +704,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "runtimeFallbacks": {
         "Walk": "idle",
         "Hurt": "Runtime alias to Panic",
@@ -757,7 +757,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "modelBytes": 1045952,
       "skeleton": "Mixamo",
       "skeletonJoints": 65,
@@ -808,7 +808,7 @@
         "attribution": "See docs/licenses/assets.md"
       },
       "repositoryApproved": true,
-      "deploymentApproved": false,
+      "deploymentApproved": true,
       "modelBytes": 1132228,
       "skeleton": "Mixamo",
       "skeletonJoints": 65,

@@ -8,7 +8,8 @@
 .reportToggle strong { margin-left: 5px; color: #68a89a; font-weight: 400; }
 .reportToggle:hover, .reportToggle:focus-visible { color: var(--night-canopy); background: var(--paper-bone); outline: 2px solid var(--vest-yellow); outline-offset: 2px; }
 .reportToggle:hover strong, .reportToggle:focus-visible strong { color: #305e58; }
-.radioLine { position: absolute; bottom: 10px; left: 10px; max-width: min(52%, 520px); margin: 0; padding: 6px 8px; color: var(--paper-bone); background: rgb(20 26 29 / 80%); border-left: 2px solid var(--vest-yellow); font: 10px/1.35 var(--font-body); }
+.radioLine { position: absolute; bottom: 10px; left: 10px; display: grid; gap: 3px; max-width: min(52%, 520px); margin: 0; padding: 6px 8px; color: var(--paper-bone); background: rgb(20 26 29 / 80%); border-left: 2px solid var(--vest-yellow); font: 10px/1.35 var(--font-body); }
+.radioLine p { margin: 0; }
 .radioLine span { color: #68a89a; font-family: var(--font-display); }
 .report { position: absolute; top: 52px; right: 12px; width: min(278px, calc(100% - 24px)); max-height: calc(100% - 116px); overflow: auto; padding: 10px; color: var(--paper-bone); background: rgb(20 26 29 / 95%); border: 1px solid var(--metal-edge); box-shadow: 3px 3px 0 rgb(8 11 12 / 72%); }
 .reportTitle { margin: 0 0 7px; color: var(--bright-amber); font: 10px var(--font-display); }

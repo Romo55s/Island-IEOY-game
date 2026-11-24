@@ -55,10 +55,6 @@
 .loadingMark { width: 10px; height: 10px; border: 2px solid currentColor; border-right-color: transparent; animation: loading-turn 640ms steps(4, end) infinite; }
 .footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }
 .backButton { color: var(--paper-bone); background: var(--metal-face); background-image: var(--texture-metal); border-color: var(--metal-edge); }
-.devLink { color: #9bdfd3; font-size: .76rem; }
-.devLink:focus-visible { outline: 2px solid var(--bright-amber); outline-offset: 3px; }
-.devLink span { padding: 1px 4px; color: var(--night-canopy); background: var(--vest-yellow); font: .58rem var(--font-display); }
-
 @keyframes loading-turn { to { transform: rotate(1turn); } }
 
 @media (max-width: 720px) {

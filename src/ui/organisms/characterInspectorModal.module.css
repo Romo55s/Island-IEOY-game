@@ -24,7 +24,7 @@
 .stat b { color: var(--paper-bone); }
 .stat[data-low="true"] b { color: #f07867; }
 .meter { height: 9px; overflow: hidden; background: #060708; border: 1px solid var(--metal-edge); }
-.meter i { display: block; height: 100%; background: var(--sea-glass); }
+.meter i { display: block; height: 100%; background: var(--vest-yellow); }
 .stat[data-low="true"] .meter i { background: var(--metal-rust); }
 .behavior { display: grid; gap: 5px; padding: 8px; background: #1a1d1e; border-left: 3px solid var(--vest-yellow); }
 .behavior strong { font: .68rem/1.4 var(--font-body); }

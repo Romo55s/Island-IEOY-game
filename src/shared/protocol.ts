@@ -149,12 +149,12 @@ const EscapeResultSchema = z.object({type:EndingIdSchemaInternal,escapedCharacte
 });
 
 export const PublicGameSnapshotSchema = z.object({
-  code: z.string().regex(/^[A-HJ-NP-Z2-9]{6}$/), revision: z.number().int().nonnegative(), phase: GamePhaseSchema,
+  code: z.string().regex(/^[A-HJ-NP-Z2-9]{6}$/), createdAt: TimestampSchema.optional(), startedAt: TimestampSchema.optional(), revision: z.number().int().nonnegative(), phase: GamePhaseSchema,
   hostPlayerId: IdSchema, phaseStartedAt: TimestampSchema.nullable(), phaseDeadlineAt: TimestampSchema.nullable(),
   votingOpensAt: TimestampSchema.nullable(), earliestResolveAt: TimestampSchema.nullable(), phaseEndsAt: TimestampSchema.nullable(), players: z.array(PlayerSchema).max(MAX_PLAYER_COUNT),
   characters: z.array(CharacterStateSchema).max(MAX_PLAYER_COUNT), characterCatalog: z.array(CharacterDefinitionSchema).max(MAX_PLAYER_COUNT),
   resources: ResourcesSchema, currentDecision: PublicDecisionSchema.nullable(), decisionNumber: z.number().int().min(0).max(50),
-  totalDecisions: z.number().int().min(0).max(10), eligibleVoterIds: z.array(IdSchema).max(MAX_PLAYER_COUNT), eventHistory: z.array(EventEntrySchema).max(50),
+  totalDecisions: z.number().int().min(0).max(10), eligibleVoterIds: z.array(IdSchema).max(MAX_PLAYER_COUNT), eventHistory: z.array(EventEntrySchema).max(200),
   activeCrewDialogue: CrewDialogueSchema.optional(),
   viewer: z.object({ playerId: IdSchema, hasVoted: z.boolean() }).strict(),
   liveVotes: z.array(PublicLiveVoteSchema).max(MAX_PLAYER_COUNT).optional(),
@@ -211,9 +211,9 @@ export const ServerEventSchema = z.discriminatedUnion("type", [
   z.object({ protocolVersion: z.literal(PROTOCOL_VERSION), type: z.literal("server.pong"), payload: z.object({ sentAt: TimestampSchema, receivedAt: TimestampSchema }).strict() }).strict(),
 ]);
 
-export const CreateSessionRequestSchema = z.object({ displayName: boundedString(1, 24), password: boundedString(4, 64) }).strict();
+export const CreateSessionRequestSchema = z.object({ displayName: boundedString(1, 24), password: boundedString(4, 64).optional() }).strict();
 export const TicketRequestSchema = z.discriminatedUnion("mode", [
-  z.object({ mode: z.literal("join"), displayName: boundedString(1, 24), password: boundedString(4, 64) }).strict(),
+  z.object({ mode: z.literal("join"), displayName: boundedString(1, 24), password: boundedString(4, 64).optional() }).strict(),
   z.object({ mode: z.literal("resume"), resumeToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/) }).strict(),
 ]);
 export const AdmissionResponseSchema = z.object({ code: z.string().regex(/^[A-HJ-NP-Z2-9]{6}$/), playerId: z.string().regex(/^p_[A-Za-z0-9_-]+$/), resumeToken: z.string().regex(/^[A-Za-z0-9_-]{43}$/), ticket: z.string().regex(/^[A-Za-z0-9_-]{43}$/), ticketExpiresAt: TimestampSchema }).strict();
@@ -240,7 +240,7 @@ export function toPublicSnapshot(state: PrivateRoomState, viewerPlayerId: string
     return publicCharacter;
   });
   const snapshot = {
-    code: state.code, revision: state.revision, phase: state.phase, hostPlayerId: state.hostPlayerId,
+    code: state.code, createdAt: state.createdAt, startedAt: state.startedAt, revision: state.revision, phase: state.phase, hostPlayerId: state.hostPlayerId,
     phaseStartedAt: state.phaseStartedAt, phaseDeadlineAt: state.phaseDeadlineAt, votingOpensAt: state.votingOpensAt,
     earliestResolveAt: state.earliestResolveAt, phaseEndsAt: state.phaseEndsAt,
     players: Object.values(state.players), characters: visibleCharacters, characterCatalog, resources: state.resources,

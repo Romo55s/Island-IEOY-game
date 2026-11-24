@@ -43,9 +43,9 @@ export function AnimatedCrewPortraits({ players, members, enabled, characterCata
           <div className={styles.manifestPlayer}><PlayerRow player={player} characterName={definition?.displayName} compact={compact} /></div>
         </div>
         {values.length > 0 && <div className={styles.manifestStats} role="group" aria-label={`${definition?.displayName ?? "Survivor"} condition`}>
-          {values.map(({ id, label, value, Icon }) => <span className={styles.resourceGlyph} key={id} data-resource={id} data-low={value <= 25} role="img" aria-label={`${label}: ${value}%`} title={`${label}: ${value}%`}>
+          {values.map(({ id, label, value, Icon }) => <span className={styles.resourceGlyph} key={id} data-resource={id} data-low={value <= 25} data-value={value} role="img" aria-label={`${label}: ${value}%`} title={`${label}: ${value}%`}>
             <Icon aria-hidden="true" />
-            <span className={styles.resourcePips} aria-hidden="true">{[0, 1, 2, 3].map((pip) => <i key={pip} data-filled={value > pip * 25 || undefined} />)}</span>
+            <span className={styles.resourcePips} aria-hidden="true">{Array.from({ length: id === "health" ? 10 : 4 }, (_, pip) => <i key={pip} data-filled={value > pip * (id === "health" ? 10 : 25) || undefined} />)}</span>
           </span>)}
         </div>}
       </button>;

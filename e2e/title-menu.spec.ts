@@ -17,7 +17,8 @@ test("title menu supports keyboard navigation and preserves the session forms", 
 
   await start.click();
   await expect(page).toHaveURL(/\/start-crew$/);
-  await expect(page.getByRole("button", { name: "Create private session" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Create crew session" })).toBeVisible();
+  await expect(page.getByLabel("Room password")).not.toBeVisible();
   await expect(page.getByLabel("Room code")).not.toBeVisible();
 });
 
@@ -32,8 +33,7 @@ test("crew admission pages stay compact and keyboard-operable at desktop and mob
   await expect(page.getByRole("heading", { name: "Start a crew" })).toBeVisible();
   await expect(page.getByLabel("Your name")).toBeFocused();
   await page.getByLabel("Your name").fill("Mara");
-  await page.getByLabel("Room password").fill("crash-site");
-  await page.getByLabel("Room password").press("Enter");
+  await page.getByRole("button", { name: "Create crew session" }).press("Enter");
   await expect(page.getByRole("alert")).toContainText("Test transmission rejected.");
 
   await page.setViewportSize({ width: 375, height: 812 });
@@ -46,8 +46,7 @@ test("crew admission pages stay compact and keyboard-operable at desktop and mob
 test("a newly created crew carries its initial ticket into the lobby", async ({ page }) => {
   await page.goto("/start-crew");
   await page.getByLabel("Your name").fill(`Pilot ${Date.now()}`);
-  await page.getByLabel("Room password").fill("crash-site");
-  await page.getByRole("button", { name: "Create private session" }).click();
+  await page.getByRole("button", { name: "Create crew session" }).click();
 
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("heading", { name: /Passenger manifest · 1\/15 connected/i })).toBeVisible({ timeout: 15_000 });

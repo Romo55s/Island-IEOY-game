@@ -1,23 +1,30 @@
 import { useSyncExternalStore } from "react";
 
-export type AudioChannel = "master" | "music" | "effects";
-export interface AudioSettings { master: number; music: number; effects: number; musicMuted: boolean }
+export type AudioChannel = "master" | "music" | "effects" | "voices";
+export interface AudioSettings { master: number; music: number; effects: number; voices: number; musicMuted: boolean }
 
-const STORAGE_KEY = "ieoy-audio-settings-v1";
-const DEFAULT_SETTINGS: AudioSettings = { master: 70, music: 45, effects: 80, musicMuted: false };
+const STORAGE_KEY = "ieoy-audio-settings-v5";
+const LEGACY_STORAGE_KEYS = ["ieoy-audio-settings-v4", "ieoy-audio-settings-v3", "ieoy-audio-settings-v2", "ieoy-audio-settings-v1"] as const;
+const DEFAULT_SETTINGS: AudioSettings = { master: 70, music: 10, effects: 80, voices: 10, musicMuted: false };
 const listeners = new Set<() => void>();
 
 function readSettings(): AudioSettings {
   if (typeof localStorage === "undefined") return DEFAULT_SETTINGS;
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null") as Partial<AudioSettings> | null;
+    const current = localStorage.getItem(STORAGE_KEY);
+    const migrating = current === null;
+    const previous = LEGACY_STORAGE_KEYS.map((key) => localStorage.getItem(key)).find((value) => value !== null);
+    const saved = JSON.parse(current ?? previous ?? "null") as Partial<AudioSettings> | null;
     if (!saved) return DEFAULT_SETTINGS;
-    return {
+    const next = {
       master: clamp(saved.master, DEFAULT_SETTINGS.master),
-      music: clamp(saved.music, DEFAULT_SETTINGS.music),
+      music: migrating ? DEFAULT_SETTINGS.music : clamp(saved.music, DEFAULT_SETTINGS.music),
       effects: clamp(saved.effects, DEFAULT_SETTINGS.effects),
+      voices: migrating ? DEFAULT_SETTINGS.voices : clamp(saved.voices, DEFAULT_SETTINGS.voices),
       musicMuted: typeof saved.musicMuted === "boolean" ? saved.musicMuted : DEFAULT_SETTINGS.musicMuted,
     };
+    if (migrating) localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    return next;
   } catch {
     return DEFAULT_SETTINGS;
   }

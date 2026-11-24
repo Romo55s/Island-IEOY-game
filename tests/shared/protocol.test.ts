@@ -108,6 +108,8 @@ describe("shared protocol", () => {
   });
   it("validates shared HTTP contracts", () => {
     expect(CreateSessionRequestSchema.safeParse({ displayName: "Ana", password: "isla" }).success).toBe(true);
+    expect(CreateSessionRequestSchema.safeParse({ displayName: "Ana" }).success).toBe(true);
+    expect(TicketRequestSchema.safeParse({ mode: "join", displayName: "Bo" }).success).toBe(true);
     expect(TicketRequestSchema.safeParse({ mode: "resume", resumeToken: "x".repeat(43) }).success).toBe(true);
     expect(ApiErrorResponseSchema.safeParse({ error: { code: "INVALID_PASSWORD", message: "No match" } }).success).toBe(true);
   });

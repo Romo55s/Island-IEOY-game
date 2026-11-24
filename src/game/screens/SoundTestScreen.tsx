@@ -1,7 +1,9 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { BackButton, RetroButton } from "../../ui/atoms/RetroButton";
 import { SettingsDrawer } from "../../ui/organisms/SettingsDrawer";
-import { getPlayingSounds, playSound, requestDecisionMusic, requestEndingMusic, requestMenuMusic, requestMenuMusicPreview, stopAllSounds, stopSound, subscribeSoundPlayback, unlockAudio } from "../../audio/audioSystem";
+import { getPlayingVoice, subscribeVoicePlayback, playCharacterVoice, stopCharacterVoice, getPlayingSounds, playSound, requestDecisionMusic, requestEndingMusic, requestMenuMusic, requestMenuMusicPreview, stopAllSounds, stopSound, subscribeSoundPlayback, unlockAudio } from "../../audio/audioSystem";
+import { CHARACTER_CATALOG } from "../../shared/domain";
+import { CHARACTER_VOICES } from "../../audio/characterVoices";
 import { SOUND_CUES } from "../../audio/soundCatalog";
 import type { SoundCueId } from "../../audio/soundCatalog";
 import type { DecisionMusicTheme } from "../../audio/decisionMusic";
@@ -20,6 +22,7 @@ const ENDING_THEMES: Array<{ id: EndingMusicKind; label: string; description: st
 ];
 
 export function SoundTestScreen() {
+  const playingVoice = useSyncExternalStore(subscribeVoicePlayback, getPlayingVoice, () => null);
   const playing = useSyncExternalStore(subscribeSoundPlayback, getPlayingSounds, () => EMPTY_PLAYING);
   const [menuScorePreviewPlaying, setMenuScorePreviewPlaying] = useState(false);
   const [decisionPreviewTheme, setDecisionPreviewTheme] = useState<DecisionMusicTheme | null>(null);
@@ -48,7 +51,7 @@ export function SoundTestScreen() {
       <section className={styles.soundPanel} aria-labelledby="cue-bank-title">
         <header className={styles.panelHeader}><span>BLACK BOX 02</span><h2 id="cue-bank-title">Cue bank</h2></header>
         <div className={styles.panelBody}>
-          <p className={styles.intro}>Audition the title score, sampled-piano gameplay themes, island and Foley effects, and selected Kenney CC0 sounds. The decision and ending themes use locally bundled Meta Piano recordings; Crew radio is synthetic and contains no intelligible dialogue.</p>
+          <p className={styles.intro}>Audition the title score, sampled-piano gameplay themes, island and Foley effects, and selected Kenney CC0 sounds. The decision and ending themes use locally bundled Meta Piano recordings; The archived Crew radio cue is synthetic. Live crew exchanges now use the cleaned character recordings below.</p>
           <section className={styles.group} aria-labelledby="tone-score-heading">
             <h3 id="tone-score-heading">Current title score · Tone.js</h3>
             <ul>
@@ -117,6 +120,19 @@ export function SoundTestScreen() {
                 </div>;
               })}
             </div>
+          </section>
+          <section className={styles.group} aria-labelledby="character-voices-heading">
+            <h3 id="character-voices-heading">Character voices · cleaned recordings</h3>
+            <p className={styles.themeHint}>Each character keeps one randomly assigned voice from the matching pool. Voices accompany typed dialogue as short, text-timed retro syllable sounds. Full recordings remain available below for audition.</p>
+            <ul>{CHARACTER_CATALOG.map(character => <li className={styles.cueRow} key={character.id} data-playing={playingVoice === character.id}>
+              <div className={styles.cueCopy}><strong>{character.displayName}</strong><p>{CHARACTER_VOICES[character.id]?.clipId}</p></div>
+              <span className={styles.state} aria-hidden="true">{playingVoice === character.id ? "SPEAKING" : "READY"}</span>
+              <RetroButton type="button" data-sfx="none" className={styles.playButton} aria-label={`${playingVoice === character.id ? "Stop" : "Play"} ${character.displayName}'s voice`} onClick={() => {
+                unlockAudio();
+                if (playingVoice === character.id) stopCharacterVoice();
+                else playCharacterVoice(character.id, false);
+              }}>{playingVoice === character.id ? "Stop" : "Play"}</RetroButton>
+            </li>)}</ul>
           </section>
           {cueGroups.map((group) => <section key={group} className={styles.group} aria-labelledby={"group-" + group.toLowerCase()}>
             <h3 id={"group-" + group.toLowerCase()}>{group}</h3>

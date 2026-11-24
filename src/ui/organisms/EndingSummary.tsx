@@ -23,7 +23,7 @@ function names(ids: string[], characterNames: Record<string, string>): string {
   return ids.map((id) => characterNames[id] ?? id).join(", ");
 }
 
-export function EndingSummary({ endingId, survivors, ghosts, escapeResult, characterNames = {}, curtain = true, layout = "default", onReturn }: { endingId: EndingId; survivors: number; ghosts: number; escapeResult?: EscapeResult; characterNames?: Record<string, string>; curtain?: boolean; layout?: "default" | "cinematic"; onReturn: () => void }) {
+export function EndingSummary({ endingId, survivors, ghosts, escapeResult, characterNames = {}, curtain = true, layout = "default", onReturn, onViewHistory }: { endingId: EndingId; survivors: number; ghosts: number; escapeResult?: EscapeResult; characterNames?: Record<string, string>; curtain?: boolean; layout?: "default" | "cinematic"; onReturn: () => void; onViewHistory?: () => void }) {
   const ending = endings[endingId];
   const titleRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => { titleRef.current?.focus(); }, []);
@@ -38,6 +38,7 @@ export function EndingSummary({ endingId, survivors, ghosts, escapeResult, chara
         <div><dt>Dead</dt><dd>{names(escapeResult.deadCharacterIds, characterNames)}</dd></div>
       </dl> : <div className={styles.stats}><strong>{survivors} {survivors === 1 ? "survivor" : "survivors"}</strong><strong>{ghosts} {ghosts === 1 ? "ghost consultant" : "ghost consultants"}</strong></div>}
       {escapeResult && <p className={styles.epilogue}>{epilogues[escapeResult.epilogueId]}</p>}
+      {onViewHistory && <RetroButton type="button" onClick={onViewHistory}>View decision history</RetroButton>}
       <RetroButton tone="primary" onClick={onReturn}>Return to shore</RetroButton>
     </div>
   </section>;
