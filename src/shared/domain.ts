@@ -106,7 +106,7 @@ export type CampaignOutcomeEffect =
   | { type: "shoreline"; choice: "salvage" | "shelter" | "scout" }
   | { type: "preparation"; choice: "radio-repaired" | "radio-failed" | "rested" | "lookout" | "foraged" }
   | { type: "route-choice"; route: "signal" | "motorboat" }
-  | { type: "signal-attempt"; method: "radio" | "flare" | "smoke"; result: "success" | "failure" }
+  | { type: "signal-attempt"; method: "radio" | "flare" | "smoke" | "mirror"; result: "success" | "failure" }
   | { type: "story-beat"; nextNode: CampaignNodeId; choice: string; addFlag?: CampaignStoryFlag; signalPosition?: "low" | "ridge"; coveReached?: true };
 export interface CampaignEventFacts {
   node: CampaignNodeId;

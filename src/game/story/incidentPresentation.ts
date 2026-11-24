@@ -23,7 +23,7 @@ const INCIDENTS: Record<string, Omit<IncidentPresentation, "description"> & { de
   "campaign-signal-approach": { title: "The ridge climb", location: "High ridge", image: "/images/incidents/coastal-signal.webp", description: "The crew needs a clear view of the shipping lane before the signal window opens." },
   "campaign-signal-window": { title: "A gap in the clouds", location: "High ridge", image: "/images/incidents/coastal-signal.webp", description: "A passing engine can be heard beyond the storm. The crew must decide whether to signal now or wait." },
   "campaign-signal-attempt": { title: "One signal window", location: "High ground", image: "/images/incidents/coastal-signal.webp", description: "The crew has one chance to reach a passing vessel before the weather closes in." },
-  "campaign-bear-encounter": { title: "The bear blocks the trail", location: "Forest path", image: "/images/incidents/jungle-forage.webp", description: "A bear has reached the crew's food and blocks the path back to camp. The crew can give up supplies, distract it, or nominate an equipped hunter." },
+  "campaign-bear-encounter": { title: "The bear blocks the trail", location: "Forest path", image: "/images/incidents/jungle-forage.webp", description: "A bear has reached the crew's food and blocks the path back to camp. The crew can retreat or try to drive it off; an equipped hunter may also be nominated." },
   "camp-hunger-crisis": { title: "The hunger vote", location: "Camp", image: "/images/incidents/cliff-shelter.webp", description: "The crew is starving. A food search remains possible, but a terrible proposal is on the table." },
   "camp-night-hunger": { title: "While the camp sleeps", location: "Camp", image: "/images/incidents/cliff-shelter.webp", description: "Night falls over the hungry camp." },
   "campaign-coastal-expedition": { title: "The long way to the cove", location: "Rocky coast", image: "/images/incidents/motorboat-cove.webp", description: "The crew follows its remaining lead along a dangerous stretch of coast." },
@@ -149,7 +149,7 @@ export function getIncidentPresentation(snapshot: PublicGameSnapshot, options: {
         : incidentId === "motorboat-discovery" && campaign?.coveLocated
           ? "The scout's tide marks lead the crew straight to the sheltered cove and a safer approach to the boat."
           : incident.description;
-  const description = isResolved && !options.keepDecisionScene
+  const description = isResolved
     ? event?.resolution?.outcomeText ?? event?.text ?? incident.description
     : contextualDescription;
   return { ...incident, image: isResolved && !options.keepDecisionScene ? resolvedImage ?? boatChangeImage ?? incident.image : incident.image, description };

@@ -56,6 +56,10 @@ export function createMotorboatRepairCard(state: MotorboatRouteState, shelter: n
     options.push({ id: "careful-patch", label: state.repairParts ? "Make a careful parts patch" : "Repair the diagnosed fault", assignment: repairAssignment, outcomes: [repaired("careful-sturdy", "The patch holds with alarming competence.", "sturdy", sturdyWeight), repaired("careful-fragile", "The patch holds, provided nobody breathes near it.", "fragile", 100-sturdyWeight)] });
   }
   options.push({ id: "force-starter", label: "Force the starter", assignment: repairAssignment, outcomes: [repaired("force-sturdy", "Brute force and bad language wake the engine.", "sturdy", 45), { ...repaired("force-fragile", "The engine coughs awake and the mechanic pays in bruises.", "fragile", 55), resourceDeltas: { health: -10 } }] });
+  options.push({ id: "improvise-linkage", label: "Rig a temporary starter linkage", assignment: repairAssignment, outcomes: [
+    repaired("linkage-sturdy", "The crew shapes a replacement linkage from wreckage. It catches cleanly and the engine holds steady.", "sturdy", 30),
+    { ...repaired("linkage-fragile", "The improvised linkage turns the engine over, but the repair strains the mechanic and leaves the motor fragile.", "fragile", 70), resourceDeltas: { health: -6 } },
+  ] });
   if (shelter >= 15) options.push({ id: "shelter-braces", label: "Sacrifice shelter braces", assignment: repairAssignment, outcomes: [{ ...repaired("braces-sturdy", "Shelter beams become excellent engine braces.", "sturdy", 70), resourceDeltas: { shelter: -15 } }, { ...repaired("braces-fragile", "The braces work, though the shelter now has opinions about rain.", "fragile", 30), resourceDeltas: { shelter: -15 } }] });
   return { id: state.warningLevel > 0 ? MOTORBOAT_DECISION_IDS.recovery : MOTORBOAT_DECISION_IDS.repair, prompt: state.warningLevel > 0 ? "The last launch failed and the storm is closer. How will the crew repair the motorboat?" : "The engine needs a repair. Who gets the privilege?", options };
 }

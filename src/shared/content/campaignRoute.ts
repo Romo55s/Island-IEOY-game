@@ -227,10 +227,11 @@ export function createSignalAttemptCard(campaign: CampaignState, hasFlare: boole
   const positionBonus = campaign.signalPosition === "ridge" ? 10 : 0;
   const weatherBonus = campaign.storyFlags.includes("clear-signal-window") ? 10 : campaign.storyFlags.includes("storm-gust") ? -10 : 0;
   const chance = (base: number, cap: number) => Math.max(5, Math.min(cap, base + positionBonus + preparedBonus + weatherBonus));
-  const methods: Array<{ id: string; label: string; method: "radio" | "flare" | "smoke"; successWeight: number; successText: string }> = [];
+  const methods: Array<{ id: string; label: string; method: "radio" | "flare" | "smoke" | "mirror"; successWeight: number; successText: string }> = [];
   if (campaign.radioRepaired) methods.push({ id: "radio-burst", label: "Send one burst from the repaired radio", method: "radio", successWeight: chance(75, 95), successText: `A reply crackles back. A passing vessel has the signal and is closing on the ${campaign.signalPosition === "ridge" ? "ridge" : "coast"}.` });
   if (hasFlare) methods.push({ id: "fire-flare", label: "Use a character's signal flare", method: "flare", successWeight: chance(60, 90), successText: "The flare clears the clouds. A vessel turns toward the bright mark on the coast." });
   methods.push({ id: "smoke-beacon", label: "Build a smoky beacon from camp supplies", method: "smoke", successWeight: chance(40, 80), successText: "The beacon rises above the trees. A vessel answers with a change of course." });
+  methods.push({ id: "mirror-flash", label: "Flash a polished metal panel toward the sea", method: "mirror", successWeight: chance(30, 70), successText: "A sharp flash catches the light beyond the reef. A vessel changes course toward the signal." });
 
   return {
     id: CAMPAIGN_DECISION_IDS.signalAttempt,
@@ -240,7 +241,7 @@ export function createSignalAttemptCard(campaign: CampaignState, hasFlare: boole
       label,
       outcomes: [
         outcome(`${id}-success`, successText, { type: "signal-attempt", method, result: "success" }, successWeight),
-        outcome(`${id}-failure`, "The signal fails to reach the vessel. A gust batters the exposed crew, leaving everyone scraped and discouraged as the window closes.", { type: "signal-attempt", method, result: "failure" }, 100 - successWeight, { health: -2, morale: -5 }),
+        outcome(`${id}-failure`, method === "mirror" ? "The metal flash disappears into the glare. The vessel keeps its course, and the crew loses its last clear signal window." : "The signal fails to reach the vessel. A gust batters the exposed crew, leaving everyone scraped and discouraged as the window closes.", { type: "signal-attempt", method, result: "failure" }, 100 - successWeight, { health: -2, morale: -5 }),
       ],
     })),
   };

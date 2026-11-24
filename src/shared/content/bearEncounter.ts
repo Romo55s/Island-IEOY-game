@@ -6,6 +6,10 @@ const retreat: Outcome = { id: "bear-retreat", text: "The crew retreats without 
 export function createBearEncounterCard(state: Pick<PrivateRoomState, "characters">): DecisionCard {
   const living = Object.values(state.characters).filter(c => c.status === "alive");
   const options: DecisionCard["options"] = [{ id: "retreat", label: "Retreat and abandon some food", outcomes: [retreat] }];
+  options.push({ id: "drive-off", label: "Clatter gear and drive the bear back", outcomes: [
+    { id: "bear-driven-off", text: "The crew clatters pots and branches in unison. The bear backs away from the trail, but the scramble scatters some food and leaves everyone rattled.", weight: 70, resourceDeltas: { food: -2, morale: -2 }, campaignEffect: exit("bear-driven-off") },
+    { id: "bear-charges", text: "The noise startles the bear into a charge. The crew escapes back to camp, bruised, shaken, and missing some food.", weight: 30, resourceDeltas: { health: -8, food: -3, morale: -4 }, campaignEffect: exit("bear-charge") },
+  ] });
   if (living.length && living.every(c => c.resources.food >= 5)) options.push({ id: "distract", label: "Distract the bear with food", outcomes: [{ id: "bear-distracted", text: "The crew avoids a fight and returns safely to camp after the bear takes 5 food supplies.", weight: 1, resourceDeltas: { food: -5 }, campaignEffect: exit("bear-distracted") }] });
   for (const [item, id, label, weights, damage] of [
     ["improvised-bow", "hunt-bow", "Hunt the bear with an improvised bow · Risky", [35,45,20], 20],
