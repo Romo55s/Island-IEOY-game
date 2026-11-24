@@ -1,5 +1,11 @@
 # Current project index
 
+## Latest implementation — 2026-11-23
+
+The team-feedback mechanics are implemented locally: Jim's reckless influence, Courtney's occasional stutter, eight new starting objects, bear encounters, group cannibalism votes and private nighttime attempts. The game currently has a 16-character catalog and 25 starting objects. View `/team-feedback` with `npm run dev` for deterministic scenarios using the live components and rules.
+
+Read the [completed implementation plan](superpowers/plans/2026-11-12-team-feedback.md), [feature design and initial tuning](design/2026-11-12-team-feedback-features.md), and [verification report with screenshots](qa/team-feedback.md). Focused tests, all Worker tests, five browser scenarios, typecheck, build and bundle validation pass. The broader unit suite has six failing files around existing assets, roster expectations and test setup. Human balance and authenticated multiplayer acceptance remain open. The older audit/status tables below predate this update.
+
 Updated 2026-10-19 with the latest design decisions following the 2026-10-18 code, test, asset, and browser audit. This is the entry point for current work.
 
 ## Direction and document authority

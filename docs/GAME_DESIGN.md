@@ -1,5 +1,11 @@
 # Island survival: current design brief
 
+## Team feedback implementation — 2026-11-23
+
+Implemented locally: Jim's reckless suggestions (including tool-aware Tony exchanges), Courtney's occasional authored stutter, eight new starting objects, the bear encounter after the cave, group cannibalism target votes, and private nighttime attempts. Night choices default to Sleep; failed attempts become public and can cause regret or retaliatory health loss. Hunger opportunities interrupt and resume the current route without consuming an extra day. Ghosts retain equal group votes.
+
+The roster currently contains 16 characters. The item pool contains 25 objects; new novelty items are flavor inventory. The [feature design](design/2026-11-12-team-feedback-features.md) records exact initial tables and pacing caps. These numbers need human balance review. [QA evidence](qa/team-feedback.md) distinguishes passing rule/Worker/browser checks from remaining workspace failures and authenticated multiplayer acceptance.
+
 Version 4 — 2026-10-19, including the approved compulsory-assignment/refusal contract and first motorboat route. Earlier voluntary-assignment, numeric-risk-display, undecided-ending, and unbounded missed-escape proposals are superseded.
 
 This is the current creative brief, not a blanket claim of implemented functionality. Section 1 records confirmed direction. Everything marked **proposed** requires agreement or playtesting. The reusable compulsory-assignment/refusal foundation and the first motorboat route are implemented; the [implementation status](README.md) describes what exists, while the [roadmap](ROADMAP.md) tracks what remains. The earlier audit remains historical evidence, not a newer creative instruction.

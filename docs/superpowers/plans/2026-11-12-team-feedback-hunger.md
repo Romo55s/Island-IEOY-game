@@ -1,5 +1,7 @@
 # Hunger and Nighttime Decisions Implementation Plan
 
+**Implementation status (2026-11-23):** Feature code is implemented locally. The detailed checklist below is the original planning record; actual file consolidation, executed checks, deviations and remaining human/multiplayer acceptance are recorded in the [master completion record](2026-11-12-team-feedback.md) and [QA report](../../qa/team-feedback.md). Unchecked original steps must not be interpreted as a claim that their exact procedure or broader acceptance was completed.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a hunger-triggered group cannibalism decision and a private nighttime attempt with persistent, named outcomes and correct route resumption.

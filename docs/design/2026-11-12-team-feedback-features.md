@@ -1,6 +1,6 @@
-# Team feedback features — proposed design v1
+# Team feedback features — design v1
 
-Status: implementation proposal, 2026-11-12. This document records the requested direction and proposed defaults; numerical tuning and creative examples are not claims of owner approval or measured balance.
+Status: implemented locally, verified 2026-11-23. The user authorized implementation after the 2026-11-12 plan. Numerical defaults remain unvalidated tuning. See [implementation evidence and limits](../qa/team-feedback.md). The foundation paragraph below records the pre-change baseline.
 
 ## Goal and current foundation
 
@@ -34,7 +34,7 @@ Knife variant:
 > Jim: “Tony, you've got a knife. The bear hasn't even brought cutlery.”
 > Tony: “Your confidence is doing a lot of work here.”
 
-Do not substitute another speaker into these named exchanges when Jim or Tony is absent. Generic Jim lines can run with other crew members. Dialogue selection must know actual public encounter/tool context; inventory facts do not come from text matching. Cap named instigator exchanges at one per encounter and avoid repeating the same exchange within three resolved events.
+Do not substitute another speaker into these named exchanges when Jim or Tony is absent. Generic Jim lines can run with other crew members. Dialogue selection must know actual public encounter/tool context; inventory facts do not come from text matching. Cap named instigator exchanges at one per encounter and avoid repeating the same exchange within the last three saved opening exchanges.
 
 Interpret the owner's final note as permission for Courtney's character to stutter. Keep his fishing knowledge and patient voice. Author occasional brief repetitions or pauses in approximately one third of his lines, rather than mechanically altering every word. Example: “I—I can try the shallows. Let's check the current first.” No odds penalty, timer penalty, intelligence change, mockery reaction, or extra mechanic is attached to this speech trait.
 
@@ -112,4 +112,4 @@ The knockout can kill an already critically injured actor; show that actual deat
 
 Every branch must be reachable in development previews and have reproducible server fixtures. Check two living players plus ghosts, a lone survivor, all-dead, full roster, reconnect during each private phase, expired/duplicate submissions, restart before and after resolution, and both escape routes. Verify no extra day tick, no duplicate resource reward, no target leakage before reveal, and no stale pending action after an ending.
 
-Proposed odds, rewards, frequency caps, and the extra bear beat are concrete defaults for review. They have not been simulated or playtested. Measure encounter frequency, added session duration, cooperation versus betrayal outcomes, deaths, and whether failed attempts produce understandable stories. Courtney's occasional stutter and the eight new object choices are proposed authored content based on the owner's feedback.
+Proposed odds, rewards, frequency caps, and the extra bear beat are concrete defaults for review. They have not been balance-simulated or human-playtested; deterministic rule and browser verification is recorded in the QA report. Measure encounter frequency, added session duration, cooperation versus betrayal outcomes, deaths, and whether failed attempts produce understandable stories. Courtney's occasional stutter and the eight new object choices are proposed authored content based on the owner's feedback.

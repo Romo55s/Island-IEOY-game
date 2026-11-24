@@ -1,5 +1,15 @@
 # Game refinement roadmap
 
+## Team feedback delivery — 2026-11-23
+
+- [x] Jim/Tony instigator dialogue and Courtney's authored speech trait.
+- [x] Eight additional starting objects (25 total).
+- [x] Tool-owner bear combat with assignment/refusal and persistent bear defeat.
+- [x] Hunger-triggered group target votes and private nighttime attempts with named outcomes, health/food consequences, ghost voting and safe Sleep timeout.
+- [x] Persisted opportunity limits, strict server validation, route resumption and ending cleanup.
+- [x] Development `/team-feedback` preview; shared/client, Worker and desktop/mobile/keyboard verification. See [actual QA results](qa/team-feedback.md).
+- [ ] Human pacing/balance and fresh authenticated multi-client campaign acceptance. These are not covered by a deterministic preview.
+
 Updated 2026-10-23. This is the active backlog. It replaces the overlapping historical plans listed in the [archive](archive/2026-10-18/README.md).
 
 **Goal:** make each decision understandable and consequential, show the cast's reactions, then build a replayable session around that experience.
